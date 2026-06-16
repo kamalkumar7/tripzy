@@ -4,4 +4,4 @@ openai
 python-dotenv
 langchain-openai
 langgraph
-tavily-python s
+tavily-python
