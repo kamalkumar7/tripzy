@@ -56,5 +56,6 @@ class Helper:
 
     def map_url(self, place_name:str, city:str) -> str:
         """Generate a Google Maps URL for the given location"""
-        location = f"{place_name}, {city}"
-        return f"https://www.google.com/maps/search/?api=1&query={quote(location)}"
+        location = f"{place_name}, {city}".strip(",")
+        encoded_query = quote(location)
+        return f"https://www.google.com/maps/search/?api=1&query={encoded_query}"
