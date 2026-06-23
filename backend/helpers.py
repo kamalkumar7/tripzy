@@ -17,7 +17,7 @@ class Helper:
         self.pexels_api_key = os.getenv("PEXELS_API_KEY")
 
     def search_images(self, query:str, num_results:int = 1) -> list:
-        if not (self.pexel_api_key):
+        if not (self.pexels_api_key):
             return [f"https://source.unsplash.com/800x600/?{quote(query)}"]
         
         try: 
@@ -54,7 +54,7 @@ class Helper:
             print(f"Using unsplash for :{query}")
             return [f"https://source.unsplash.com/800x600/?{quote(query)}"]
 
-    def map_url(self, place_name:str, city:str) -> str:
+    def get_maps_link(self, place_name:str, city:str) -> str:
         """Generate a Google Maps URL for the given location"""
         location = f"{place_name}, {city}".strip(",")
         encoded_query = quote(location)

@@ -109,11 +109,7 @@ class TravelPlanWorkflow:
         """Node for itinerary agent"""
         print("📅 Creating day-by-day itinerary...")
         try:
-            itinerary = self.itinerary_agent.create_itinerary(
-                state["travel_details"],
-                state["places"],
-                state["restaurants"]
-            )
+            itinerary = self.itinerary_agent.create_itinerary(state)
             state["itinerary"] = itinerary
             print(f"✅ Created {len(itinerary)} day itinerary")
             

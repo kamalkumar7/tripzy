@@ -1,7 +1,7 @@
 import json
 import os
 from .base_agent import BaseAgent
-from helper import Helper
+from helpers import Helper
 from tavily import TavilyClient
 
 class HotelsAgent(BaseAgent):
