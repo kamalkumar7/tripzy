@@ -1,213 +1,290 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 interface TripSearchProps {
   onSubmit: (input: string) => void;
   isLoading: boolean;
 }
 
-const examples = [
-  'I want to go to Paris for 5 days with a budget of $3000',
-  'Plan a 7-day trip to Tokyo for 2 people, budget $4500',
-  'Weekend trip to Bali for 4 days, $2000 budget, I love beaches',
-  'Cultural trip to Rome for 6 days with $2500',
-  'Adventure trip to Bali for 10 days, budget $5000',
+const DESTINATIONS = [
+  { name: 'Tokyo', country: 'Japan', img: '/destinations/tokyo.png', emoji: '🗼', color: '#ff6b6b' },
+  { name: 'Bali', country: 'Indonesia', img: '/destinations/bali.png', emoji: '🌺', color: '#48dbfb' },
+  { name: 'Paris', country: 'France', img: '/destinations/paris.png', emoji: '🗼', color: '#f8b739' },
+  { name: 'Santorini', country: 'Greece', img: '/destinations/santorini.png', emoji: '🏛️', color: '#54a0ff' },
+  { name: 'Maldives', country: 'Indian Ocean', img: '/destinations/maldives.png', emoji: '🐠', color: '#00d2d3' },
+  { name: 'Kyoto', country: 'Japan', img: '/destinations/kyoto.png', emoji: '⛩️', color: '#ff9f43' },
+  { name: 'Rome', country: 'Italy', img: '/destinations/rome.png', emoji: '🏛️', color: '#feca57' },
+  { name: 'London', country: 'UK', img: '/destinations/london.png', emoji: '🎡', color: '#ff6348' },
+  { name: 'Swiss Alps', country: 'Switzerland', img: '/destinations/swiss_alps.png', emoji: '🏔️', color: '#a29bfe' },
+  { name: 'New York', country: 'USA', img: '/destinations/new_york.png', emoji: '🗽', color: '#fd79a8' },
 ];
+
+const QUICK_PROMPTS = [
+  { label: '🗼 Tokyo 7 days', prompt: 'Plan a 7-day trip to Tokyo for 2 people, budget $4500, interested in culture and food' },
+  { label: '🌺 Bali Adventure', prompt: 'Adventure trip to Bali for 10 days, $5000 budget, love beaches and hiking' },
+  { label: '🗼 Paris Romance', prompt: 'Romantic trip to Paris for 5 days with a budget of $3000' },
+  { label: '🏛️ Santorini', prompt: 'Luxury getaway to Santorini for 6 days, budget $5000, interested in sunsets and local food' },
+  { label: '🐠 Maldives', prompt: 'Relaxing Maldives trip for 7 days, $8000 budget, couple honeymoon' },
+  { label: '🏔️ Swiss Alps', prompt: 'Switzerland Alps adventure for 8 days, $6000 budget, skiing and hiking' },
+];
+
+const STORAGE_KEY = 'tripzy_recent_searches';
 
 export default function TripSearch({ onSubmit, isLoading }: TripSearchProps) {
   const [input, setInput] = useState('');
+  const [heroIdx, setHeroIdx] = useState(0);
+  const [prevIdx, setPrevIdx] = useState<number | null>(null);
+  const [transitioning, setTransitioning] = useState(false);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [showRecents, setShowRecents] = useState(false);
+  const [activeDestHovered, setActiveDestHovered] = useState<number | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Load recents
+  useEffect(() => {
+    const saved = window.localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try { setRecentSearches((JSON.parse(saved) as string[]).slice(0, 5)); }
+      catch { setRecentSearches([]); }
+    }
+  }, []);
+
+  // Auto-rotate hero
+  const goToNext = useCallback((force?: number) => {
+    setTransitioning(true);
+    setPrevIdx(heroIdx);
+    setTimeout(() => {
+      setHeroIdx((prev) => force !== undefined ? force : (prev + 1) % DESTINATIONS.length);
+      setTransitioning(false);
+      setPrevIdx(null);
+    }, 600);
+  }, [heroIdx]);
+
+  useEffect(() => {
+    intervalRef.current = setInterval(() => goToNext(), 5000);
+    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, [goToNext]);
+
+  const jumpTo = (idx: number) => {
+    if (idx === heroIdx || transitioning) return;
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    goToNext(idx);
+    intervalRef.current = setInterval(() => goToNext(), 5000);
+  };
+
+  const saveRecent = (val: string) => {
+    const t = val.trim();
+    if (!t) return;
+    const filtered = recentSearches.filter((i) => i !== t);
+    const updated = [t, ...filtered].slice(0, 5);
+    setRecentSearches(updated);
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (input.trim() && !isLoading) {
-      onSubmit(input.trim());
-    }
+    const t = input.trim();
+    if (t && !isLoading) { saveRecent(t); onSubmit(t); }
   };
 
-  const handleExample = (example: string) => {
-    setInput(example);
+  const fill = (prompt: string) => {
+    setInput(prompt);
+    setShowRecents(false);
+    textareaRef.current?.focus();
   };
+
+  const cur = DESTINATIONS[heroIdx];
 
   return (
-    <div
-      className="min-h-screen flex flex-col items-center justify-center px-4"
-      style={{ background: 'var(--background)' }}
-    >
-      {/* Background decoration */}
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(233,195,73,0.07) 0%, transparent 65%), radial-gradient(ellipse 60% 40% at 80% 100%, rgba(4,22,39,0.06) 0%, transparent 60%)',
-        }}
-      />
+    <div className="relative min-h-screen overflow-hidden bg-slate-950">
+      {/* ── Hero slideshow ─────────────────────────────── */}
+      {DESTINATIONS.map((dest, i) => (
+        <div
+          key={dest.img}
+          className="absolute inset-0"
+          style={{
+            opacity: i === heroIdx ? 1 : i === prevIdx ? 0 : 0,
+            transition: 'opacity 0.8s cubic-bezier(.4,0,.2,1)',
+            zIndex: i === heroIdx ? 2 : i === prevIdx ? 1 : 0,
+          }}
+        >
+          <img
+            src={dest.img}
+            alt={dest.name}
+            className="h-full w-full object-cover"
+            style={{ transform: i === heroIdx && !transitioning ? 'scale(1.04)' : 'scale(1)', transition: 'transform 6s ease-out' }}
+          />
+        </div>
+      ))}
 
-      <div className="relative z-10 w-full max-w-2xl text-center">
-        {/* Logo */}
-        <div className="flex items-center justify-center gap-3 mb-10">
-          <div
-            className="w-12 h-12 rounded-2xl flex items-center justify-center text-lg font-bold shadow-lg"
-            style={{ background: '#041627', color: 'var(--gold)' }}
-          >
-            T
+      {/* Overlay layers */}
+      <div className="absolute inset-0 z-10" style={{ background: 'linear-gradient(135deg, rgba(2,6,23,0.92) 0%, rgba(2,6,23,0.55) 55%, rgba(2,6,23,0.75) 100%)' }} />
+      <div className="absolute inset-0 z-10" style={{ background: 'linear-gradient(to top, rgba(2,6,23,0.98) 0%, transparent 50%)' }} />
+
+      {/* ── Content ────────────────────────────────────── */}
+      <div className="relative z-20 flex min-h-screen flex-col">
+
+        {/* Top nav bar */}
+        <header className="flex items-center justify-between px-8 py-6">
+          <div className="flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 backdrop-blur text-white font-bold text-lg border border-white/10">T</div>
+            <span className="text-xl font-semibold text-white tracking-tight">Tripzy</span>
+            <span className="ml-1 rounded-full bg-cyan-500/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-cyan-400 border border-cyan-500/30">AI</span>
           </div>
-          <div className="text-left">
-            <p
-              className="text-3xl font-bold tracking-tight"
-              style={{ fontFamily: 'var(--font-playfair), serif', color: 'var(--primary)' }}
-            >
-              Tripzy
-            </p>
-            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-              AI-Powered Travel Planning
-            </p>
+          <div className="flex items-center gap-2 text-sm text-white/50">
+            <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            AI-Powered Planning
+          </div>
+        </header>
+
+        {/* Main content */}
+        <div className="flex flex-1 flex-col items-center justify-center px-4 pb-8 pt-4">
+
+          {/* Current destination chip */}
+          <div
+            className="mb-6 flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 backdrop-blur-md"
+            style={{ transition: 'all 0.5s ease' }}
+          >
+            <span className="text-lg">{cur.emoji}</span>
+            <span className="text-sm font-semibold text-white">{cur.name}</span>
+            <span className="text-white/40">·</span>
+            <span className="text-xs text-white/60">{cur.country}</span>
+          </div>
+
+          {/* Headline */}
+          <h1 className="mb-4 max-w-3xl text-center text-5xl font-bold text-white leading-tight sm:text-6xl" style={{ fontFamily: 'Georgia, serif', textShadow: '0 2px 30px rgba(0,0,0,0.4)' }}>
+            Where do you want<br />to go next?
+          </h1>
+          <p className="mb-10 max-w-xl text-center text-base text-white/60 leading-relaxed">
+            Describe your dream trip. AI builds full itinerary, finds hotels, restaurants, and activities in seconds.
+          </p>
+
+          {/* Search card */}
+          <div className="w-full max-w-2xl">
+            <form onSubmit={handleSubmit}>
+              <div
+                className="overflow-hidden rounded-3xl border border-white/10 shadow-2xl"
+                style={{ backdropFilter: 'blur(24px)', background: 'rgba(15,23,42,0.75)' }}
+              >
+                {/* Input */}
+                <div className="relative p-5 pb-3">
+                  <textarea
+                    ref={textareaRef}
+                    value={input}
+                    onChange={(e) => { setInput(e.target.value); setShowRecents(e.target.value.length === 0); }}
+                    onFocus={() => { if (!input) setShowRecents(true); }}
+                    onBlur={() => setTimeout(() => setShowRecents(false), 200)}
+                    onKeyDown={(e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleSubmit(e as unknown as React.FormEvent); }}
+                    placeholder="e.g. 7 days in Tokyo for 2 people, $4500, love food and culture..."
+                    rows={3}
+                    disabled={isLoading}
+                    className="w-full resize-none bg-transparent text-base text-white placeholder-white/30 outline-none leading-relaxed"
+                  />
+
+                  {/* Recents dropdown */}
+                  {showRecents && recentSearches.length > 0 && (
+                    <div className="absolute left-5 right-5 top-full z-30 mt-1 overflow-hidden rounded-2xl border border-white/10 bg-slate-900/95 shadow-2xl backdrop-blur-xl">
+                      <p className="px-4 pt-3 text-[10px] font-bold uppercase tracking-widest text-white/40">Recent</p>
+                      {recentSearches.map((s) => (
+                        <button
+                          key={s}
+                          type="button"
+                          onMouseDown={() => fill(s)}
+                          className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-white/80 hover:bg-white/5 transition-colors"
+                        >
+                          <svg className="h-3.5 w-3.5 flex-shrink-0 text-white/30" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+                          <span className="truncate">{s}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Bottom bar */}
+                <div className="flex items-center justify-between border-t border-white/8 px-5 py-3">
+                  <span className="text-xs text-white/30">Ctrl+Enter to submit</span>
+                  <button
+                    type="submit"
+                    disabled={!input.trim() || isLoading}
+                    className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-40"
+                    style={{ background: input.trim() && !isLoading ? '#0ea5e9' : 'rgba(255,255,255,0.08)', color: 'white' }}
+                  >
+                    {isLoading ? (
+                      <><svg className="h-4 w-4 animate-spin" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>Planning...</>
+                    ) : (
+                      <>Plan My Trip<svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg></>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            {/* Quick prompts */}
+            <div className="mt-4 flex flex-wrap justify-center gap-2">
+              {QUICK_PROMPTS.map((qp) => (
+                <button
+                  key={qp.label}
+                  type="button"
+                  onClick={() => fill(qp.prompt)}
+                  disabled={isLoading}
+                  className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-medium text-white/70 backdrop-blur transition-all hover:border-white/25 hover:bg-white/10 hover:text-white disabled:opacity-40"
+                >
+                  {qp.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* Headline */}
-        <h1
-          className="text-5xl sm:text-6xl font-bold mb-4 leading-tight"
-          style={{ fontFamily: 'var(--font-playfair), serif', color: 'var(--primary)' }}
-        >
-          Where do you want to go?
-        </h1>
-        <p className="text-lg mb-10 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-          Describe your dream trip and our AI will create a complete itinerary,
-          find hotels, restaurants, and places — in seconds.
-        </p>
-
-        {/* Search Form */}
-        <form onSubmit={handleSubmit} className="w-full">
-          <div
-            className="relative rounded-2xl overflow-hidden mb-3"
-            style={{
-              boxShadow: '0 8px 40px rgba(4,22,39,0.12)',
-              border: '1.5px solid var(--outline)',
-            }}
-          >
-            <textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="e.g. I want to go to Tokyo for 7 days with a budget of $4000, interested in culture and food..."
-              rows={3}
-              className="w-full px-6 py-5 text-base resize-none focus:outline-none leading-relaxed"
-              style={{
-                background: 'var(--surface)',
-                color: 'var(--text-primary)',
-                fontFamily: 'var(--font-inter), sans-serif',
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-                  handleSubmit(e as unknown as React.FormEvent);
-                }
-              }}
-              disabled={isLoading}
-            />
-            <div
-              className="flex items-center justify-between px-4 py-3"
-              style={{ background: 'var(--surface-low)', borderTop: '1px solid var(--outline)' }}
-            >
-              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
-                Ctrl+Enter to submit
-              </p>
+        {/* ── Bottom section: destinations strip ─────────── */}
+        <div className="relative z-20 pb-6 px-6">
+          {/* Slide indicators */}
+          <div className="mb-5 flex justify-center gap-1.5">
+            {DESTINATIONS.map((_, i) => (
               <button
-                type="submit"
-                disabled={!input.trim() || isLoading}
-                className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                key={i}
+                onClick={() => jumpTo(i)}
+                className="rounded-full transition-all duration-300"
                 style={{
-                  background: input.trim() && !isLoading ? '#041627' : 'var(--surface-high)',
-                  color: input.trim() && !isLoading ? 'white' : 'var(--text-muted)',
-                  transform: 'scale(1)',
+                  width: i === heroIdx ? '24px' : '6px',
+                  height: '6px',
+                  background: i === heroIdx ? '#0ea5e9' : 'rgba(255,255,255,0.3)',
                 }}
-                onMouseEnter={(e) => {
-                  if (input.trim() && !isLoading)
-                    (e.currentTarget as HTMLElement).style.background = 'var(--gold)';
-                }}
-                onMouseLeave={(e) => {
-                  if (input.trim() && !isLoading)
-                    (e.currentTarget as HTMLElement).style.background = '#041627';
-                }}
-              >
-                {isLoading ? (
-                  <>
-                    <svg
-                      className="w-4 h-4 animate-spin"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-                    </svg>
-                    Planning...
-                  </>
-                ) : (
-                  <>
-                    Plan My Trip
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="w-4 h-4">
-                      <line x1="5" y1="12" x2="19" y2="12" />
-                      <polyline points="12 5 19 12 12 19" />
-                    </svg>
-                  </>
-                )}
-              </button>
-            </div>
+              />
+            ))}
           </div>
-        </form>
 
-        {/* Example prompts */}
-        <div className="text-left">
-          <p className="label-caps mb-3 text-center" style={{ color: 'var(--text-muted)' }}>
-            Try an example
-          </p>
-          <div className="flex flex-col gap-2">
-            {examples.map((ex) => (
+          {/* Horizontal destination cards */}
+          <div className="flex gap-3 overflow-x-auto pb-2 justify-center flex-wrap">
+            {DESTINATIONS.map((dest, i) => (
               <button
-                key={ex}
-                onClick={() => handleExample(ex)}
-                disabled={isLoading}
-                className="w-full text-left px-4 py-3 rounded-xl text-sm transition-all duration-150 disabled:opacity-50"
+                key={dest.name}
+                onClick={() => { jumpTo(i); fill(`Plan a trip to ${dest.name}, ${dest.country}`); }}
+                onMouseEnter={() => setActiveDestHovered(i)}
+                onMouseLeave={() => setActiveDestHovered(null)}
+                className="group relative flex-shrink-0 overflow-hidden rounded-2xl border transition-all duration-300"
                 style={{
-                  background: 'var(--surface)',
-                  border: '1px solid var(--outline)',
-                  color: 'var(--text-secondary)',
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLElement).style.borderColor = 'var(--gold)';
-                  (e.currentTarget as HTMLElement).style.color = 'var(--text-primary)';
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLElement).style.borderColor = 'var(--outline)';
-                  (e.currentTarget as HTMLElement).style.color = 'var(--text-secondary)';
+                  width: '120px',
+                  height: '90px',
+                  borderColor: i === heroIdx ? '#0ea5e9' : 'rgba(255,255,255,0.1)',
+                  boxShadow: i === heroIdx ? '0 0 20px rgba(14,165,233,0.4)' : 'none',
+                  transform: activeDestHovered === i ? 'scale(1.05) translateY(-3px)' : 'scale(1)',
                 }}
               >
-                <span style={{ color: 'var(--gold)' }}>✈ </span>
-                {ex}
+                <img src={dest.img} alt={dest.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(2,6,23,0.85) 0%, transparent 60%)' }} />
+                <div className="absolute bottom-0 left-0 right-0 p-2">
+                  <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: dest.color }}>{dest.country}</p>
+                  <p className="text-xs font-semibold text-white">{dest.name}</p>
+                </div>
+                {i === heroIdx && (
+                  <div className="absolute top-2 right-2 h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
+                )}
               </button>
             ))}
           </div>
-        </div>
-
-        {/* Features */}
-        <div className="mt-12 grid grid-cols-3 gap-4">
-          {[
-            { icon: '📅', label: 'Day-by-Day Itinerary' },
-            { icon: '🏨', label: 'Hotel Recommendations' },
-            { icon: '💰', label: 'Budget Breakdown' },
-          ].map((f) => (
-            <div
-              key={f.label}
-              className="p-4 rounded-xl text-center"
-              style={{
-                background: 'var(--surface)',
-                border: '1px solid var(--outline)',
-                boxShadow: 'var(--shadow-card)',
-              }}
-            >
-              <div className="text-2xl mb-2">{f.icon}</div>
-              <p className="text-xs font-semibold" style={{ color: 'var(--text-secondary)' }}>{f.label}</p>
-            </div>
-          ))}
         </div>
       </div>
     </div>
