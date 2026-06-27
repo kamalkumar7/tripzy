@@ -159,7 +159,11 @@ class TravelPlanWorkflow:
         food_cost = 0
         itinerary = state.get("itinerary", [])
         for day in itinerary:
-            food_cost += extract_cost(day.get("estimated_cost", "0"))
+            lunch = day.get("lunch", {}) or {}
+            dinner = day.get("dinner", {}) or {}
+            lunch_cost = extract_cost(lunch.get("estimated_cost", "0"))
+            dinner_cost = extract_cost(dinner.get("estimated_cost", "0"))
+            food_cost += (lunch_cost + dinner_cost)
         
         # Calculate activities/entry fees cost
         activities_cost = 0

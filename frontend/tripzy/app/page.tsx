@@ -21,6 +21,9 @@ import {
 const TABS = [
   { id: 'overview',   label: 'Overview',   Icon: Map           },
   { id: 'itinerary',  label: 'Itinerary',  Icon: Calendar      },
+  { id: 'hotels',     label: 'Hotels',     Icon: Building2     },
+  { id: 'places',     label: 'Places',     Icon: Landmark      },
+  { id: 'dining',     label: 'Dining',     Icon: UtensilsCrossed },
 ] as const;
 
 type TabId = (typeof TABS)[number]['id'];
@@ -399,6 +402,9 @@ export default function Home() {
               {/* Tab Content */}
               {activeTab === 'overview'  && <OverviewTab travelDetails={tripPlan.travel_details} budgetBreakdown={tripPlan.budget_breakdown} />}
               {activeTab === 'itinerary' && <ItineraryTab itinerary={tripPlan.itinerary} />}
+              {activeTab === 'hotels'    && <HotelsTab hotels={tripPlan.hotels} />}
+              {activeTab === 'places'    && <PlacesTab places={tripPlan.places} />}
+              {activeTab === 'dining'    && <DiningTab restaurants={tripPlan.restaurants} />}
             </div>
           </main>
         </div>

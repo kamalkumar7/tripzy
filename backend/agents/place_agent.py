@@ -78,15 +78,7 @@ class PlaceAgent(BaseAgent):
         response = self.invoke(system_prompt, user_prompt)
 
         try:
-            response = response.strip()
-            if(response.startswith("```json")):
-                response = response[7:]
-            if(response.startswith("```")):
-                response = response[3:]
-            if(response.endswith("```")):
-                response = response[:-3]
-            response = response.strip()
-
+            response = self.extract_json(response)
             places = json.loads(response)
             
             # Add image URLs from Google and Maps links

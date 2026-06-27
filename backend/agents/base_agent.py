@@ -66,3 +66,21 @@ class BaseAgent:
 
         cache.set_json(cache_key, response.content, CACHE_TTL_SECONDS)
         return response.content
+
+    @staticmethod
+    def extract_json(response: str) -> str:
+        import re
+        response = response.strip()
+        # Look for JSON block in markdown
+        match = re.search(r'```(?:json)?\s*(.*?)\s*```', response, re.DOTALL | re.IGNORECASE)
+        if match:
+            return match.group(1).strip()
+        
+        # Fallback strip
+        if response.startswith("```json"):
+            response = response[7:]
+        if response.startswith("```"):
+            response = response[3:]
+        if response.endswith("```"):
+            response = response[:-3]
+        return response.strip()
