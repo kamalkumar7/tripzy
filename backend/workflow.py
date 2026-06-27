@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import TypedDict, Annotated
 from langgraph.graph import StateGraph, END
 from agents.extraction_agent import ExtractionAgent
@@ -160,7 +161,10 @@ class TravelPlanWorkflow:
             activities_cost += extract_cost(place.get("entry_fee", "0"))
         
         # Estimate transportation (10-15% of budget)
-        budget = state.get("travel_details", {}).get("budget", 2000)
+        try:
+            budget = float(state.get("travel_details", {}).get("budget", 2000))
+        except (TypeError, ValueError):
+            budget = 2000
         transportation_cost = budget * 0.12
         
         # Miscellaneous (5-10% of budget)
@@ -191,11 +195,10 @@ class TravelPlanWorkflow:
 
     def plan_travel(self, user_input:str) -> dict:
         """Execute the full travel planning workflow"""
-        print(f"\n🚀 Starting travel planning workflow...")
-        print(f"📝 User input: {user_input[:100]}...")
+        print("\nStarting travel planning workflow...")
+        print(f"User input: {user_input[:100]}...")
         
-        # Initialize state
-        initial_state = {
+        state = {
             "user_input": user_input,
             "travel_details": {},
             "places": [],
@@ -206,18 +209,56 @@ class TravelPlanWorkflow:
             "error": None
         }
 
-        # execute the workflow
-        final_state = self.workflow.invoke(initial_state)
+        state = self._extract_node(state)
+        if state.get("error"):
+            return {
+                "travel_details": state.get("travel_details", {}),
+                "places": [],
+                "restaurants": [],
+                "hotels": [],
+                "itinerary": [],
+                "budget_breakdown": {},
+                "error": state.get("error")
+            }
 
-        print(f"\n✅ Workflow complete!")
+        travel_details = state.get("travel_details", {})
+        agent_tasks = {
+            "places": self.places_agent.find_places,
+            "restaurants": self.restaurants_agent.find_restaurants,
+            "hotels": self.hotels_agent.find_hotels,
+        }
+
+        with ThreadPoolExecutor(max_workers=len(agent_tasks)) as executor:
+            future_to_key = {
+                executor.submit(agent_func, travel_details): key
+                for key, agent_func in agent_tasks.items()
+            }
+            for future in as_completed(future_to_key):
+                key = future_to_key[future]
+                try:
+                    state[key] = future.result()
+                    print(f"Found {len(state[key])} {key}")
+                except Exception as e:
+                    print(f"{key.title()} error: {e}")
+                    state[key] = []
+
+        try:
+            state["itinerary"] = self.itinerary_agent.create_itinerary(state)
+            state["budget_breakdown"] = self._calculate_budget(state)
+        except Exception as e:
+            print(f"Itinerary error: {e}")
+            state["itinerary"] = []
+            state["budget_breakdown"] = {}
+
+        print("\nWorkflow complete!")
         return {
-            "travel_details": final_state.get("travel_details", {}),
-            "places": final_state.get("places", []),
-            "restaurants": final_state.get("restaurants", []),
-            "hotels": final_state.get("hotels", []),
-            "itinerary": final_state.get("itinerary", []),
-            "budget_breakdown": final_state.get("budget_breakdown", {}),
-            "error": final_state.get("error")
+            "travel_details": state.get("travel_details", {}),
+            "places": state.get("places", []),
+            "restaurants": state.get("restaurants", []),
+            "hotels": state.get("hotels", []),
+            "itinerary": state.get("itinerary", []),
+            "budget_breakdown": state.get("budget_breakdown", {}),
+            "error": state.get("error")
         }
 
 

@@ -52,7 +52,7 @@ const navItems = [
 export default function Sidebar({ onNewTrip, destination }: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const SidebarContent = () => (
+  const renderSidebarContent = () => (
     <div className="flex flex-col h-full">
       {/* Brand */}
       <div className="px-6 py-8 border-b" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
@@ -139,7 +139,7 @@ export default function Sidebar({ onNewTrip, destination }: SidebarProps) {
         className="hidden md:flex flex-col w-64 h-screen sticky top-0 flex-shrink-0 z-50"
         style={{ background: '#041627' }}
       >
-        <SidebarContent />
+        {renderSidebarContent()}
       </aside>
 
       {/* Mobile Top Bar */}
@@ -196,7 +196,7 @@ export default function Sidebar({ onNewTrip, destination }: SidebarProps) {
             style={{ background: '#041627' }}
             onClick={(e) => e.stopPropagation()}
           >
-            <SidebarContent />
+            {renderSidebarContent()}
           </aside>
         </div>
       )}

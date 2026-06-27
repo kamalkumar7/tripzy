@@ -2,6 +2,8 @@ import os
 import requests
 from urllib.parse import quote
 from dotenv import load_dotenv
+from cache import cache
+from config import CACHE_TTL_SECONDS, REQUEST_TIMEOUT_SECONDS
 
 load_dotenv()
 
@@ -37,9 +39,16 @@ class GoogleAPIHelper:
         
         Setup: https://developers.google.com/custom-search/v1/overview
         """
+        cache_key = cache.make_key("google-images", query, num_results)
+        cached_images = cache.get_json(cache_key)
+        if cached_images is not None:
+            return cached_images
+
         if not self.google_api_key or not self.google_search_engine_id:
             print("⚠️ Google API credentials not found, using placeholder")
-            return [f"https://source.unsplash.com/800x600/?{quote(query)}"]
+            images = [f"https://source.unsplash.com/800x600/?{quote(query)}"]
+            cache.set_json(cache_key, images, CACHE_TTL_SECONDS)
+            return images
         
         try:
             url = "https://www.googleapis.com/customsearch/v1"
@@ -53,7 +62,7 @@ class GoogleAPIHelper:
                 'safe': 'active'
             }
             
-            response = requests.get(url, params=params, timeout=10)
+            response = requests.get(url, params=params, timeout=REQUEST_TIMEOUT_SECONDS)
             
             if response.status_code == 200:
                 results = response.json()
@@ -66,22 +75,31 @@ class GoogleAPIHelper:
                 
                 if images:
                     print(f"✅ Found Google image for: {query}")
+                    cache.set_json(cache_key, images, CACHE_TTL_SECONDS)
                     return images
                 else:
                     print(f"No Google images found for: {query}")
-                    return [f"https://source.unsplash.com/800x600/?{quote(query)}"]
+                    images = [f"https://source.unsplash.com/800x600/?{quote(query)}"]
+                    cache.set_json(cache_key, images, CACHE_TTL_SECONDS)
+                    return images
             
             elif response.status_code == 403:
                 print(f"❌ Google API: Access denied (check billing/quota)")
-                return [f"https://source.unsplash.com/800x600/?{quote(query)}"]
+                images = [f"https://source.unsplash.com/800x600/?{quote(query)}"]
+                cache.set_json(cache_key, images, CACHE_TTL_SECONDS)
+                return images
             
             else:
                 print(f"❌ Google API error {response.status_code}")
-                return [f"https://source.unsplash.com/800x600/?{quote(query)}"]
+                images = [f"https://source.unsplash.com/800x600/?{quote(query)}"]
+                cache.set_json(cache_key, images, CACHE_TTL_SECONDS)
+                return images
                 
         except Exception as e:
             print(f"Google Custom Search error: {e}")
-            return [f"https://source.unsplash.com/800x600/?{quote(query)}"]
+            images = [f"https://source.unsplash.com/800x600/?{quote(query)}"]
+            cache.set_json(cache_key, images, CACHE_TTL_SECONDS)
+            return images
     
     def get_place_details(self, place_name: str, city: str = "") -> dict:
         """
@@ -117,7 +135,7 @@ class GoogleAPIHelper:
                 'fields': 'place_id,name,formatted_address,geometry,rating'
             }
             
-            response = requests.get(search_url, params=params, timeout=10)
+            response = requests.get(search_url, params=params, timeout=REQUEST_TIMEOUT_SECONDS)
             
             if response.status_code == 200:
                 results = response.json()

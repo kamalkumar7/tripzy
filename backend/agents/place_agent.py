@@ -3,6 +3,8 @@ import os
 from .base_agent import BaseAgent
 from helpers import Helper
 from tavily import TavilyClient
+from cache import cache
+from config import CACHE_TTL_SECONDS
 
 class PlaceAgent(BaseAgent):
 
@@ -24,8 +26,14 @@ class PlaceAgent(BaseAgent):
         if self.tavily:
             try:
                 query = f"top tourist attractions places to visit in {destination} {' '.join(interests[:3])}"
-                search_response = self.tavily.search(query, max_results=5)
-                search_results = search_response.get('results', [])
+                cache_key = cache.make_key("tavily-search", query, 5)
+                cached_results = cache.get_json(cache_key)
+                if cached_results is not None:
+                    search_results = cached_results
+                else:
+                    search_response = self.tavily.search(query, max_results=5)
+                    search_results = search_response.get('results', [])
+                    cache.set_json(cache_key, search_results, CACHE_TTL_SECONDS)
             except Exception as e:
                 print(f"Tavily search error: {e}")
         

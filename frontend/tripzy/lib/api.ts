@@ -3,6 +3,29 @@
 // ─────────────────────────────────────────────
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const API_KEY = process.env.NEXT_PUBLIC_TRIPZY_API_KEY;
+const PLAN_TIMEOUT_MS = Number(process.env.NEXT_PUBLIC_TRIPZY_PLAN_TIMEOUT_MS || 180000);
+const POLL_INTERVAL_MS = Number(process.env.NEXT_PUBLIC_TRIPZY_POLL_INTERVAL_MS || 2000);
+
+function apiHeaders(includeJson = false): HeadersInit {
+  const headers: Record<string, string> = {};
+  if (includeJson) {
+    headers['Content-Type'] = 'application/json';
+  }
+  if (API_KEY) {
+    headers['X-Tripzy-API-Key'] = API_KEY;
+  }
+  return headers;
+}
+
+async function apiError(response: Response): Promise<Error> {
+  const body = await response.json().catch(() => ({ error: 'Request failed' }));
+  return new Error(body.error || `HTTP ${response.status}`);
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 // ── Types ─────────────────────────────────────
 
@@ -117,23 +140,90 @@ export interface TripPlan {
   error?: string | null;
 }
 
+export interface TripJob {
+  trip_id: string;
+  status: 'queued' | 'running' | 'completed' | 'failed';
+  status_url: string;
+  result_url: string;
+}
+
+export interface TripJobStatus {
+  trip_id: string;
+  status: 'queued' | 'running' | 'completed' | 'failed';
+  created_at: string;
+  updated_at: string;
+  started_at?: string | null;
+  completed_at?: string | null;
+  error?: string | null;
+}
+
 // ── API Functions ─────────────────────────────
 
-export async function planTrip(userInput: string): Promise<TripPlan> {
-  const response = await fetch(`${API_BASE}/plan`, {
+export async function createTrip(userInput: string): Promise<TripJob> {
+  const response = await fetch(`${API_BASE}/trips`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: apiHeaders(true),
     body: JSON.stringify({ user_input: userInput }),
   });
 
   if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Request failed' }));
-    throw new Error(error.error || `HTTP ${response.status}`);
+    throw await apiError(response);
   }
 
   return response.json();
+}
+
+export async function getTripStatus(tripId: string): Promise<TripJobStatus> {
+  const response = await fetch(`${API_BASE}/trips/${tripId}/status`, {
+    headers: apiHeaders(),
+  });
+
+  if (!response.ok) {
+    throw await apiError(response);
+  }
+
+  return response.json();
+}
+
+export async function getTripResult(tripId: string): Promise<TripPlan> {
+  const response = await fetch(`${API_BASE}/trips/${tripId}`, {
+    headers: apiHeaders(),
+  });
+
+  if (response.status === 202) {
+    throw new Error('Trip is still processing');
+  }
+
+  if (!response.ok) {
+    throw await apiError(response);
+  }
+
+  return response.json();
+}
+
+export async function planTrip(userInput: string): Promise<TripPlan> {
+  const job = await createTrip(userInput);
+  const deadline = Date.now() + PLAN_TIMEOUT_MS;
+
+  if (job.status === 'completed') {
+    return getTripResult(job.trip_id);
+  }
+
+  while (Date.now() < deadline) {
+    const status = await getTripStatus(job.trip_id);
+
+    if (status.status === 'completed') {
+      return getTripResult(job.trip_id);
+    }
+
+    if (status.status === 'failed') {
+      throw new Error(status.error || 'Trip planning failed');
+    }
+
+    await sleep(POLL_INTERVAL_MS);
+  }
+
+  throw new Error('Trip planning timed out. Please try again.');
 }
 
 export async function healthCheck(): Promise<boolean> {

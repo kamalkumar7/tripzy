@@ -3,6 +3,9 @@ from langchain_openai import AzureChatOpenAI, ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
 from dotenv import load_dotenv
 
+from cache import cache
+from config import CACHE_TTL_SECONDS, REQUEST_TIMEOUT_SECONDS
+
 load_dotenv()
 
 
@@ -34,19 +37,26 @@ class BaseAgent:
                 api_version=azure_api_version,
                 deployment_name=azure_deployment_name,
                 temperature=0.7,
-                max_tokens=3000
+                max_tokens=3000,
+                request_timeout=REQUEST_TIMEOUT_SECONDS,
             )
         else:
             self.llm = ChatOpenAI(
                 api_key=openai_api_key,
                 model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
                 temperature=0.7,
-                max_tokens=3000
+                max_tokens=3000,
+                request_timeout=REQUEST_TIMEOUT_SECONDS,
             )
 
 
     def invoke(self, system_prompt:str, user_prompt:str) -> str:
         """Invoke the LLM with user and system prompt"""
+        cache_key = cache.make_key("llm-response", system_prompt, user_prompt)
+        cached_response = cache.get_json(cache_key)
+        if cached_response is not None:
+            return cached_response
+
         messages = [
             SystemMessage(content=system_prompt),
             HumanMessage(content=user_prompt)
@@ -54,4 +64,5 @@ class BaseAgent:
 
         response = self.llm.invoke(messages)
 
+        cache.set_json(cache_key, response.content, CACHE_TTL_SECONDS)
         return response.content

@@ -1,12 +1,10 @@
 import os
 import requests
-from  urllib.parse import quote
+from urllib.parse import quote
 from dotenv import load_dotenv
-import urllib3
 
-
-# Disable SSL warnings
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+from cache import cache
+from config import CACHE_TTL_SECONDS, REQUEST_TIMEOUT_SECONDS
 
 load_dotenv()
 
@@ -17,8 +15,15 @@ class Helper:
         self.pexels_api_key = os.getenv("PEXELS_API_KEY")
 
     def search_images(self, query:str, num_results:int = 1) -> list:
+        cache_key = cache.make_key("pexels-images", query, num_results)
+        cached_images = cache.get_json(cache_key)
+        if cached_images is not None:
+            return cached_images
+
         if not (self.pexels_api_key):
-            return [f"https://source.unsplash.com/800x600/?{quote(query)}"]
+            images = [f"https://source.unsplash.com/800x600/?{quote(query)}"]
+            cache.set_json(cache_key, images, CACHE_TTL_SECONDS)
+            return images
         
         try: 
             url ="https://api.pexels.com/v1/search"
@@ -31,7 +36,7 @@ class Helper:
                 'orientation': 'landscape'
                 }
             
-            response = requests.get(url, headers=headers, params=params,timeout=10, verify=False)
+            response = requests.get(url, headers=headers, params=params, timeout=REQUEST_TIMEOUT_SECONDS)
 
             if(response.status_code == 200):
                 result = response.json()
@@ -43,16 +48,25 @@ class Helper:
                         images.append(image_url)
                 if images:
                     print(f"Found the image for : {query}")
+                    cache.set_json(cache_key, images, CACHE_TTL_SECONDS)
                     return images
                 
                 else:
                     print(f"No pexel image found, using unsplash for :{query}")
-                    return [f"https://source.unsplash.com/800x600/?{quote(query)}"]
+                    images = [f"https://source.unsplash.com/800x600/?{quote(query)}"]
+                    cache.set_json(cache_key, images, CACHE_TTL_SECONDS)
+                    return images
             
         except Exception as e:
             print(f"Error fetching image from Pexels: {e}")
             print(f"Using unsplash for :{query}")
-            return [f"https://source.unsplash.com/800x600/?{quote(query)}"]
+            images = [f"https://source.unsplash.com/800x600/?{quote(query)}"]
+            cache.set_json(cache_key, images, CACHE_TTL_SECONDS)
+            return images
+
+        images = [f"https://source.unsplash.com/800x600/?{quote(query)}"]
+        cache.set_json(cache_key, images, CACHE_TTL_SECONDS)
+        return images
 
     def get_maps_link(self, place_name:str, city:str) -> str:
         """Generate a Google Maps URL for the given location"""

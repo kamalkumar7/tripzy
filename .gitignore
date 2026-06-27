@@ -3,6 +3,7 @@ node_modules/
 ui_files_local/
 backend/venv/
 backend/.venv/
+backend/data/
 frontend/tripzy/node_modules/
 
 # Environment files
