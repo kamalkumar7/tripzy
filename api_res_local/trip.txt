@@ -1,0 +1,712 @@
+
+kk123@hp MINGW64 ~/OneDrive/Desktop/tripzy (main)
+$ curl -X POST http://localhost:5000/api/plan \
+  -H "Content-Type: application/json" \
+  -d '{"user_input":"Plan a 7-day trip to Tokyo with 4000 dollar budget"}'
+{
+  "budget_breakdown": {
+    "accommodation": 25.5,
+    "activities": 30.0,
+    "food": 0.0,
+    "miscellaneous": 320.0,
+    "remaining": 3144.5,
+    "total_estimated": 855.5,
+    "transportation": 480.0,
+    "user_budget": 4000,
+    "within_budget": true
+  },
+  "error": null,
+  "hotels": [
+    {
+      "amenities": [
+        "WiFi",
+        "Restaurant",
+        "Parking",
+        "Laundry Service"
+      ],
+      "booking_tip": "Book early during peak seasons for the best rates.",
+      "category": "4-Star",
+      "description": "Located in the vibrant Shinjuku area, this hotel offers modern amenities and easy access to shopping and dining. Guests can enjoy a complimentary breakfast and a cozy atmosphere.",
+      "image_search": "Hotel Sunroute Plaza Shinjuku Tokyo",
+      "image_url": "https://source.unsplash.com/800x600/?hotel,luxury,accommodation",
+      "location": "Shinjuku, near Tokyo Metropolitan Government Building",
+      "maps_link": "https://www.google.com/maps/search/?api=1&query=Hotel%20Sunroute%20Plaza%20Shinjuku%2C%20Tokyo%2C%20Japan",
+      "name": "Hotel Sunroute Plaza Shinjuku",
+      "price_per_night": "$150-250",
+      "proximity": "5-minute walk to Shinjuku Station",
+      "rating": 4.3,
+      "room_type": "Standard Double",
+      "source_url": "https://www.booking.com/city/jp/tokyo.html",
+      "total_estimated": "$1,050-1,750 for 7 nights"
+    },
+    {
+      "amenities": [
+        "WiFi",
+        "Restaurant",
+        "Bar",
+        "24-hour front desk"
+      ],
+      "booking_tip": "Check for promotional packages on their official website.",
+      "category": "4-Star",
+      "description": "Famous for its Godzilla theme, this hotel offers unique experiences and stunning city views. It features a rooftop terrace and modern rooms with contemporary designs.",
+      "image_search": "Hotel Gracery Shinjuku Tokyo",
+      "image_url": "https://source.unsplash.com/800x600/?hotel,luxury,accommodation",
+      "location": "Shinjuku, near Kabukicho",
+      "maps_link": "https://www.google.com/maps/search/?api=1&query=Hotel%20Gracery%20Shinjuku%2C%20Tokyo%2C%20Japan",
+      "name": "Hotel Gracery Shinjuku",
+      "price_per_night": "$200-300",
+      "proximity": "Close to Shinjuku Gyoen National Garden",
+      "rating": 4.2,
+      "room_type": "Deluxe Room",
+      "source_url": "https://www.expedia.ca/Tokyo-Hotels.d179900.Travel-Guide-Hotels",
+      "total_estimated": "$1,400-2,100 for 7 nights"
+    },
+    {
+      "amenities": [
+        "WiFi",
+        "Bar",
+        "Restaurant",
+        "Laundry Service"
+      ],
+      "booking_tip": "Reserve early to secure rooms with the best views.",
+      "category": "4-Star",
+      "description": "A stylish hotel with a blend of modern and traditional aesthetics, boasting a rooftop barwith panoramic views of Tokyo. Ideal for travelers looking for a trendy atmosphere.",
+      "image_search": "Shinjuku Granbell Hotel Tokyo",
+      "image_url": "https://source.unsplash.com/800x600/?hotel,luxury,accommodation",
+      "location": "Shinjuku, near the Robot Restaurant",
+      "maps_link": "https://www.google.com/maps/search/?api=1&query=Shinjuku%20Granbell%20Hotel%2C%20Tokyo%2C%20Japan",
+      "name": "Shinjuku Granbell Hotel",
+      "price_per_night": "$150-200",
+      "proximity": "10 minutes from Shinjuku Station",
+      "rating": 4.0,
+      "room_type": "Standard Double",
+      "source_url": "https://www.bontraveler.com/where-to-stay-in-tokyo-japan",
+      "total_estimated": "$1,050-1,400 for 7 nights"
+    },
+    {
+      "amenities": [
+        "WiFi",
+        "Restaurant",
+        "Spa",
+        "Fitness Center"
+      ],
+      "booking_tip": "Look for seasonal offers and stay packages.",
+      "category": "5-Star",
+      "description": "An artistic hotel showcasing Japanese culture through its design and decor. Guests can enjoy a luxurious stay with an on-site restaurant featuring local cuisine.",
+      "image_search": "The Park Hotel Tokyo",
+      "image_url": "https://source.unsplash.com/800x600/?hotel,luxury,accommodation",
+      "location": "Minato, near Ginza",
+      "maps_link": "https://www.google.com/maps/search/?api=1&query=The%20Park%20Hotel%20Tokyo%2C%20Tokyo%2C%20Japan",
+      "name": "The Park Hotel Tokyo",
+      "price_per_night": "$250-400",
+      "proximity": "Close to Tokyo Tower and Tsukiji Outer Market",
+      "rating": 4.5,
+      "room_type": "Deluxe Twin Room",
+      "source_url": "https://www.tripadvisor.ca/Hotels-g298184-Tokyo_Tokyo_Prefecture_Kanto-Hotels.html",
+      "total_estimated": "$1,750-2,800 for 7 nights"
+    },
+    {
+      "amenities": [
+        "WiFi",
+        "Breakfast",
+        "Parking",
+        "Shuttle Service"
+      ],
+      "booking_tip": "Book through the hotel\u2019s website for shuttle service.",
+      "category": "3-Star",
+      "description": "Conveniently located near Haneda Airport, this hotel is perfect for travelers looking forquick access to international flights. Offers clean, comfortable rooms and a complimentary breakfast.",
+      "image_search": "Hotel Villa Fontaine Grand Haneda Airport Tokyo",
+      "image_url": "https://source.unsplash.com/800x600/?hotel,luxury,accommodation",
+      "location": "Ota, near Haneda Airport",
+      "maps_link": "https://www.google.com/maps/search/?api=1&query=Hotel%20Villa%20Fontaine%20Grand%20Haneda%20Airport%2C%20Tokyo%2C%20Japan",
+      "name": "Hotel Villa Fontaine Grand Haneda Airport",
+      "price_per_night": "$100-150",
+      "proximity": "5-minute shuttle to Haneda Airport",
+      "rating": 4.0,
+      "room_type": "Standard Double",
+      "source_url": "https://www.forbestravelguide.com/destinations/tokyo-japan",
+      "total_estimated": "$700-1,050 for 7 nights"
+    }
+  ],
+  "itinerary": [
+    {
+      "afternoon": {
+        "activity": "Visit Meiji Shrine",
+        "description": "Enjoy the serene environment and learn about Japan's imperial history.",
+        "duration": "3 hours",
+        "place": "Meiji Shrine",
+        "time": "14:00-18:00"
+      },
+      "day": 1,
+      "destination": "Tokyo, Japan",
+      "dinner": {
+        "cuisine": "Japanese",
+        "estimated_cost": "$25 per person",
+        "restaurant": "Nabezo",
+        "time": "19:00-21:00"
+      },
+      "estimated_daily_cost": "$150 per person (excluding accommodation)",
+      "evening": {
+        "activity": "Stroll through Harajuku",
+        "description": "Explore the vibrant streets filled with unique shops and cafes.",
+        "time": "21:00+"
+      },
+      "lunch": {
+        "cuisine": "Japanese",
+        "estimated_cost": "$15 per person",
+        "restaurant": "Tonkatsu Maisen Aoyama",
+        "time": "12:00-14:00"
+      },
+      "morning": {
+        "activity": "Exploring Shibuya Crossing",
+        "description": "Experience the bustling atmosphere of one of the busiest pedestrian crossings in the world.",
+        "duration": "2 hours",
+        "place": "Shibuya Crossing",
+        "time": "08:00-12:00"
+      },
+      "theme": "Introduction to Tokyo",
+      "tips": [
+        "Try to visit Shibuya Crossing during the day for a full experience.",
+        "Wear comfortable shoes for walking."
+      ],
+      "title": "Arrival & City Overview",
+      "transportation": "Metro from Shibuya to Meiji Shrine (\u00a5210, $2), walking distance between locations.",
+      "travel_type": "Cultural"
+    },
+    {
+      "afternoon": {
+        "activity": "Stroll in Ueno Park",
+        "description": "Enjoy the park's museums, zoo, and beautiful scenery.",
+        "duration": "3 hours",
+        "place": "Ueno Park",
+        "time": "14:00-18:00"
+      },
+      "day": 2,
+      "destination": "Tokyo, Japan",
+      "dinner": {
+        "cuisine": "Japanese",
+        "estimated_cost": "$20 per person",
+        "restaurant": "Gyukatsu Motomura",
+        "time": "19:00-21:00"
+      },
+      "estimated_daily_cost": "$160 per person (excluding accommodation)",
+      "evening": {
+        "activity": "Relax in a local izakaya",
+        "description": "Experience local nightlife and enjoy some drinks.",
+        "time": "21:00+"
+      },
+      "lunch": {
+        "cuisine": "Japanese, Ramen",
+        "estimated_cost": "$15 per person",
+        "restaurant": "Ippudo Ramen",
+        "time": "12:00-14:00"
+      },
+      "morning": {
+        "activity": "Visit Senso-ji Temple",
+        "description": "Explore Tokyo's oldest temple and its surrounding Nakamise shopping street.",
+        "duration": "3 hours",
+        "place": "Senso-ji Temple",
+        "time": "08:00-12:00"
+      },
+      "theme": "Temples and Parks",
+      "tips": [
+        "Arrive early at Senso-ji to avoid crowds.",
+        "Try the melon bread from Nakamise street."
+      ],
+      "title": "Cultural Exploration",
+      "transportation": "Metro from Asakusa to Ueno (\u00a5210, $2), walking distance within Ueno Park.",
+      "travel_type": "Cultural"
+    },
+    {
+      "afternoon": {
+        "activity": "Explore Roppongi Hills",
+        "description": "Visit the Mori Art Museum and enjoy the view from the observation deck.",
+        "duration": "3-4 hours",
+        "place": "Roppongi Hills",
+        "time": "14:00-18:00"
+      },
+      "day": 3,
+      "destination": "Tokyo, Japan",
+      "dinner": {
+        "cuisine": "Japanese",
+        "estimated_cost": "$25 per person",
+        "restaurant": "Nabezo",
+        "time": "19:00-21:00"
+      },
+      "estimated_daily_cost": "$200 per person (excluding accommodation)",
+      "evening": {
+        "activity": "Visit Tokyo Midtown",
+        "description": "Enjoy shopping or a late-night coffee in this upscale area.",
+        "time": "21:00+"
+      },
+      "lunch": {
+        "cuisine": "Japanese, Sushi",
+        "estimated_cost": "$30 per person",
+        "restaurant": "Sukiyabashi Jiro",
+        "time": "12:00-14:00"
+      },
+      "morning": {
+        "activity": "Visit Tokyo Tower",
+        "description": "Enjoy panoramic views of the city from this iconic structure.",
+        "duration": "2-3 hours",
+        "place": "Tokyo Tower",
+        "time": "08:00-12:00"
+      },
+      "theme": "Skyscrapers and Views",
+      "tips": [
+        "Book a reservation at Sukiyabashi Jiro well in advance.",
+        "Check for any special exhibitions at Mori Art Museum."
+      ],
+      "title": "Modern Tokyo",
+      "transportation": "Metro from Shiba Koen to Roppongi (\u00a5250, $2.50), walking distance in Roppongi.",
+      "travel_type": "Cultural"
+    },
+    {
+      "afternoon": {
+        "activity": "Explore Yanaka District",
+        "description": "Wander through this historic neighborhood filled with temples and traditional houses.",
+        "duration": "3-4 hours",
+        "place": "Yanaka",
+        "time": "14:00-18:00"
+      },
+      "day": 4,
+      "destination": "Tokyo, Japan",
+      "dinner": {
+        "cuisine": "Japanese",
+        "estimated_cost": "$20 per person",
+        "restaurant": "Gyukatsu Motomura",
+        "time": "19:00-21:00"
+      },
+      "estimated_daily_cost": "$150 per person (excluding accommodation)",
+      "evening": {
+        "activity": "Relax at a local caf\u00e9",
+        "description": "Enjoy a quiet evening with a coffee or dessert.",
+        "time": "21:00+"
+      },
+      "lunch": {
+        "cuisine": "Japanese",
+        "estimated_cost": "$15 per person",
+        "restaurant": "Tonkatsu Maisen Aoyama",
+        "time": "12:00-14:00"
+      },
+      "morning": {
+        "activity": "Visit the Tokyo National Museum",
+        "description": "Explore Japan's most comprehensive collection of art and antiquities.",
+        "duration": "3-4 hours",
+        "place": "Tokyo National Museum",
+        "time": "08:00-12:00"
+      },
+      "theme": "Museums and Culture",
+      "tips": [
+        "Take your time in the museums, there's a lot to see!",
+        "Try the local snacks in Yanaka."
+      ],
+      "title": "Art and History",
+      "transportation": "Metro from Ueno to Yanaka (\u00a5210, $2), walking distance within Yanaka.",
+      "travel_type": "Cultural"
+    },
+    {
+      "afternoon": {
+        "activity": "Visit Toshogu Shrine",
+        "description": "Explore the ornate shrine dedicated to Tokugawa Ieyasu.",
+        "duration": "3-4 hours",
+        "place": "Toshogu Shrine",
+        "time": "14:00-18:00"
+      },
+      "day": 5,
+      "destination": "Tokyo, Japan",
+      "dinner": {
+        "cuisine": "Japanese",
+        "estimated_cost": "$20 per person",
+        "restaurant": "Local izakaya",
+        "time": "19:00-21:00"
+      },
+      "estimated_daily_cost": "$200 per person (excluding accommodation)",
+      "evening": {
+        "activity": "Return to Tokyo",
+        "description": "Travel back to Tokyo and relax at your hotel.",
+        "time": "21:00+"
+      },
+      "lunch": {
+        "cuisine": "Japanese",
+        "estimated_cost": "$15 per person",
+        "restaurant": "Local restaurant in Nikko",
+        "time": "12:00-14:00"
+      },
+      "morning": {
+        "activity": "Travel to Nikko",
+        "description": "Take an early train to Nikko and visit the UNESCO World Heritage sites.",
+        "duration": "5 hours including travel time",
+        "place": "Nikko",
+        "time": "07:00-12:00"
+      },
+      "theme": "Nature and History",
+      "tips": [
+        "Check the train schedule for return times.",
+        "Wear comfortable shoes for walking."
+      ],
+      "title": "Day Trip to Nikko",
+      "transportation": "Train from Tokyo to Nikko (\u00a52,000, $20 round trip).",
+      "travel_type": "Cultural"
+    },
+    {
+      "afternoon": {
+        "activity": "Visit Omoide Yokocho",
+        "description": "Experience the vibrant atmosphere of this narrow alley filled with small izakayas.",
+        "duration": "3-4 hours",
+        "place": "Omoide Yokocho",
+        "time": "14:00-18:00"
+      },
+      "day": 6,
+      "destination": "Tokyo, Japan",
+      "dinner": {
+        "cuisine": "Japanese",
+        "estimated_cost": "$25 per person",
+        "restaurant": "Nabezo",
+        "time": "19:00-21:00"
+      },
+      "estimated_daily_cost": "$175 per person (excluding accommodation)",
+      "evening": {
+        "activity": "Enjoy the Shinjuku skyline",
+        "description": "Take in the views from your hotel or a nearby observation deck.",
+        "time": "21:00+"
+      },
+      "lunch": {
+        "cuisine": "Japanese, Ramen",
+        "estimated_cost": "$15 per person",
+        "restaurant": "Ippudo Ramen",
+        "time": "12:00-14:00"
+      },
+      "morning": {
+        "activity": "Shopping in Shinjuku",
+        "description": "Explore the many shopping centers and boutiques in Shinjuku.",
+        "duration": "3-4 hours",
+        "place": "Shinjuku",
+        "time": "08:00-12:00"
+      },
+      "theme": "Urban Exploration",
+      "tips": [
+        "Look for unique souvenirs in Shinjuku.",
+        "Try different types of sake at Omoide Yokocho."
+      ],
+      "title": "Shopping and Relaxation",
+      "transportation": "Walking within Shinjuku, metro to Omoide Yokocho (\u00a5210, $2).",
+      "travel_type": "Cultural"
+    },
+    {
+      "afternoon": {
+        "activity": "Relax at hotel or nearby caf\u00e9",
+        "description": "Spend your last hours in Tokyo, relaxing before departure.",
+        "duration": "3-4 hours",
+        "place": "Hotel or caf\u00e9",
+        "time": "14:00-18:00"
+      },
+      "day": 7,
+      "destination": "Tokyo, Japan",
+      "dinner": {
+        "cuisine": "Japanese, Sushi",
+        "estimated_cost": "$30 per person",
+        "restaurant": "Farewell Dinner at Sukiyabashi Jiro",
+        "time": "19:00-21:00"
+      },
+      "estimated_daily_cost": "$150 per person (excluding accommodation)",
+      "evening": {
+        "activity": "Prepare for departure",
+        "description": "Head to the airport for your flight home.",
+        "time": "21:00+"
+      },
+      "lunch": {
+        "cuisine": "Japanese, Sushi",
+        "estimated_cost": "$20 per person",
+        "restaurant": "Local sushi stall",
+        "time": "12:00-14:00"
+      },
+      "morning": {
+        "activity": "Visit a local market",
+        "description": "Experience a local market for last-minute shopping and snacks.",
+        "duration": "2-3 hours",
+        "place": "Tsukiji Outer Market",
+        "time": "08:00-12:00"
+      },
+      "theme": "Reflection and Relaxation",
+      "tips": [
+        "Try to pack early to avoid last-minute rush.",
+        "Buy some omiyage (souvenirs) at the market."
+      ],
+      "title": "Final Day & Departure",
+      "transportation": "Metro to Tsukiji (\u00a5210, $2), taxi to airport (\u00a53,000, $30).",
+      "travel_type": "Cultural"
+    }
+  ],
+  "places": [
+    {
+      "best_time": "evening",
+      "category": "Landmark",
+      "coordinates": "35.6595,139.7004",
+      "description": "Shibuya Crossing is one of the busiest pedestrian crossings in the world and a symbol of Tokyo's vibrant urban life. The sight of thousands of people crossing at once is truly mesmerizing and offers a quintessential Tokyo experience.",
+      "duration": "1 hour",
+      "entry_fee": "Free",
+      "how_to_reach": "Take the JR Yamanote Line to Shibuya Station. The crossing is right outside the station.",
+      "image_search": "Shibuya Crossing Tokyo, Japan tourist attraction",
+      "image_url": "https://source.unsplash.com/800x600/?Landmark,tourism",
+      "location": "Shibuya",
+      "maps_link": "https://www.google.com/maps/search/?api=1&query=Shibuya%20Crossing%2C%20Tokyo%2C%20Japan",
+      "name": "Shibuya Crossing",
+      "rating": 4.8,
+      "source_url": "https://www.facebook.com/EdoJapanTravel/posts/top-tokyo-sights-for-first-visitsthese-places-define-the-tokyo-experiencetokyo-b/1307896384687233",
+      "tips": "Visit during peak hours for the best experience of the crowd."
+    },
+    {
+      "best_time": "morning",
+      "category": "Temple",
+      "coordinates": "35.7148,139.7967",
+      "description": "Senso-ji is Tokyo's oldest temple, dating back to 645 AD, and is a significant cultural landmark. The temple's beautiful architecture and the vibrant Nakamise Dori shopping street leading to it make ita must-visit.",
+      "duration": "2 hours",
+      "entry_fee": "Free",
+      "how_to_reach": "Take the Tokyo Metro Ginza Line to Asakusa Station.",
+      "image_search": "Senso-ji Temple Tokyo, Japan tourist attraction",
+      "image_url": "https://source.unsplash.com/800x600/?Temple,tourism",
+      "location": "Asakusa",
+      "maps_link": "https://www.google.com/maps/search/?api=1&query=Senso-ji%20Temple%2C%20Tokyo%2C%20Japan",
+      "name": "Senso-ji Temple",
+      "rating": 4.7,
+      "source_url": "https://www.youtube.com/watch?v=kg9AOcOU_8A",
+      "tips": "Try the traditional snacks from the stalls on Nakamise Dori."
+    },
+    {
+      "best_time": "morning",
+      "category": "Temple",
+      "coordinates": "35.6764,139.6993",
+      "description": "Meiji Shrine is a serene oasis in the heart of Tokyo dedicated to Emperor Meiji and Empress Shoken. The peaceful forested area and traditional Shinto architecture provide a stark contrast to the bustling city.",
+      "duration": "1-2 hours",
+      "entry_fee": "Free",
+      "how_to_reach": "Take the JR Yamanote Line to Harajuku Station, then walk 10 minutes.",
+      "image_search": "Meiji Shrine Tokyo, Japan tourist attraction",
+      "image_url": "https://source.unsplash.com/800x600/?Temple,tourism",
+      "location": "Shibuya",
+      "maps_link": "https://www.google.com/maps/search/?api=1&query=Meiji%20Shrine%2C%20Tokyo%2C%20Japan",
+      "name": "Meiji Shrine",
+      "rating": 4.6,
+      "source_url": "https://www.neverendingvoyage.com/cool-things-to-do-in-tokyo",
+      "tips": "Visit on a weekday to avoid crowds."
+    },
+    {
+      "best_time": "afternoon",
+      "category": "Park",
+      "coordinates": "35.7148,139.7753",
+      "description": "Ueno Park is a large public park known for its museums, zoo, and cherry blossoms in spring. It offers a great combination of nature, art, and culture, making it perfect for a leisurely stroll.",
+      "duration": "2-3 hours",
+      "entry_fee": "Free (museums may charge)",
+      "how_to_reach": "Take the JR Yamanote Line to Ueno Station.",
+      "image_search": "Ueno Park Tokyo, Japan tourist attraction",
+      "image_url": "https://source.unsplash.com/800x600/?Park,tourism",
+      "location": "Ueno",
+      "maps_link": "https://www.google.com/maps/search/?api=1&query=Ueno%20Park%2C%20Tokyo%2C%20Japan",
+      "name": "Ueno Park",
+      "rating": 4.5,
+      "source_url": "https://travelbabbo.com/what-to-do-in-tokyo",
+      "tips": "Visit the Tokyo National Museum for an insight into Japanese art and history."
+    },
+    {
+      "best_time": "evening",
+      "category": "Landmark",
+      "coordinates": "35.6586,139.7454",
+      "description": "Tokyo Tower is an iconic symbol of Japan, inspired by the Eiffel Tower, offering panoramic views of the city from its observation decks. It is particularly stunning when illuminated at night.",
+      "duration": "1-2 hours",
+      "entry_fee": "$10",
+      "how_to_reach": "Take the Toei Oedo Line to Akabanebashi Station, then walk 7 minutes.",
+      "image_search": "Tokyo Tower Tokyo, Japan tourist attraction",
+      "image_url": "https://source.unsplash.com/800x600/?Landmark,tourism",
+      "location": "Minato",
+      "maps_link": "https://www.google.com/maps/search/?api=1&query=Tokyo%20Tower%2C%20Tokyo%2C%20Japan",
+      "name": "Tokyo Tower",
+      "rating": 4.4,
+      "source_url": "https://www.tripadvisor.com/Attractions-g298184-Activities-Tokyo_Tokyo_Prefecture_Kanto.html",
+      "tips": "Book tickets in advance to skip the lines."
+    },
+    {
+      "best_time": "afternoon",
+      "category": "Shopping District",
+      "coordinates": "35.6994,139.7745",
+      "description": "Akihabara is known as the mecca for electronics, anime, and manga culture. This district is filled with shops, cafes, and arcades, making it a paradise for tech and pop culture enthusiasts.",
+      "duration": "2-3 hours",
+      "entry_fee": "Free",
+      "how_to_reach": "Take the JR Yamanote Line to Akihabara Station.",
+      "image_search": "Akihabara Tokyo, Japan tourist attraction",
+      "image_url": "https://source.unsplash.com/800x600/?Shopping District,tourism",
+      "location": "Chiyoda",
+      "maps_link": "https://www.google.com/maps/search/?api=1&query=Akihabara%2C%20Tokyo%2C%20Japan",
+      "name": "Akihabara",
+      "rating": 4.3,
+      "tips": "Don't miss the themed cafes for a unique experience."
+    },
+    {
+      "best_time": "morning",
+      "category": "Market",
+      "coordinates": "35.6655,139.7704",
+      "description": "The Tsukiji Outer Market is famous for its fresh seafood, street food, and culinary goods. It's a great place to sample Japanese cuisine and immerse yourself in local flavors.",
+      "duration": "1-2 hours",
+      "entry_fee": "Free",
+      "how_to_reach": "Take the Tokyo Metro Hibiya Line to Tsukiji Station.",
+      "image_search": "Tsukiji Outer Market Tokyo, Japan tourist attraction",
+      "image_url": "https://source.unsplash.com/800x600/?Market,tourism",
+      "location": "Chuo",
+      "maps_link": "https://www.google.com/maps/search/?api=1&query=Tsukiji%20Outer%20Market%2C%20Tokyo%2C%20Japan",
+      "name": "Tsukiji Outer Market",
+      "rating": 4.5,
+      "tips": "Arrive early for the best selection of fresh seafood."
+    },
+    {
+      "best_time": "evening",
+      "category": "Shopping District",
+      "coordinates": "35.6586,139.7300",
+      "description": "Roppongi Hills is a modern complex featuring shopping, dining, and art. The Mori Art Museum and the observation deck offer stunning views of Tokyo's skyline.",
+      "duration": "2-3 hours",
+      "entry_fee": "$20 for the observation deck",
+      "how_to_reach": "Take the Tokyo Metro Hibiya Line to Roppongi Station.",
+      "image_search": "Roppongi Hills Tokyo, Japan tourist attraction",
+      "image_url": "https://source.unsplash.com/800x600/?Shopping District,tourism",
+      "location": "Minato",
+      "maps_link": "https://www.google.com/maps/search/?api=1&query=Roppongi%20Hills%2C%20Tokyo%2C%20Japan",
+      "name": "Roppongi Hills",
+      "rating": 4.2,
+      "tips": "Visit during sunset for breathtaking views."
+    }
+  ],
+  "restaurants": [
+    {
+      "atmosphere": "family-friendly",
+      "avg_cost_per_person": "$25-50",
+      "best_time": "dinner",
+      "budget_level": "Mid-range",
+      "cuisine": "Japanese",
+      "description": "Nabezo is famous for its delicious hot pot dishes, particularly shabu-shabu and sukiyaki.The high-quality meats and fresh vegetables make for a delightful and interactive dining experience.",
+      "image_search": "Nabezo Tokyo",
+      "image_url": "https://source.unsplash.com/800x600/?Japanese,restaurant",
+      "location": "Shinjuku, Tokyo",
+      "maps_link": "https://www.google.com/maps/search/?api=1&query=Nabezo%2C%20Tokyo%2C%20Japan",
+      "name": "Nabezo",
+      "rating": 4.5,
+      "reservation_needed": true,
+      "source_url": "https://www.deevaandfood.com/post/best-restaurants-tokyo",
+      "specialties": [
+        "Shabu-shabu",
+        "Sukiyaki"
+      ]
+    },
+    {
+      "atmosphere": "casual",
+      "avg_cost_per_person": "$20-40",
+      "best_time": "lunch/dinner",
+      "budget_level": "Mid-range",
+      "cuisine": "Japanese",
+      "description": "Known for its perfectly fried tonkatsu, Maisen Aoyama offers a cozy atmosphere and top-quality pork. The tender, juicy cuts are served with a special sauce that elevates their flavor.",
+      "image_search": "Tonkatsu Maisen Aoyama Tokyo",
+      "image_url": "https://source.unsplash.com/800x600/?Japanese,restaurant",
+      "location": "Aoyama, Tokyo",
+      "maps_link": "https://www.google.com/maps/search/?api=1&query=Tonkatsu%20Maisen%20Aoyama%2C%20Tokyo%2C%20Japan",
+      "name": "Tonkatsu Maisen Aoyama",
+      "rating": 4.7,
+      "reservation_needed": false,
+      "source_url": "https://trulytokyo.com/eat-like-a-local-in-tokyo",
+      "specialties": [
+        "Tonkatsu",
+        "Katsu Sandwich"
+      ]
+    },
+    {
+      "atmosphere": "casual",
+      "avg_cost_per_person": "$30-50",
+      "best_time": "lunch/dinner",
+      "budget_level": "Mid-range",
+      "cuisine": "Japanese",
+      "description": "Motomura specializes in gyukatsu, a unique dish featuring breaded, fried beef served witha hot stone for self-cooking. The experience is both delicious and interactive.",
+      "image_search": "Gyukatsu Motomura Tokyo",
+      "image_url": "https://source.unsplash.com/800x600/?Japanese,restaurant",
+      "location": "Shibuya, Tokyo",
+      "maps_link": "https://www.google.com/maps/search/?api=1&query=Gyukatsu%20Motomura%2C%20Tokyo%2C%20Japan",
+      "name": "Gyukatsu Motomura",
+      "rating": 4.6,
+      "reservation_needed": false,
+      "source_url": "https://www.foodnerdrockstar.com/eat-and-travel/where-to-eat-in-tokyo-from-alleys-to-elevators---the-food-guide",
+      "specialties": [
+        "Gyukatsu"
+      ]
+    },
+    {
+      "atmosphere": "upscale",
+      "avg_cost_per_person": "$300-400",
+      "best_time": "dinner",
+      "budget_level": "Fine Dining",
+      "cuisine": "Japanese, Sushi",
+      "description": "Renowned as one of the best sushi restaurants in the world, Sukiyabashi Jiro offers an unforgettable omakase experience. Each piece of sushi is crafted with precision and showcases the freshest ingredients.",
+      "image_search": "Sukiyabashi Jiro Tokyo",
+      "image_url": "https://source.unsplash.com/800x600/?Japanese, Sushi,restaurant",
+      "location": "Ginza, Tokyo",
+      "maps_link": "https://www.google.com/maps/search/?api=1&query=Sukiyabashi%20Jiro%2C%20Tokyo%2C%20Japan",
+      "name": "Sukiyabashi Jiro",
+      "rating": 4.9,
+      "reservation_needed": true,
+      "source_url": "https://andershusa.com/where-to-eat-in-tokyo",
+      "specialties": [
+        "Omakase Sushi"
+      ]
+    },
+    {
+      "atmosphere": "casual",
+      "avg_cost_per_person": "$10-20",
+      "best_time": "lunch/dinner",
+      "budget_level": "Budget",
+      "cuisine": "Japanese, Ramen",
+      "description": "Ippudo is famous for its rich tonkotsu ramen, which features a savory pork broth and perfectly cooked noodles. The casual vibe and quick service make it a favorite among locals and tourists alike.",
+      "image_search": "Ippudo Ramen Tokyo",
+      "image_url": "https://source.unsplash.com/800x600/?Japanese, Ramen,restaurant",
+      "location": "Hakata, Tokyo",
+      "maps_link": "https://www.google.com/maps/search/?api=1&query=Ippudo%20Ramen%2C%20Tokyo%2C%20Japan",
+      "name": "Ippudo Ramen",
+      "rating": 4.5,
+      "reservation_needed": false,
+      "source_url": "https://www.reddit.com/r/TokyoTravel/comments/1kmwufp/absolute_musteat_places_in_tokyo",
+      "specialties": [
+        "Tonkotsu Ramen",
+        "Gyoza"
+      ]
+    },
+    {
+      "atmosphere": "casual",
+      "avg_cost_per_person": "$15-30",
+      "best_time": "lunch/dinner",
+      "budget_level": "Mid-range",
+      "cuisine": "Japanese, Udon",
+      "description": "Tsurutontan is known for its handmade udon noodles served in a modern setting. The variety of unique toppings and broths available makes it a must-try for noodle lovers.",
+      "image_search": "Tsurutontan Udon Tokyo",
+      "image_url": "https://source.unsplash.com/800x600/?Japanese, Udon,restaurant",
+      "location": "Roppongi, Tokyo",
+      "maps_link": "https://www.google.com/maps/search/?api=1&query=Tsurutontan%20Udon%20Noodle%20Brasserie%2C%20Tokyo%2C%20Japan",
+      "name": "Tsurutontan Udon Noodle Brasserie",
+      "rating": 4.4,
+      "reservation_needed": false,
+      "source_url": "N/A",
+      "specialties": [
+        "Udon",
+        "Tempura"
+      ]
+    }
+  ],
+  "travel_details": {
+    "budget": 4000,
+    "destination": "Tokyo, Japan",
+    "duration": 7,
+    "interests": [
+      "sightseeing",
+      "cuisine",
+      "shopping",
+      "technology",
+      "history"
+    ],
+    "overview": "Tokyo is a vibrant metropolis that blends traditional culture with cutting-edge technology. Visitors can explore historic temples, enjoy world-renowned cuisine, and experience the bustling energy of its many neighborhoods.",
+    "travel_type": "Cultural",
+    "travelers": 2
+  }
+}
+

@@ -1,5 +1,6 @@
 # Dependencies
 node_modules/
+ui_files_local/
 backend/venv/
 backend/.venv/
 frontend/tripzy/node_modules/
