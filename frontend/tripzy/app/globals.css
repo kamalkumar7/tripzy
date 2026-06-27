@@ -139,6 +139,8 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
   transition: box-shadow 0.2s ease, transform 0.2s ease;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }
 .card:hover {
   box-shadow: var(--shadow-lg);

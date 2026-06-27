@@ -11,6 +11,7 @@ from storage import TripStore
 logger = logging.getLogger(__name__)
 
 GENERIC_PLAN_ERROR = "Unable to generate a travel plan right now. Please try again later."
+PUBLIC_ERROR_CODES = {"RATE_LIMIT"}
 
 
 def plan_cache_key(user_input: str) -> str:
@@ -20,7 +21,7 @@ def plan_cache_key(user_input: str) -> str:
 
 def sanitize_result(result: dict[str, Any]) -> dict[str, Any]:
     cleaned = dict(result)
-    if cleaned.get("error"):
+    if cleaned.get("error") and cleaned["error"] not in PUBLIC_ERROR_CODES:
         cleaned["error"] = GENERIC_PLAN_ERROR
     return cleaned
 

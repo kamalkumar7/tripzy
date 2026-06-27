@@ -7,6 +7,15 @@ from agents.restaurants_agent import RestaurantsAgent
 from agents.hotels_agent import HotelsAgent
 from agents.itinerary_agent import ItineraryAgent
 
+RATE_LIMIT_KEYWORDS = [
+    '429', 'rate limit', 'rate_limit', 'quota', 'resource exhausted',
+    'resourceexhausted', 'too many requests', 'ratelimiterror',
+    'resource has been exhausted',
+]
+
+def _is_rate_limit_error(e: Exception) -> bool:
+    return any(kw in str(e).lower() for kw in RATE_LIMIT_KEYWORDS)
+
 class TravelPlanState(TypedDict):
     """State object for the travel planning workflow"""
     user_input: str
@@ -44,7 +53,7 @@ class TravelPlanWorkflow:
         workflow.add_node("find_hotels", self._hotels_node)
         workflow.add_node("create_itinerary", self._itinerary_node)
 
-        # define worflow edges
+        # define workflow edges
         workflow.set_entry_point("extract")
         workflow.add_edge("extract", "find_places")
         workflow.add_edge("find_places", "find_restaurants")
@@ -52,22 +61,23 @@ class TravelPlanWorkflow:
         workflow.add_edge("find_hotels", "create_itinerary")
         workflow.add_edge("create_itinerary", END)
 
-
         return workflow.compile()
 
-    def _extract_node(self, state:TravelPlanState) -> TravelPlanState:
+    def _extract_node(self, state: TravelPlanState) -> TravelPlanState:
         """Node for extraction agent"""
         print("Extracting travel details")
-
         try:
             travel_details = self.extraction_agent.extract_details(state['user_input'])
             print("🧠 Extracted raw:", travel_details)
             state['travel_details'] = travel_details
             print(f"✅ Extracted: {travel_details.get('destination')} - {travel_details.get('duration')} days")
         except Exception as e:
-            print(f"❌ Extraction error: {e}")
-            state['error'] = str(e)
-
+            if _is_rate_limit_error(e):
+                print(f"⚠️ Rate limit hit during extraction: {e}")
+                state['error'] = 'RATE_LIMIT'
+            else:
+                print(f"❌ Extraction error: {e}")
+                state['error'] = str(e)
         return state
     
     def _places_node(self, state: TravelPlanState) -> TravelPlanState:
@@ -129,15 +139,12 @@ class TravelPlanWorkflow:
             """Extract numeric cost from string like '$50-100' or '$50'"""
             if not cost_str or cost_str == "Free" or cost_str == "N/A":
                 return 0
-            # Find all numbers in the string
             numbers = re.findall(r'\d+', str(cost_str))
             if numbers:
-                # Take the average if range, otherwise first number
                 if len(numbers) >= 2:
                     return (float(numbers[0]) + float(numbers[1])) / 2
                 return float(numbers[0])
             return 0
-        
 
         # Calculate accommodation cost
         hotels = state.get("hotels", [])
@@ -160,22 +167,19 @@ class TravelPlanWorkflow:
         for place in places:
             activities_cost += extract_cost(place.get("entry_fee", "0"))
         
-        # Estimate transportation (10-15% of budget)
+        # Estimate transportation (12% of budget)
         try:
             budget = float(state.get("travel_details", {}).get("budget", 2000))
         except (TypeError, ValueError):
             budget = 2000
         transportation_cost = budget * 0.12
         
-        # Miscellaneous (5-10% of budget)
+        # Miscellaneous (8% of budget)
         miscellaneous_cost = budget * 0.08
 
         total_estimated = (
-            accommodation_cost +
-            food_cost +
-            activities_cost +
-            transportation_cost +
-            miscellaneous_cost
+            accommodation_cost + food_cost + activities_cost +
+            transportation_cost + miscellaneous_cost
         )
         
         remaining_budget = budget - total_estimated
@@ -191,9 +195,8 @@ class TravelPlanWorkflow:
             "remaining": round(remaining_budget, 2),
             "within_budget": remaining_budget >= 0
         }
-    
 
-    def plan_travel(self, user_input:str) -> dict:
+    def plan_travel(self, user_input: str) -> dict:
         """Execute the full travel planning workflow"""
         print("\nStarting travel planning workflow...")
         print(f"User input: {user_input[:100]}...")
@@ -260,6 +263,3 @@ class TravelPlanWorkflow:
             "budget_breakdown": state.get("budget_breakdown", {}),
             "error": state.get("error")
         }
-
-
-            
