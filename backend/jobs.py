@@ -78,11 +78,17 @@ class TripJobManager:
         return self.store.get_job(job_id, user_id)
 
     def _run_job(self, job_id: str, user_input: str) -> None:
+        import traceback, sys
+        short_id = hashlib.sha256(job_id.encode()).hexdigest()[:12]
+        logger.info("JOB START %s  input=%r", short_id, user_input[:80])
         self.store.mark_running(job_id)
         try:
-            result = sanitize_result(self.workflow.plan_travel(user_input))
+            result = sanitize_result(self.workflow.plan_travel(user_input, job_id=job_id, store=self.store))
             cache.set_json(plan_cache_key(user_input), result, CACHE_TTL_SECONDS)
             self.store.mark_succeeded(job_id, result)
-        except Exception:
-            logger.exception("Trip job failed: %s", hashlib.sha256(job_id.encode()).hexdigest()[:12])
+            logger.info("JOB DONE  %s", short_id)
+        except Exception as exc:
+            tb = traceback.format_exc()
+            logger.error("JOB FAIL  %s  error=%s\n%s", short_id, exc, tb)
+            sys.stderr.flush()
             self.store.mark_failed(job_id, GENERIC_PLAN_ERROR)

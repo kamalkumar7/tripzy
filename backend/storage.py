@@ -37,6 +37,7 @@ class TripStore:
             Column("status", String(32), nullable=False, index=True),
             Column("user_input", Text, nullable=False),
             Column("result_json", Text),
+            Column("partial_json", Text),
             Column("error_message", Text),
             Column("created_at", DateTime(timezone=True), server_default=func.now(), nullable=False),
             Column("updated_at", DateTime(timezone=True), server_default=func.now(), nullable=False),
@@ -80,6 +81,32 @@ class TripStore:
             error_message=None,
             completed_at=func.now(),
         )
+
+    def update_partial(self, job_id: str, partial: dict[str, Any]) -> None:
+        """Write partial results (each section as it completes) without marking done."""
+        self._update(job_id, partial_json=json.dumps(partial, default=str))
+
+    def get_partial(self, job_id: str, user_id: str) -> dict[str, Any] | None:
+        with self.engine.begin() as conn:
+            row = (
+                conn.execute(
+                    select(self.jobs).where(self.jobs.c.id == job_id, self.jobs.c.user_id == user_id)
+                )
+                .mappings()
+                .first()
+            )
+        if not row:
+            return None
+        data = dict(row)
+        partial_json = data.get("partial_json")
+        partial = json.loads(partial_json) if partial_json else {}
+        result_json = data.get("result_json")
+        if result_json:
+            partial = json.loads(result_json)
+        return {
+            "status": data["status"],
+            "partial": partial,
+        }
 
     def mark_failed(self, job_id: str, error_message: str) -> None:
         self._update(job_id, status="failed", error_message=error_message, completed_at=func.now())

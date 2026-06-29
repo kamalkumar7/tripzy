@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { planTrip, type TripPlan } from '@/lib/api';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { planTripProgressive, type TripPlan } from '@/lib/api';
 import Sidebar from '@/components/Sidebar';
 import HeroSection from '@/components/HeroSection';
 import OverviewTab from '@/components/OverviewTab';
@@ -263,6 +263,37 @@ function ErrorScreen({ error, onRetry }: { error: string; onRetry: () => void })
   );
 }
 
+// ── Tab skeleton loader ─────────────────────────────
+function TabSkeleton({ count = 3 }: { count?: number }) {
+  return (
+    <div className="space-y-4 animate-pulse">
+      {Array.from({ length: count }).map((_, i) => (
+        <div
+          key={i}
+          className="rounded-2xl p-6"
+          style={{
+            background: 'rgba(255,255,255,0.04)',
+            border: '1px solid rgba(255,255,255,0.06)',
+          }}
+        >
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-12 h-12 rounded-xl" style={{ background: 'rgba(56,189,248,0.1)' }} />
+            <div className="flex-1 space-y-2">
+              <div className="h-4 rounded-lg w-1/3" style={{ background: 'rgba(255,255,255,0.1)' }} />
+              <div className="h-3 rounded-lg w-1/5" style={{ background: 'rgba(255,255,255,0.06)' }} />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <div className="h-3 rounded-lg w-full" style={{ background: 'rgba(255,255,255,0.06)' }} />
+            <div className="h-3 rounded-lg w-4/5" style={{ background: 'rgba(255,255,255,0.06)' }} />
+            <div className="h-3 rounded-lg w-3/5" style={{ background: 'rgba(255,255,255,0.04)' }} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ── Dark mode toggle ───────────────────────────
 function DarkModeToggle({ dark, onToggle }: { dark: boolean; onToggle: () => void }) {
   return (
@@ -288,7 +319,8 @@ export default function Home() {
   const [darkMode, setDarkMode] = useState(false);
   const [view, setView] = useState<'search' | 'loading' | 'result' | 'error'>('search');
   const [activeTab, setActiveTab] = useState<TabId>('overview');
-  const [tripPlan, setTripPlan] = useState<TripPlan | null>(null);
+  const [tripPlan, setTripPlan] = useState<Partial<TripPlan>>({});
+  const [loadingSections, setLoadingSections] = useState<Set<string>>(new Set());
   const [userInput, setUserInput] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const tabsRef = useRef<HTMLDivElement>(null);
@@ -301,10 +333,33 @@ export default function Home() {
     setUserInput(input);
     setView('loading');
     setActiveTab('overview');
+    setTripPlan({});
+    setLoadingSections(new Set(['overview', 'itinerary', 'hotels', 'places', 'dining']));
+
     try {
-      const result = await planTrip(input);
+      const result = await planTripProgressive(input, (partial) => {
+        setTripPlan(prev => ({ ...prev, ...partial }));
+
+        // Transition to result page as soon as we have destination info
+        if (partial.travel_details?.destination) {
+          setView('result');
+        }
+
+        // Mark sections as loaded when their data arrives
+        setLoadingSections(prev => {
+          const next = new Set(prev);
+          if (partial.travel_details?.destination) { next.delete('overview'); }
+          if (partial.itinerary && partial.itinerary.length > 0) { next.delete('itinerary'); }
+          if (partial.hotels && partial.hotels.length > 0) { next.delete('hotels'); }
+          if (partial.places && partial.places.length > 0) { next.delete('places'); }
+          if (partial.restaurants && partial.restaurants.length > 0) { next.delete('dining'); }
+          return next;
+        });
+      });
+
       if (result.error) { setErrorMsg(result.error); setView('error'); return; }
       setTripPlan(result);
+      setLoadingSections(new Set());
       setView('result');
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : 'Failed to connect to the server');
@@ -312,7 +367,7 @@ export default function Home() {
     }
   };
 
-  const handleNewTrip = () => { setTripPlan(null); setView('search'); setUserInput(''); setErrorMsg(''); };
+  const handleNewTrip = () => { setTripPlan({}); setView('search'); setUserInput(''); setErrorMsg(''); };
   const handleTabChange = (tab: TabId) => {
     setActiveTab(tab);
     tabsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -326,13 +381,13 @@ export default function Home() {
       {view === 'loading' && <LoadingScreen input={userInput} />}
       {view === 'error'   && <ErrorScreen error={errorMsg} onRetry={handleNewTrip} />}
 
-      {view === 'result' && tripPlan && (
+      {view === 'result' && (
         <div className="flex h-screen overflow-hidden" style={{ background: DARK_BG }}>
-          <Sidebar onNewTrip={handleNewTrip} destination={tripPlan.travel_details.destination} />
+          <Sidebar onNewTrip={handleNewTrip} destination={tripPlan.travel_details?.destination ?? ''} />
 
           <main className="flex-1 overflow-y-auto" style={{ background: DARK_BG }}>
             <div className="md:hidden h-[60px]" />
-            <HeroSection travelDetails={tripPlan.travel_details} />
+            {tripPlan.travel_details && <HeroSection travelDetails={tripPlan.travel_details} />}
 
             {/* Content area — overrides CSS vars to dark values for all child tabs */}
             <div
@@ -377,6 +432,7 @@ export default function Home() {
               >
                 {TABS.map(({ id, label, Icon }) => {
                   const active = activeTab === id;
+                  const sectionLoading = loadingSections.has(id);
                   return (
                     <button
                       key={id}
@@ -394,17 +450,43 @@ export default function Home() {
                     >
                       <Icon size={13} />
                       {label}
+                      {sectionLoading && (
+                        <span
+                          className="w-1.5 h-1.5 rounded-full animate-pulse"
+                          style={{ background: CYAN, display: 'inline-block' }}
+                        />
+                      )}
                     </button>
                   );
                 })}
               </div>
 
               {/* Tab Content */}
-              {activeTab === 'overview'  && <OverviewTab travelDetails={tripPlan.travel_details} budgetBreakdown={tripPlan.budget_breakdown} />}
-              {activeTab === 'itinerary' && <ItineraryTab itinerary={tripPlan.itinerary} />}
-              {activeTab === 'hotels'    && <HotelsTab hotels={tripPlan.hotels} />}
-              {activeTab === 'places'    && <PlacesTab places={tripPlan.places} />}
-              {activeTab === 'dining'    && <DiningTab restaurants={tripPlan.restaurants} />}
+              {activeTab === 'overview'  && (
+                loadingSections.has('overview')
+                  ? <TabSkeleton count={2} />
+                  : <OverviewTab travelDetails={tripPlan.travel_details!} budgetBreakdown={tripPlan.budget_breakdown} />
+              )}
+              {activeTab === 'itinerary' && (
+                loadingSections.has('itinerary')
+                  ? <TabSkeleton count={3} />
+                  : <ItineraryTab itinerary={tripPlan.itinerary ?? []} />
+              )}
+              {activeTab === 'hotels' && (
+                loadingSections.has('hotels')
+                  ? <TabSkeleton count={4} />
+                  : <HotelsTab hotels={tripPlan.hotels ?? []} />
+              )}
+              {activeTab === 'places' && (
+                loadingSections.has('places')
+                  ? <TabSkeleton count={4} />
+                  : <PlacesTab places={tripPlan.places ?? []} />
+              )}
+              {activeTab === 'dining' && (
+                loadingSections.has('dining')
+                  ? <TabSkeleton count={4} />
+                  : <DiningTab restaurants={tripPlan.restaurants ?? []} />
+              )}
             </div>
           </main>
         </div>

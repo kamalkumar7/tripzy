@@ -201,6 +201,17 @@ export async function getTripResult(tripId: string): Promise<TripPlan> {
   return response.json();
 }
 
+export async function getTripPartial(tripId: string): Promise<{
+  status: string;
+  partial: Partial<TripPlan>;
+}> {
+  const response = await fetch(`${API_BASE}/trips/${tripId}/partial`, {
+    headers: apiHeaders(),
+  });
+  if (!response.ok) throw await apiError(response);
+  return response.json();
+}
+
 export async function planTrip(userInput: string): Promise<TripPlan> {
   const job = await createTrip(userInput);
   const deadline = Date.now() + PLAN_TIMEOUT_MS;
@@ -218,6 +229,56 @@ export async function planTrip(userInput: string): Promise<TripPlan> {
 
     if (status.status === 'failed') {
       throw new Error(status.error || 'Trip planning failed');
+    }
+
+    await sleep(POLL_INTERVAL_MS);
+  }
+
+  throw new Error('Trip planning timed out. Please try again.');
+}
+
+/** Progressive version – fires onPartial whenever a new section arrives */
+export async function planTripProgressive(
+  userInput: string,
+  onPartial: (partial: Partial<TripPlan>) => void,
+): Promise<TripPlan> {
+  const job = await createTrip(userInput);
+  const deadline = Date.now() + PLAN_TIMEOUT_MS;
+
+  if (job.status === 'completed') {
+    return getTripResult(job.trip_id);
+  }
+
+  let lastPartialJson = '';
+
+  while (Date.now() < deadline) {
+    let partial: { status: string; partial: Partial<TripPlan> } | null = null;
+
+    try {
+      partial = await getTripPartial(job.trip_id);
+    } catch (e: unknown) {
+      // Only swallow network/404 errors — treat everything else as fatal
+      const msg = e instanceof Error ? e.message : '';
+      if (msg !== 'Trip not found') {
+        console.warn('Partial poll error:', msg);
+      }
+      await sleep(POLL_INTERVAL_MS);
+      continue;
+    }
+
+    if (partial.status === 'completed') {
+      return getTripResult(job.trip_id);
+    }
+
+    if (partial.status === 'failed') {
+      throw new Error('Trip planning failed. Please try again.');
+    }
+
+    // Fire callback only when something new arrived
+    const newJson = JSON.stringify(partial.partial);
+    if (newJson !== lastPartialJson) {
+      lastPartialJson = newJson;
+      onPartial(partial.partial);
     }
 
     await sleep(POLL_INTERVAL_MS);

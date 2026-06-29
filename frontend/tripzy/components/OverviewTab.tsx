@@ -5,7 +5,7 @@ import { formatCurrency, getBudgetPercent } from '@/lib/api';
 
 interface OverviewTabProps {
   travelDetails: TravelDetails;
-  budgetBreakdown: BudgetBreakdown;
+  budgetBreakdown?: BudgetBreakdown;
 }
 
 const budgetItems = [
@@ -164,103 +164,121 @@ export default function OverviewTab({ travelDetails, budgetBreakdown }: Overview
       {/* Right — Budget Widget */}
       <div className="lg:col-span-4">
         <div style={{ ...glassCard, position: 'sticky', top: '80px' }} className="p-6">
-          {/* Header */}
-          <div className="flex justify-between items-start mb-6">
-            <h2
-              className="text-2xl font-semibold"
-              style={{ fontFamily: 'Georgia, serif', color: '#f1f5f9' }}
-            >
-              Budget
-            </h2>
-            {bb.within_budget ? (
-              <span
-                className="px-3 py-1 rounded-full label-caps text-[10px] flex items-center gap-1"
-                style={{
-                  background: 'rgba(52,211,153,0.12)',
-                  color: '#34d399',
-                  border: '1px solid rgba(52,211,153,0.25)',
-                }}
-              >
-                <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
-                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                </svg>
-                Within Budget
-              </span>
-            ) : (
-              <span
-                className="px-3 py-1 rounded-full label-caps text-[10px] flex items-center gap-1"
-                style={{ background: 'rgba(248,113,113,0.1)', color: '#f87171', border: '1px solid rgba(248,113,113,0.2)' }}
-              >
-                Over Budget
-              </span>
-            )}
-          </div>
-
-          {/* Total */}
-          <div className="text-center mb-6 py-5 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <p className="label-caps mb-1" style={{ color: 'rgba(255,255,255,0.35)' }}>Total Budget</p>
-            <p
-              className="text-4xl font-bold"
-              style={{ fontFamily: 'Georgia, serif', color: '#e9c349' }}
-            >
-              {formatCurrency(bb.user_budget)}
-            </p>
-            <p className="text-sm mt-1" style={{ color: 'rgba(255,255,255,0.4)' }}>
-              Est. spend: {formatCurrency(bb.total_estimated)}
-            </p>
-          </div>
-
-          {/* Progress bars */}
-          <div className="space-y-4 mb-6">
-            {budgetItems.map((item) => {
-              const amount = bb[item.key] ?? 0;
-              const pct = getBudgetPercent(amount, bb.user_budget);
-              return (
-                <div key={item.key}>
-                  <div className="flex justify-between items-center mb-1.5">
-                    <span className="flex items-center gap-2 text-sm" style={{ color: 'rgba(255,255,255,0.7)' }}>
-                      <span
-                        className="w-2 h-2 rounded-full flex-shrink-0"
-                        style={{ background: item.color }}
-                      />
-                      {item.label}
-                    </span>
-                    <span className="text-sm font-semibold" style={{ color: item.color }}>
-                      {formatCurrency(amount)}
-                    </span>
+          {!budgetBreakdown ? (
+            <div className="animate-pulse space-y-4">
+              <div className="h-6 w-1/3 rounded-lg" style={{ background: 'rgba(255,255,255,0.1)' }} />
+              <div className="h-24 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)' }} />
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="space-y-1">
+                  <div className="flex justify-between">
+                    <div className="h-3 w-1/3 rounded" style={{ background: 'rgba(255,255,255,0.08)' }} />
+                    <div className="h-3 w-1/5 rounded" style={{ background: 'rgba(255,255,255,0.08)' }} />
                   </div>
-                  <div
-                    className="w-full h-1.5 rounded-full overflow-hidden"
-                    style={{ background: 'rgba(255,255,255,0.07)' }}
-                  >
-                    <div
-                      className="h-full rounded-full"
-                      style={{
-                        width: `${pct}%`,
-                        background: item.color,
-                        boxShadow: `0 0 8px ${item.color}60`,
-                        transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
-                      }}
-                    />
-                  </div>
+                  <div className="h-1.5 w-full rounded-full" style={{ background: 'rgba(255,255,255,0.06)' }} />
                 </div>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <>
+              {/* Header */}
+              <div className="flex justify-between items-start mb-6">
+                <h2
+                  className="text-2xl font-semibold"
+                  style={{ fontFamily: 'Georgia, serif', color: '#f1f5f9' }}
+                >
+                  Budget
+                </h2>
+                {budgetBreakdown.within_budget ? (
+                  <span
+                    className="px-3 py-1 rounded-full label-caps text-[10px] flex items-center gap-1"
+                    style={{
+                      background: 'rgba(52,211,153,0.12)',
+                      color: '#34d399',
+                      border: '1px solid rgba(52,211,153,0.25)',
+                    }}
+                  >
+                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
+                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+                    </svg>
+                    Within Budget
+                  </span>
+                ) : (
+                  <span
+                    className="px-3 py-1 rounded-full label-caps text-[10px] flex items-center gap-1"
+                    style={{ background: 'rgba(248,113,113,0.1)', color: '#f87171', border: '1px solid rgba(248,113,113,0.2)' }}
+                  >
+                    Over Budget
+                  </span>
+                )}
+              </div>
 
-          {/* Remaining */}
-          <div
-            className="pt-4 flex justify-between items-center"
-            style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}
-          >
-            <span className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>Remaining</span>
-            <span
-              className="text-lg font-bold"
-              style={{ color: bb.remaining >= 0 ? '#34d399' : '#f87171' }}
-            >
-              {formatCurrency(bb.remaining)}
-            </span>
-          </div>
+              {/* Total */}
+              <div className="text-center mb-6 py-5 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                <p className="label-caps mb-1" style={{ color: 'rgba(255,255,255,0.35)' }}>Total Budget</p>
+                <p
+                  className="text-4xl font-bold"
+                  style={{ fontFamily: 'Georgia, serif', color: '#e9c349' }}
+                >
+                  {formatCurrency(budgetBreakdown.user_budget)}
+                </p>
+                <p className="text-sm mt-1" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                  Est. spend: {formatCurrency(budgetBreakdown.total_estimated)}
+                </p>
+              </div>
+
+              {/* Progress bars */}
+              <div className="space-y-4 mb-6">
+                {budgetItems.map((item) => {
+                  const amount = budgetBreakdown[item.key] ?? 0;
+                  const pct = getBudgetPercent(amount, budgetBreakdown.user_budget);
+                  return (
+                    <div key={item.key}>
+                      <div className="flex justify-between items-center mb-1.5">
+                        <span className="flex items-center gap-2 text-sm" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                          <span
+                            className="w-2 h-2 rounded-full flex-shrink-0"
+                            style={{ background: item.color }}
+                          />
+                          {item.label}
+                        </span>
+                        <span className="text-sm font-semibold" style={{ color: item.color }}>
+                          {formatCurrency(amount)}
+                        </span>
+                      </div>
+                      <div
+                        className="w-full h-1.5 rounded-full overflow-hidden"
+                        style={{ background: 'rgba(255,255,255,0.07)' }}
+                      >
+                        <div
+                          className="h-full rounded-full"
+                          style={{
+                            width: `${pct}%`,
+                            background: item.color,
+                            boxShadow: `0 0 8px ${item.color}60`,
+                            transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+                          }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Remaining */}
+              <div
+                className="pt-4 flex justify-between items-center"
+                style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}
+              >
+                <span className="text-sm" style={{ color: 'rgba(255,255,255,0.5)' }}>Remaining</span>
+                <span
+                  className="text-lg font-bold"
+                  style={{ color: budgetBreakdown.remaining >= 0 ? '#34d399' : '#f87171' }}
+                >
+                  {formatCurrency(budgetBreakdown.remaining)}
+                </span>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

@@ -5,6 +5,10 @@ from helpers import Helper
 from tavily import TavilyClient
 from cache import cache
 from config import CACHE_TTL_SECONDS
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
+import logging
+
+logger = logging.getLogger(__name__)
 
 class PlaceAgent(BaseAgent):
 
@@ -21,7 +25,7 @@ class PlaceAgent(BaseAgent):
         duration = travel_details.get('duration', 7)
         interests = travel_details.get('interests', [])
 
-        # Web search for real places
+        # Web search for real places (with timeout protection)
         search_results = []
         if self.tavily:
             try:
@@ -31,11 +35,18 @@ class PlaceAgent(BaseAgent):
                 if cached_results is not None:
                     search_results = cached_results
                 else:
-                    search_response = self.tavily.search(query, max_results=5)
-                    search_results = search_response.get('results', [])
-                    cache.set_json(cache_key, search_results, CACHE_TTL_SECONDS)
+                    # Use ThreadPoolExecutor with timeout to prevent hanging
+                    with ThreadPoolExecutor(max_workers=1) as executor:
+                        future = executor.submit(self.tavily.search, query, max_results=5)
+                        try:
+                            search_response = future.result(timeout=15)  # 15 second timeout
+                            search_results = search_response.get('results', [])
+                            cache.set_json(cache_key, search_results, CACHE_TTL_SECONDS)
+                        except FutureTimeoutError:
+                            logger.warning(f"Tavily search timeout for: {query}")
+                            search_results = []
             except Exception as e:
-                print(f"Tavily search error: {e}")
+                logger.warning(f"Tavily search error: {e}")
         
         # Prepare context from web search
         web_context = "\n".join([
@@ -81,14 +92,23 @@ class PlaceAgent(BaseAgent):
             response = self.extract_json(response)
             places = json.loads(response)
             
+            # Prepare all image search queries
+            image_queries = [
+                f"{place.get('name', '')} {destination} landmark"
+                for place in places
+            ]
+            
+            # Fetch all images in parallel to prevent sequential delays
+            image_results = self.helper.search_images_batch(image_queries)
+            
             # Add image URLs from Google and Maps links
             for i, place in enumerate(places):
                 if i < len(search_results) and 'url' in search_results[i]:
                     place['source_url'] = search_results[i]['url']
                 
-                # Get image from Google Custom Search
+                # Get image from parallel batch fetch
                 place_query = f"{place.get('name', '')} {destination} landmark"
-                images = self.helper.search_images(place_query)
+                images = image_results.get(place_query, [])
                 place['image_url'] = images[0] if images else f"https://source.unsplash.com/800x600/?{place.get('category', 'landmark')},tourism"
                 
                 # Add Google Maps link

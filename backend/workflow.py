@@ -1,4 +1,6 @@
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import logging
+import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed, TimeoutError as FutureTimeoutError
 from typing import TypedDict, Annotated
 from langgraph.graph import StateGraph, END
 from agents.extraction_agent import ExtractionAgent
@@ -6,6 +8,14 @@ from agents.place_agent import PlaceAgent
 from agents.restaurants_agent import RestaurantsAgent
 from agents.hotels_agent import HotelsAgent
 from agents.itinerary_agent import ItineraryAgent
+
+# Force UTF-8 on stdout/stderr so emoji in log messages don't crash on Windows CP1252
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8', line_buffering=True)
+if hasattr(sys.stderr, 'reconfigure'):
+    sys.stderr.reconfigure(encoding='utf-8', line_buffering=True)
+
+logger = logging.getLogger(__name__)
 
 RATE_LIMIT_KEYWORDS = [
     '429', 'rate limit', 'rate_limit', 'quota', 'resource exhausted',
@@ -65,70 +75,68 @@ class TravelPlanWorkflow:
 
     def _extract_node(self, state: TravelPlanState) -> TravelPlanState:
         """Node for extraction agent"""
-        print("Extracting travel details")
+        logger.info("Extracting travel details")
         try:
             travel_details = self.extraction_agent.extract_details(state['user_input'])
-            print("🧠 Extracted raw:", travel_details)
+            logger.info("Extracted raw: %s", travel_details)
             state['travel_details'] = travel_details
-            print(f"✅ Extracted: {travel_details.get('destination')} - {travel_details.get('duration')} days")
+            logger.info("Extracted: %s - %s days", travel_details.get('destination'), travel_details.get('duration'))
         except Exception as e:
             if _is_rate_limit_error(e):
-                print(f"⚠️ Rate limit hit during extraction: {e}")
+                logger.warning("Rate limit hit during extraction: %s", e)
                 state['error'] = 'RATE_LIMIT'
             else:
-                print(f"❌ Extraction error: {e}")
+                logger.error("Extraction error: %s", e)
                 state['error'] = str(e)
         return state
     
     def _places_node(self, state: TravelPlanState) -> TravelPlanState:
         """Node for places agent"""
-        print("🏛️ Finding places to visit...")
+        logger.info("Finding places to visit...")
         try:
             places = self.places_agent.find_places(state["travel_details"])
             state["places"] = places
-            print(f"✅ Found {len(places)} places")
+            logger.info("Found %d places", len(places))
         except Exception as e:
-            print(f"❌ Places error: {e}")
+            logger.error("Places error: %s", e)
             state["places"] = []
         return state
     
     def _restaurants_node(self, state: TravelPlanState) -> TravelPlanState:
         """Node for restaurants agent"""
-        print("🍽️ Finding restaurants...")
+        logger.info("Finding restaurants...")
         try:
             restaurants = self.restaurants_agent.find_restaurants(state["travel_details"])
             state["restaurants"] = restaurants
-            print(f"✅ Found {len(restaurants)} restaurants")
+            logger.info("Found %d restaurants", len(restaurants))
         except Exception as e:
-            print(f"❌ Restaurants error: {e}")
+            logger.error("Restaurants error: %s", e)
             state["restaurants"] = []
         return state
 
     def _hotels_node(self, state: TravelPlanState) -> TravelPlanState:
         """Node for hotels agent"""
-        print("🏨 Finding hotels...")
+        logger.info("Finding hotels...")
         try:
             hotels = self.hotels_agent.find_hotels(state["travel_details"])
             state["hotels"] = hotels
-            print(f"✅ Found {len(hotels)} hotels")
+            logger.info("Found %d hotels", len(hotels))
         except Exception as e:
-            print(f"❌ Hotels error: {e}")
+            logger.error("Hotels error: %s", e)
             state["hotels"] = []
         return state
     
     def _itinerary_node(self, state: TravelPlanState) -> TravelPlanState:
         """Node for itinerary agent"""
-        print("📅 Creating day-by-day itinerary...")
+        logger.info("Creating day-by-day itinerary...")
         try:
             itinerary = self.itinerary_agent.create_itinerary(state)
             state["itinerary"] = itinerary
-            print(f"✅ Created {len(itinerary)} day itinerary")
-            
-            # Calculate budget breakdown
+            logger.info("Created %d day itinerary", len(itinerary))
             state["budget_breakdown"] = self._calculate_budget(state)
-            print(f"💰 Budget breakdown calculated")
+            logger.info("Budget breakdown calculated")
         except Exception as e:
-            print(f"❌ Itinerary error: {e}")
+            logger.error("Itinerary error: %s", e)
             state["itinerary"] = []
         return state
 
@@ -200,10 +208,25 @@ class TravelPlanWorkflow:
             "within_budget": remaining_budget >= 0
         }
 
-    def plan_travel(self, user_input: str) -> dict:
+    def plan_travel(self, user_input: str, *, job_id: str | None = None, store=None) -> dict:
         """Execute the full travel planning workflow"""
-        print("\nStarting travel planning workflow...")
-        print(f"User input: {user_input[:100]}...")
+        logger.info("\nStarting travel planning workflow...")
+        logger.info(f"User input: {user_input[:100]}...")
+
+        def _push_partial(partial_state: dict):
+            if store and job_id:
+                try:
+                    store.update_partial(job_id, {
+                        "travel_details": partial_state.get("travel_details", {}),
+                        "places":         partial_state.get("places", []),
+                        "restaurants":    partial_state.get("restaurants", []),
+                        "hotels":         partial_state.get("hotels", []),
+                        "itinerary":      partial_state.get("itinerary", []),
+                        "budget_breakdown": partial_state.get("budget_breakdown", {}),
+                        "error":          partial_state.get("error"),
+                    })
+                except Exception as pe:
+                    logger.info(f"Partial update error: {pe}")
         
         state = {
             "user_input": user_input,
@@ -228,6 +251,9 @@ class TravelPlanWorkflow:
                 "error": state.get("error")
             }
 
+        # Push travel_details immediately so UI can show destination info
+        _push_partial(state)
+
         travel_details = state.get("travel_details", {})
         agent_tasks = {
             "places": self.places_agent.find_places,
@@ -240,24 +266,31 @@ class TravelPlanWorkflow:
                 executor.submit(agent_func, travel_details): key
                 for key, agent_func in agent_tasks.items()
             }
-            for future in as_completed(future_to_key):
+            for future in as_completed(future_to_key, timeout=90):  # 90 second timeout for all tasks
                 key = future_to_key[future]
                 try:
-                    state[key] = future.result()
-                    print(f"Found {len(state[key])} {key}")
-                except Exception as e:
-                    print(f"{key.title()} error: {e}")
+                    # Individual task timeout of 60 seconds
+                    state[key] = future.result(timeout=60)
+                    logger.info(f"Found {len(state[key])} {key}")
+                except FutureTimeoutError:
+                    logger.warning(f"{key.title()} task timed out after 60 seconds")
                     state[key] = []
+                except Exception as e:
+                    logger.info(f"{key.title()} error: {e}")
+                    state[key] = []
+                # Push partial result after every section completes
+                _push_partial(state)
 
         try:
             state["itinerary"] = self.itinerary_agent.create_itinerary(state)
             state["budget_breakdown"] = self._calculate_budget(state)
         except Exception as e:
-            print(f"Itinerary error: {e}")
+            logger.info(f"Itinerary error: {e}")
             state["itinerary"] = []
             state["budget_breakdown"] = {}
 
-        print("\nWorkflow complete!")
+        _push_partial(state)
+        logger.info("\nWorkflow complete!")
         return {
             "travel_details": state.get("travel_details", {}),
             "places": state.get("places", []),

@@ -191,6 +191,16 @@ def get_trip_status(trip_id: str):
     return jsonify(status), 200
 
 
+@app.route('/api/trips/<trip_id>/partial', methods=['GET'])
+@limiter.limit("120 per minute")
+def get_trip_partial(trip_id: str):
+    """Return partial results as sections complete (for progressive loading)."""
+    data = job_manager.store.get_partial(trip_id, rate_limit_key())
+    if not data:
+        return _not_found_response()
+    return jsonify(data), 200
+
+
 @app.route('/api/trips/<trip_id>', methods=['GET'])
 @limiter.limit("120 per minute")
 def get_trip(trip_id: str):

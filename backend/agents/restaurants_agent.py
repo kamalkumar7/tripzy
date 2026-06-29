@@ -5,6 +5,10 @@ from helpers import Helper
 from tavily import TavilyClient
 from cache import cache
 from config import CACHE_TTL_SECONDS
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
+import logging
+
+logger = logging.getLogger(__name__)
 
 class RestaurantsAgent(BaseAgent):
     """Agent responsible for finding restaurants with web search"""
@@ -23,7 +27,7 @@ class RestaurantsAgent(BaseAgent):
         interests = travel_details.get('interests', [])
         travelers = travel_details.get('travelers', 2)
         
-        # Web search for real restaurants
+        # Web search for real restaurants (with timeout protection)
         search_results = []
         if self.tavily:
             try:
@@ -33,11 +37,18 @@ class RestaurantsAgent(BaseAgent):
                 if cached_results is not None:
                     search_results = cached_results
                 else:
-                    search_response = self.tavily.search(query, max_results=5)
-                    search_results = search_response.get('results', [])
-                    cache.set_json(cache_key, search_results, CACHE_TTL_SECONDS)
+                    # Use ThreadPoolExecutor with timeout to prevent hanging
+                    with ThreadPoolExecutor(max_workers=1) as executor:
+                        future = executor.submit(self.tavily.search, query, max_results=5)
+                        try:
+                            search_response = future.result(timeout=15)  # 15 second timeout
+                            search_results = search_response.get('results', [])
+                            cache.set_json(cache_key, search_results, CACHE_TTL_SECONDS)
+                        except FutureTimeoutError:
+                            logger.warning(f"Tavily search timeout for: {query}")
+                            search_results = []
             except Exception as e:
-                print(f"Tavily search error: {e}")
+                logger.warning(f"Tavily search error: {e}")
         
         web_context = "\n".join([
             f"- {result.get('title', '')}: {result.get('content', '')[:200]}"
@@ -83,14 +94,23 @@ Return ONLY the JSON array, no other text."""
             response = self.extract_json(response)
             restaurants = json.loads(response)
             
+            # Prepare all image search queries
+            image_queries = [
+                f"{restaurant.get('name', '')} {destination} restaurant food"
+                for restaurant in restaurants
+            ]
+            
+            # Fetch all images in parallel to prevent sequential delays
+            image_results = self.helper.search_images_batch(image_queries)
+            
             # Add image URLs from Google and Maps links
             for i, restaurant in enumerate(restaurants):
                 if i < len(search_results) and 'url' in search_results[i]:
                     restaurant['source_url'] = search_results[i]['url']
                 
-                # Get image from Google Custom Search
+                # Get image from parallel batch fetch
                 restaurant_query = f"{restaurant.get('name', '')} {destination} restaurant food"
-                images = self.helper.search_images(restaurant_query)
+                images = image_results.get(restaurant_query, [])
                 restaurant['image_url'] = images[0] if images else f"https://source.unsplash.com/800x600/?{restaurant.get('cuisine', 'food')},restaurant"
                 
                 # Add Google Maps link

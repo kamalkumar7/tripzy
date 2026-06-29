@@ -37,7 +37,7 @@ class BaseAgent:
                 api_version=azure_api_version,
                 deployment_name=azure_deployment_name,
                 temperature=0.7,
-                max_tokens=3000,
+                max_tokens=4096,
                 request_timeout=REQUEST_TIMEOUT_SECONDS,
             )
         else:
@@ -45,7 +45,7 @@ class BaseAgent:
                 api_key=openai_api_key,
                 model=os.getenv("OPENAI_MODEL", "gpt-4o-mini"),
                 temperature=0.7,
-                max_tokens=3000,
+                max_tokens=4096,
                 request_timeout=REQUEST_TIMEOUT_SECONDS,
             )
 
@@ -71,16 +71,26 @@ class BaseAgent:
     def extract_json(response: str) -> str:
         import re
         response = response.strip()
-        # Look for JSON block in markdown
+        if not response:
+            return response
+        # Extract from markdown code fences first
         match = re.search(r'```(?:json)?\s*(.*?)\s*```', response, re.DOTALL | re.IGNORECASE)
         if match:
             return match.group(1).strip()
-        
-        # Fallback strip
-        if response.startswith("```json"):
+        # Strip leading/trailing backtick fences without closing
+        if response.startswith('```json'):
             response = response[7:]
-        if response.startswith("```"):
+        elif response.startswith('```'):
             response = response[3:]
-        if response.endswith("```"):
+        if response.endswith('```'):
             response = response[:-3]
-        return response.strip()
+        response = response.strip()
+        # Find first [ or { and last ] or } to extract raw JSON
+        first_bracket = next((i for i, c in enumerate(response) if c in '[{'), -1)
+        last_bracket = max(
+            response.rfind(']'),
+            response.rfind('}')
+        )
+        if first_bracket != -1 and last_bracket > first_bracket:
+            return response[first_bracket:last_bracket + 1]
+        return response
