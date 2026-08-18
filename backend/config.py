@@ -59,3 +59,14 @@ CACHE_TTL_SECONDS = _int("CACHE_TTL_SECONDS", 24 * 60 * 60, minimum=60)
 DATABASE_URL = os.getenv("DATABASE_URL")
 TRIP_QUEUE_BACKEND = os.getenv("TRIP_QUEUE_BACKEND", "thread").strip().lower()
 TRIP_JOB_WORKERS = _int("TRIP_JOB_WORKERS", 2, minimum=1)
+
+# MongoDB (for auth user store)
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
+MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "tripzy")
+
+# Google OAuth
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
+
+# JWT
+JWT_SECRET = os.getenv("JWT_SECRET", "change-me-in-production")
+JWT_EXPIRY_HOURS = _int("JWT_EXPIRY_HOURS", 72, minimum=1)

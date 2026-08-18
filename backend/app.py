@@ -26,12 +26,14 @@ from config import (
 )
 from jobs import GENERIC_PLAN_ERROR, TripJobManager, plan_cache_key, sanitize_result
 from workflow import TravelPlanWorkflow
+from auth_routes import auth_bp
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH_BYTES
+app.register_blueprint(auth_bp)
 
 allowed_origins = "*" if not IS_PRODUCTION else (FRONTEND_ORIGINS if FRONTEND_ORIGINS else "*")
 
