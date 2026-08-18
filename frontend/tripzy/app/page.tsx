@@ -330,6 +330,7 @@ export default function Home() {
   }, [darkMode]);
 
   const handleSearch = async (input: string) => {
+    console.log('[Tripzy] handleSearch called with:', JSON.stringify(input));
     setUserInput(input);
     setView('loading');
     setActiveTab('overview');
@@ -337,11 +338,14 @@ export default function Home() {
     setLoadingSections(new Set(['overview', 'itinerary', 'hotels', 'places', 'dining']));
 
     try {
+      console.log('[Tripzy] Calling planTripProgressive...');
       const result = await planTripProgressive(input, (partial) => {
+        console.log('[Tripzy] Received partial update:', Object.keys(partial));
         setTripPlan(prev => ({ ...prev, ...partial }));
 
         // Transition to result page as soon as we have destination info
         if (partial.travel_details?.destination) {
+          console.log('[Tripzy] Got destination:', partial.travel_details.destination, '→ switching to result view');
           setView('result');
         }
 
@@ -357,11 +361,13 @@ export default function Home() {
         });
       });
 
+      console.log('[Tripzy] planTripProgressive completed. Error?', result.error);
       if (result.error) { setErrorMsg(result.error); setView('error'); return; }
       setTripPlan(result);
       setLoadingSections(new Set());
       setView('result');
     } catch (err) {
+      console.error('[Tripzy] ❌ handleSearch error:', err);
       setErrorMsg(err instanceof Error ? err.message : 'Failed to connect to the server');
       setView('error');
     }

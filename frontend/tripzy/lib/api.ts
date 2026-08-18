@@ -2,7 +2,18 @@
 //  Tripzy — API Client + TypeScript Types
 // ─────────────────────────────────────────────
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+function getApiBase(): string {
+  const envUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (envUrl && !envUrl.includes('localhost') && !envUrl.includes('127.0.0.1')) {
+    return envUrl;
+  }
+  if (typeof window !== 'undefined') {
+    const hostname = window.location.hostname || 'localhost';
+    return `http://${hostname}:5000/api`;
+  }
+  return envUrl || 'http://localhost:5000/api';
+}
+
 const API_KEY = process.env.NEXT_PUBLIC_TRIPZY_API_KEY;
 const PLAN_TIMEOUT_MS = Number(process.env.NEXT_PUBLIC_TRIPZY_PLAN_TIMEOUT_MS || 180000);
 const POLL_INTERVAL_MS = Number(process.env.NEXT_PUBLIC_TRIPZY_POLL_INTERVAL_MS || 2000);
@@ -160,21 +171,26 @@ export interface TripJobStatus {
 // ── API Functions ─────────────────────────────
 
 export async function createTrip(userInput: string): Promise<TripJob> {
-  const response = await fetch(`${API_BASE}/trips`, {
+  const url = `${getApiBase()}/trips`;
+  console.log('[Tripzy API] createTrip → POST', url, '| input:', userInput.substring(0, 60));
+  const response = await fetch(url, {
     method: 'POST',
     headers: apiHeaders(true),
     body: JSON.stringify({ user_input: userInput }),
   });
 
   if (!response.ok) {
+    console.error('[Tripzy API] createTrip failed:', response.status, response.statusText);
     throw await apiError(response);
   }
 
-  return response.json();
+  const data = await response.json();
+  console.log('[Tripzy API] createTrip success:', data);
+  return data;
 }
 
 export async function getTripStatus(tripId: string): Promise<TripJobStatus> {
-  const response = await fetch(`${API_BASE}/trips/${tripId}/status`, {
+  const response = await fetch(`${getApiBase()}/trips/${tripId}/status`, {
     headers: apiHeaders(),
   });
 
@@ -186,7 +202,7 @@ export async function getTripStatus(tripId: string): Promise<TripJobStatus> {
 }
 
 export async function getTripResult(tripId: string): Promise<TripPlan> {
-  const response = await fetch(`${API_BASE}/trips/${tripId}`, {
+  const response = await fetch(`${getApiBase()}/trips/${tripId}`, {
     headers: apiHeaders(),
   });
 
@@ -205,7 +221,7 @@ export async function getTripPartial(tripId: string): Promise<{
   status: string;
   partial: Partial<TripPlan>;
 }> {
-  const response = await fetch(`${API_BASE}/trips/${tripId}/partial`, {
+  const response = await fetch(`${getApiBase()}/trips/${tripId}/partial`, {
     headers: apiHeaders(),
   });
   if (!response.ok) throw await apiError(response);
@@ -289,7 +305,7 @@ export async function planTripProgressive(
 
 export async function healthCheck(): Promise<boolean> {
   try {
-    const response = await fetch(`${API_BASE}/health`, { method: 'GET' });
+    const response = await fetch(`${getApiBase()}/health`, { method: 'GET' });
     return response.ok;
   } catch {
     return false;

@@ -84,18 +84,35 @@ export default function TripSearch({ onSubmit, isLoading }: TripSearchProps) {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const t = input.trim();
-    if (t && !isLoading) { saveRecent(t); onSubmit(t); }
+  const doSubmit = (text: string) => {
+    const t = text.trim();
+    console.log('[Tripzy] doSubmit called with:', JSON.stringify(t), '| isLoading:', isLoading);
+    if (!t) {
+      console.warn('[Tripzy] doSubmit: empty input, ignoring');
+      return;
+    }
+    if (isLoading) {
+      console.warn('[Tripzy] doSubmit: already loading, ignoring');
+      return;
+    }
+    console.log('[Tripzy] ✅ Submitting trip request...');
+    saveRecent(t);
+    onSubmit(t);
   };
 
-  const fill = (prompt: string) => {
+  const handleButtonClick = () => {
+    console.log('[Tripzy] Plan My Trip button clicked, input:', JSON.stringify(input.trim()));
+    doSubmit(input);
+  };
+
+  const fillAndSubmit = (prompt: string) => {
+    console.log('[Tripzy] fillAndSubmit called with:', JSON.stringify(prompt));
     setInput(prompt);
-    textareaRef.current?.focus();
+    doSubmit(prompt);
   };
 
   const cur = DESTINATIONS[heroIdx];
+  const isSubmitActive = Boolean(input.trim()) && !isLoading;
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-slate-950">
@@ -120,8 +137,8 @@ export default function TripSearch({ onSubmit, isLoading }: TripSearchProps) {
       ))}
 
       {/* Overlay layers */}
-      <div className="absolute inset-0 z-10" style={{ background: 'linear-gradient(135deg, rgba(2,6,23,0.92) 0%, rgba(2,6,23,0.55) 55%, rgba(2,6,23,0.75) 100%)' }} />
-      <div className="absolute inset-0 z-10" style={{ background: 'linear-gradient(to top, rgba(2,6,23,0.98) 0%, transparent 50%)' }} />
+      <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(2,6,23,0.92) 0%, rgba(2,6,23,0.55) 55%, rgba(2,6,23,0.75) 100%)' }} />
+      <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(2,6,23,0.98) 0%, transparent 50%)' }} />
 
       {/* ── Content ────────────────────────────────────── */}
       <div className="relative z-20 flex min-h-screen flex-col">
@@ -163,7 +180,7 @@ export default function TripSearch({ onSubmit, isLoading }: TripSearchProps) {
 
           {/* Search card */}
           <div className="w-full max-w-2xl">
-            <form onSubmit={handleSubmit}>
+            <div>
               <div
                 className="overflow-hidden rounded-3xl border border-white/10 shadow-2xl"
                 style={{ backdropFilter: 'blur(24px)', background: 'rgba(15,23,42,0.75)' }}
@@ -173,25 +190,37 @@ export default function TripSearch({ onSubmit, isLoading }: TripSearchProps) {
                   <textarea
                     ref={textareaRef}
                     value={input}
-                                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) handleSubmit(e as unknown as React.FormEvent); }}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                        e.preventDefault();
+                        console.log('[Tripzy] Ctrl+Enter pressed');
+                        doSubmit(input);
+                      }
+                    }}
                     placeholder="e.g. 7 days in Tokyo for 2 people, $4500, love food and culture..."
                     rows={3}
                     disabled={isLoading}
                     className="w-full resize-none bg-transparent text-base text-white placeholder-white/30 outline-none leading-relaxed"
                   />
-
-
                 </div>
 
                 {/* Bottom bar */}
                 <div className="flex items-center justify-between border-t border-white/8 px-5 py-3">
-                  <span className="text-xs text-white/30">Ctrl+Enter to submit</span>
+                  <span className="text-xs text-white/40">Ctrl+Enter to submit</span>
                   <button
-                    type="submit"
-                    disabled={!input.trim() || isLoading}
-                    className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-40"
-                    style={{ background: input.trim() && !isLoading ? '#0ea5e9' : 'rgba(255,255,255,0.08)', color: 'white' }}
+                    type="button"
+                    onClick={handleButtonClick}
+                    className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                    style={{
+                      background: isSubmitActive
+                        ? 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)'
+                        : 'rgba(255,255,255,0.08)',
+                      color: isSubmitActive ? '#ffffff' : 'rgba(255,255,255,0.35)',
+                      boxShadow: isSubmitActive ? '0 4px 20px rgba(14,165,233,0.45)' : 'none',
+                      cursor: isSubmitActive ? 'pointer' : 'default',
+                      opacity: isLoading ? 0.6 : 1,
+                    }}
                   >
                     {isLoading ? (
                       <><svg className="h-4 w-4 animate-spin" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>Planning...</>
@@ -201,7 +230,7 @@ export default function TripSearch({ onSubmit, isLoading }: TripSearchProps) {
                   </button>
                 </div>
               </div>
-            </form>
+            </div>
 
             {/* Quick prompts */}
             <div className="mt-4 flex flex-wrap justify-center gap-2">
@@ -209,7 +238,7 @@ export default function TripSearch({ onSubmit, isLoading }: TripSearchProps) {
                 <button
                   key={qp.label}
                   type="button"
-                  onClick={() => fill(qp.prompt)}
+                  onClick={() => fillAndSubmit(qp.prompt)}
                   disabled={isLoading}
                   className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-medium text-white/70 backdrop-blur transition-all hover:border-white/25 hover:bg-white/10 hover:text-white disabled:opacity-40"
                 >
@@ -243,7 +272,7 @@ export default function TripSearch({ onSubmit, isLoading }: TripSearchProps) {
                       <button
                         key={s}
                         type="button"
-                        onClick={() => fill(s)}
+                        onClick={() => fillAndSubmit(s)}
                         className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-white/5"
                       >
                         <span className="flex-shrink-0 text-white/25">↗</span>
@@ -280,7 +309,7 @@ export default function TripSearch({ onSubmit, isLoading }: TripSearchProps) {
             {DESTINATIONS.map((dest, i) => (
               <button
                 key={dest.name}
-                onClick={() => { jumpTo(i); fill(`Plan a trip to ${dest.name}, ${dest.country}`); }}
+                onClick={() => { jumpTo(i); fillAndSubmit(`Plan a trip to ${dest.name}, ${dest.country}`); }}
                 onMouseEnter={() => setActiveDestHovered(i)}
                 onMouseLeave={() => setActiveDestHovered(null)}
                 className="group relative flex-shrink-0 overflow-hidden rounded-2xl border transition-all duration-300"

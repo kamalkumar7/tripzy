@@ -16,6 +16,7 @@ from config import (
     DEBUG_MODE,
     FLASK_PORT,
     FRONTEND_ORIGINS,
+    IS_PRODUCTION,
     MAX_CONTENT_LENGTH_BYTES,
     MAX_USER_INPUT_CHARS,
     PLAN_DAILY_QUOTA,
@@ -32,9 +33,11 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH_BYTES
 
+allowed_origins = "*" if not IS_PRODUCTION else (FRONTEND_ORIGINS if FRONTEND_ORIGINS else "*")
+
 CORS(
     app,
-    resources={r"/*": {"origins": FRONTEND_ORIGINS}},
+    resources={r"/*": {"origins": allowed_origins}},
     supports_credentials=False,
 )
 
