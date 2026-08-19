@@ -1,11 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { MapPin, Globe, Bookmark, User, Plus, Plane, Menu, X } from 'lucide-react';
+import { MapPin, Globe, Bookmark, Plus, Plane, Menu, X, LogOut } from 'lucide-react';
+import type { AuthUser } from '@/lib/auth';
 
 interface SidebarProps {
   onNewTrip: () => void;
   destination?: string;
+  user?: AuthUser | null;
+  onLogout?: () => void;
 }
 
 const DARK_BG = '#020617';
@@ -16,11 +19,11 @@ const navItems = [
   { Icon: MapPin,   label: 'My Trips', active: true  },
   { Icon: Globe,    label: 'Explore',  active: false },
   { Icon: Bookmark, label: 'Saved',    active: false },
-  { Icon: User,     label: 'Profile',  active: false },
 ];
 
-export default function Sidebar({ onNewTrip, destination }: SidebarProps) {
+export default function Sidebar({ onNewTrip, destination, user, onLogout }: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
   const renderContent = () => (
     <div className="flex flex-col h-full">
@@ -86,7 +89,7 @@ export default function Sidebar({ onNewTrip, destination }: SidebarProps) {
       )}
 
       {/* New Trip Button */}
-      <div className="p-3">
+      <div className="px-3 pb-3">
         <button
           onClick={onNewTrip}
           className="w-full flex items-center justify-center gap-2 py-3 rounded-full font-bold transition-all duration-200 hover:brightness-110 active:scale-95"
@@ -96,6 +99,63 @@ export default function Sidebar({ onNewTrip, destination }: SidebarProps) {
           New Trip
         </button>
       </div>
+
+      {/* User Profile */}
+      {user && (
+        <div
+          className="mx-3 mb-3 p-3 rounded-xl flex items-center gap-3"
+          style={{
+            background: 'rgba(255,255,255,0.04)',
+            border: '1px solid rgba(255,255,255,0.07)',
+          }}
+        >
+          {/* Avatar */}
+          <div className="relative flex-shrink-0">
+            {user.picture && !imgError ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={user.picture}
+                alt={user.name}
+                onError={() => setImgError(true)}
+                className="w-8 h-8 rounded-full object-cover"
+                style={{ border: `1.5px solid ${CYAN}` }}
+              />
+            ) : (
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
+                style={{ background: `rgba(56,189,248,0.15)`, color: CYAN, border: `1.5px solid ${CYAN}` }}
+              >
+                {user.name?.charAt(0).toUpperCase() ?? 'U'}
+              </div>
+            )}
+            {/* Online dot */}
+            <div
+              className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full"
+              style={{ background: '#34d399', border: `1.5px solid ${DARK_BG}` }}
+            />
+          </div>
+
+          {/* Name + email */}
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-semibold text-white truncate">{user.name}</p>
+            <p className="text-xs truncate" style={{ color: 'rgba(255,255,255,0.35)', fontSize: '10px' }}>
+              {user.email}
+            </p>
+          </div>
+
+          {/* Sign out */}
+          {onLogout && (
+            <button
+              onClick={onLogout}
+              title="Sign out"
+              className="p-1.5 rounded-lg flex-shrink-0 transition-all duration-200 hover:bg-white/10"
+              style={{ color: 'rgba(255,255,255,0.4)' }}
+            >
+              <LogOut size={13} />
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 

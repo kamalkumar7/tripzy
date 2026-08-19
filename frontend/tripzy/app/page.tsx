@@ -10,6 +10,8 @@ import HotelsTab from '@/components/HotelsTab';
 import PlacesTab from '@/components/PlacesTab';
 import DiningTab from '@/components/DiningTab';
 import TripSearch from '@/components/TripSearch';
+import LoginPage from '@/components/LoginPage';
+import { useAuth } from '@/components/AuthContext';
 import {
   Map, Calendar, Building2, Landmark, UtensilsCrossed,
   Check, Loader2, ArrowLeft, RefreshCw, Key, ClipboardList,
@@ -314,8 +316,18 @@ function DarkModeToggle({ dark, onToggle }: { dark: boolean; onToggle: () => voi
   );
 }
 
+// ── Auth Loading Spinner ───────────────────────
+function AuthLoadingSpinner() {
+  return (
+    <div className="min-h-screen flex items-center justify-center" style={{ background: '#020617' }}>
+      <Loader2 size={32} style={{ color: '#38bdf8' }} className="animate-spin" />
+    </div>
+  );
+}
+
 // ── Main App ───────────────────────────────────
 export default function Home() {
+  const { user, logout, loading: authLoading } = useAuth();
   const [darkMode, setDarkMode] = useState(false);
   const [view, setView] = useState<'search' | 'loading' | 'result' | 'error'>('search');
   const [activeTab, setActiveTab] = useState<TabId>('overview');
@@ -328,6 +340,10 @@ export default function Home() {
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
   }, [darkMode]);
+
+  // ── Auth gate ──────────────────────────────────
+  if (authLoading) return <AuthLoadingSpinner />;
+  if (!user)       return <LoginPage />;
 
   const handleSearch = async (input: string) => {
     console.log('[Tripzy] handleSearch called with:', JSON.stringify(input));
@@ -389,7 +405,12 @@ export default function Home() {
 
       {view === 'result' && (
         <div className="flex h-screen overflow-hidden" style={{ background: DARK_BG }}>
-          <Sidebar onNewTrip={handleNewTrip} destination={tripPlan.travel_details?.destination ?? ''} />
+          <Sidebar
+            onNewTrip={handleNewTrip}
+            destination={tripPlan.travel_details?.destination ?? ''}
+            user={user}
+            onLogout={logout}
+          />
 
           <main className="flex-1 overflow-y-auto" style={{ background: DARK_BG }}>
             <div className="md:hidden h-[60px]" />

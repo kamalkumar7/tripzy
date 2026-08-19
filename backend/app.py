@@ -39,8 +39,10 @@ allowed_origins = "*" if not IS_PRODUCTION else (FRONTEND_ORIGINS if FRONTEND_OR
 
 CORS(
     app,
-    resources={r"/*": {"origins": allowed_origins}},
+    resources={r"/api/*": {"origins": allowed_origins}},
     supports_credentials=False,
+    allow_headers=["Content-Type", "Authorization", "X-Tripzy-API-Key"],
+    methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
 )
 
 TRIP_REQUEST_SCHEMA = {
@@ -98,11 +100,39 @@ limiter = Limiter(
 
 
 @app.before_request
+def handle_preflight():
+    """Return 200 for all OPTIONS preflight requests with correct CORS headers."""
+    if request.method == "OPTIONS":
+        response = app.make_response("")
+        response.status_code = 200
+        return response
+
+
+@app.after_request
+def stamp_cors_headers(response):
+    """Stamp CORS headers on every response (safety net alongside flask-cors)."""
+    origin = request.headers.get("Origin", "*")
+    response.headers["Access-Control-Allow-Origin"] = origin
+    response.headers["Access-Control-Allow-Headers"] = (
+        "Content-Type, Authorization, X-Tripzy-API-Key"
+    )
+    response.headers["Access-Control-Allow-Methods"] = (
+        "GET, POST, PUT, DELETE, OPTIONS"
+    )
+    response.headers["Access-Control-Max-Age"] = "86400"
+    return response
+
+
+@app.before_request
 def authenticate_api_request():
     if request.method == "OPTIONS":
-        return None
+        return None  # already handled by handle_preflight above
 
     if not request.path.startswith("/api/") or request.path == "/api/health":
+        return None
+
+    # Auth routes are always public (they ARE the login mechanism)
+    if request.path.startswith("/api/auth/"):
         return None
 
     api_key = _request_api_key()
