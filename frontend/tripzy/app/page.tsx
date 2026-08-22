@@ -12,6 +12,7 @@ import DiningTab from '@/components/DiningTab';
 import TripSearch from '@/components/TripSearch';
 import LoginPage from '@/components/LoginPage';
 import SavedTripsPanel from '@/components/SavedTripsPanel';
+import ExplorePanel from '@/components/ExplorePanel';
 import { useAuth } from '@/components/AuthContext';
 import {
   Map, Calendar, Building2, Landmark, UtensilsCrossed,
@@ -353,6 +354,7 @@ export default function Home() {
 
   const handleSearch = async (input: string) => {
     console.log('[Tripzy] handleSearch called with:', JSON.stringify(input));
+    setActiveNav('My Trips');
     setUserInput(input);
     setView('loading');
     setActiveTab('overview');
@@ -444,11 +446,14 @@ export default function Home() {
         {/* Saved trips view — overrides the trip content area */}
         {activeNav === 'Saved' && <SavedTripsPanel />}
 
-        {activeNav !== 'Saved' && view === 'search'  && <div className="flex-1 overflow-y-auto"><TripSearch onSubmit={handleSearch} isLoading={false} /></div>}
-        {activeNav !== 'Saved' && view === 'loading' && <div className="flex-1 overflow-y-auto"><LoadingScreen input={userInput} /></div>}
-        {activeNav !== 'Saved' && view === 'error'   && <div className="flex-1 overflow-y-auto"><ErrorScreen error={errorMsg} onRetry={handleNewTrip} /></div>}
+        {/* Explore view — AI destination discovery hub */}
+        {activeNav === 'Explore' && <ExplorePanel onSelectPrompt={handleSearch} />}
 
-        {activeNav !== 'Saved' && view === 'result' && (
+        {activeNav === 'My Trips' && view === 'search'  && <div className="flex-1 overflow-y-auto"><TripSearch onSubmit={handleSearch} isLoading={false} /></div>}
+        {activeNav === 'My Trips' && view === 'loading' && <div className="flex-1 overflow-y-auto"><LoadingScreen input={userInput} /></div>}
+        {activeNav === 'My Trips' && view === 'error'   && <div className="flex-1 overflow-y-auto"><ErrorScreen error={errorMsg} onRetry={handleNewTrip} /></div>}
+
+        {activeNav === 'My Trips' && view === 'result' && (
           <main className="flex-1 overflow-y-auto" style={{ background: DARK_BG }}>
             <div className="md:hidden h-[60px]" />
             {tripPlan.travel_details && <HeroSection travelDetails={tripPlan.travel_details} />}
