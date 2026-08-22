@@ -227,3 +227,10 @@
 }
 /* Exclude elements that shouldn't inherit this */
 img, video, svg { transition: none; }
+
+/* ── Budget calculating scanline animation ── */
+@keyframes tripzy-scan {
+  0%   { transform: translateX(-150%); }
+  50%  { transform: translateX(200%); }
+  100% { transform: translateX(-150%); }
+}

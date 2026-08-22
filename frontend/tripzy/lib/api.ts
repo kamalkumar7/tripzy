@@ -139,6 +139,7 @@ export interface BudgetBreakdown {
   user_budget: number;
   remaining: number;
   within_budget: boolean;
+  is_estimate?: boolean;   // true while using % estimates before actual data arrives
 }
 
 export interface TripPlan {
@@ -314,13 +315,19 @@ export async function healthCheck(): Promise<boolean> {
 
 // ── Helpers ───────────────────────────────────
 
-export function formatCurrency(amount: number): string {
+export function formatCurrency(amount: number | string | null | undefined): string {
+  if (amount === null || amount === undefined) return '—';
+  // Strip currency symbols/commas if string comes from the AI (e.g. "$4,500")
+  const num = typeof amount === 'string'
+    ? parseFloat(amount.replace(/[^0-9.-]/g, ''))
+    : amount;
+  if (!isFinite(num) || isNaN(num)) return '—';
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(amount);
+  }).format(num);
 }
 
 export function getRatingStars(rating: number): string {
@@ -338,4 +345,47 @@ export function getDestinationImageUrl(destination: string): string {
   // Use Unsplash source for destination hero images
   const query = encodeURIComponent(destination.split(',')[0].trim());
   return `https://source.unsplash.com/1600x900/?${query},travel,city`;
+}
+
+// ── Saved Trips ─────────────────────────────────────────────────────────────
+
+export interface SaveTripResult {
+  saved: boolean;
+  id: string;
+  destination: string;
+}
+
+export async function saveTrip(
+  tripPlan: Partial<TripPlan>,
+  token: string,
+): Promise<SaveTripResult> {
+  const res = await fetch(`${getApiBase()}/saved-trips`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ trip_plan: tripPlan }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: 'Save failed' }));
+    throw new Error((err as { error?: string }).error ?? 'Save failed');
+  }
+  return res.json() as Promise<SaveTripResult>;
+}
+
+export interface SavedTripSummary {
+  id: string;
+  destination: string;
+  travel_details: Partial<TravelDetails>;
+  saved_at: string;
+}
+
+export async function getSavedTrips(token: string): Promise<SavedTripSummary[]> {
+  const res = await fetch(`${getApiBase()}/saved-trips`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error('Failed to fetch saved trips');
+  const data = (await res.json()) as { trips: SavedTripSummary[] };
+  return data.trips;
 }

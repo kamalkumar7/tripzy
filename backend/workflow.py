@@ -251,8 +251,32 @@ class TravelPlanWorkflow:
                 "error": state.get("error")
             }
 
-        # Push travel_details immediately so UI can show destination info
+        # ── Push INSTANT estimated budget right after extraction ──────────────
+        # This fills the budget widget within 2 seconds using % splits from the
+        # total budget. Later updates replace it with actuals from hotel/itinerary data.
+        try:
+            raw_budget = state.get("travel_details", {}).get("budget", 0)
+            instant_budget = float(str(raw_budget).replace(",", "").replace("$", "")) if raw_budget else 0
+        except (TypeError, ValueError):
+            instant_budget = 0
+
+        if instant_budget > 0:
+            # Industry-standard allocation %: accommodation 40%, food 22%, transport 12%, activities 18%, misc 8%
+            state["budget_breakdown"] = {
+                "accommodation":   round(instant_budget * 0.40, 2),
+                "food":            round(instant_budget * 0.22, 2),
+                "transportation":  round(instant_budget * 0.12, 2),
+                "activities":      round(instant_budget * 0.18, 2),
+                "miscellaneous":   round(instant_budget * 0.08, 2),
+                "total_estimated": round(instant_budget * 1.00, 2),
+                "user_budget":     instant_budget,
+                "remaining":       0,
+                "within_budget":   True,
+                "is_estimate":     True,   # flag so frontend can show "est." label
+            }
+            logger.info("Instant estimated budget pushed (user_budget=%.0f)", instant_budget)
         _push_partial(state)
+        # ──────────────────────────────────────────────────────────────────────
 
         travel_details = state.get("travel_details", {})
         agent_tasks = {
@@ -266,10 +290,9 @@ class TravelPlanWorkflow:
                 executor.submit(agent_func, travel_details): key
                 for key, agent_func in agent_tasks.items()
             }
-            for future in as_completed(future_to_key, timeout=90):  # 90 second timeout for all tasks
+            for future in as_completed(future_to_key, timeout=90):
                 key = future_to_key[future]
                 try:
-                    # Individual task timeout of 60 seconds
                     state[key] = future.result(timeout=60)
                     logger.info(f"Found {len(state[key])} {key}")
                 except FutureTimeoutError:
@@ -278,7 +301,13 @@ class TravelPlanWorkflow:
                 except Exception as e:
                     logger.info(f"{key.title()} error: {e}")
                     state[key] = []
-                # Push partial result after every section completes
+
+                # Refine budget every time hotels or places arrive (actual costs)
+                if key in ("hotels", "places") and (state.get("hotels") or state.get("places")):
+                    state["budget_breakdown"] = self._calculate_budget(state)
+                    state["budget_breakdown"]["is_estimate"] = not bool(state.get("itinerary"))
+                    logger.info("Refined budget pushed after %s completed", key)
+
                 _push_partial(state)
 
         try:

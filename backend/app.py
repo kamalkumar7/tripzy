@@ -27,6 +27,7 @@ from config import (
 from jobs import GENERIC_PLAN_ERROR, TripJobManager, plan_cache_key, sanitize_result
 from workflow import TravelPlanWorkflow
 from auth_routes import auth_bp
+from trips_routes import trips_bp
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -34,6 +35,7 @@ logger = logging.getLogger(__name__)
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH_BYTES
 app.register_blueprint(auth_bp)
+app.register_blueprint(trips_bp)
 
 allowed_origins = "*" if not IS_PRODUCTION else (FRONTEND_ORIGINS if FRONTEND_ORIGINS else "*")
 
@@ -131,8 +133,8 @@ def authenticate_api_request():
     if not request.path.startswith("/api/") or request.path == "/api/health":
         return None
 
-    # Auth routes are always public (they ARE the login mechanism)
-    if request.path.startswith("/api/auth/"):
+    # Auth routes and saved-trip routes use their own JWT check — always public
+    if request.path.startswith("/api/auth/") or request.path.startswith("/api/saved-trips"):
         return None
 
     api_key = _request_api_key()

@@ -9,6 +9,8 @@ interface SidebarProps {
   destination?: string;
   user?: AuthUser | null;
   onLogout?: () => void;
+  activeNav?: string;
+  onNavChange?: (label: string) => void;
 }
 
 const DARK_BG = '#020617';
@@ -21,7 +23,7 @@ const navItems = [
   { Icon: Bookmark, label: 'Saved',    active: false },
 ];
 
-export default function Sidebar({ onNewTrip, destination, user, onLogout }: SidebarProps) {
+export default function Sidebar({ onNewTrip, destination, user, onLogout, activeNav = 'My Trips', onNavChange }: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [imgError, setImgError] = useState(false);
 
@@ -50,20 +52,21 @@ export default function Sidebar({ onNewTrip, destination, user, onLogout }: Side
         {navItems.map(({ Icon, label, active }) => (
           <button
             key={label}
+            onClick={() => onNavChange?.(label)}
             className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium w-full text-left transition-all duration-200"
             style={
-              active
+              activeNav === label
                 ? { background: 'rgba(56,189,248,0.12)', color: CYAN, borderLeft: `3px solid ${CYAN}`, paddingLeft: '13px' }
                 : { color: 'rgba(255,255,255,0.5)' }
             }
             onMouseEnter={e => {
-              if (!active) {
+              if (activeNav !== label) {
                 (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.05)';
                 (e.currentTarget as HTMLElement).style.color = '#ffffff';
               }
             }}
             onMouseLeave={e => {
-              if (!active) {
+              if (activeNav !== label) {
                 (e.currentTarget as HTMLElement).style.background = 'transparent';
                 (e.currentTarget as HTMLElement).style.color = 'rgba(255,255,255,0.5)';
               }

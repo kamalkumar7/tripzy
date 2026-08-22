@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { planTripProgressive, type TripPlan } from '@/lib/api';
+import { planTripProgressive, saveTrip, type TripPlan } from '@/lib/api';
 import Sidebar from '@/components/Sidebar';
 import HeroSection from '@/components/HeroSection';
 import OverviewTab from '@/components/OverviewTab';
@@ -11,12 +11,13 @@ import PlacesTab from '@/components/PlacesTab';
 import DiningTab from '@/components/DiningTab';
 import TripSearch from '@/components/TripSearch';
 import LoginPage from '@/components/LoginPage';
+import SavedTripsPanel from '@/components/SavedTripsPanel';
 import { useAuth } from '@/components/AuthContext';
 import {
   Map, Calendar, Building2, Landmark, UtensilsCrossed,
   Check, Loader2, ArrowLeft, RefreshCw, Key, ClipboardList,
   Clock, AlertTriangle, Sun, Moon,
-  Plane, Search, MapPin, DollarSign,
+  Plane, Search, MapPin, DollarSign, Bookmark, BookmarkCheck,
 } from 'lucide-react';
 
 // ── Tab definitions ────────────────────────────
@@ -337,6 +338,11 @@ export default function Home() {
   const [errorMsg, setErrorMsg] = useState('');
   const tabsRef = useRef<HTMLDivElement>(null);
 
+  // Save state
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
+  // Sidebar nav
+  const [activeNav, setActiveNav] = useState('My Trips');
+
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
   }, [darkMode]);
@@ -389,29 +395,60 @@ export default function Home() {
     }
   };
 
-  const handleNewTrip = () => { setTripPlan({}); setView('search'); setUserInput(''); setErrorMsg(''); };
+  const handleNewTrip = () => {
+    setTripPlan({}); setView('search'); setUserInput('');
+    setErrorMsg(''); setSaveStatus('idle'); setActiveNav('My Trips');
+  };
   const handleTabChange = (tab: TabId) => {
     setActiveTab(tab);
     tabsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   };
 
+  const handleSave = async () => {
+    if (!user?.sub || !tripPlan || saveStatus === 'saving') return;
+    const { getToken } = await import('@/lib/auth');
+    const token = getToken();
+    if (!token) return;
+    setSaveStatus('saving');
+    try {
+      await saveTrip(tripPlan, token);
+      setSaveStatus('saved');
+    } catch {
+      setSaveStatus('error');
+      setTimeout(() => setSaveStatus('idle'), 3000);
+    }
+  };
+
   return (
-    <>
-      <DarkModeToggle dark={darkMode} onToggle={() => setDarkMode(!darkMode)} />
+    <div className="flex h-screen overflow-hidden" style={{ background: DARK_BG }}>
+      {/* Sidebar — always visible once logged in */}
+      <Sidebar
+        onNewTrip={handleNewTrip}
+        destination={tripPlan.travel_details?.destination ?? ''}
+        user={user}
+        onLogout={logout}
+        activeNav={activeNav}
+        onNavChange={nav => {
+          setActiveNav(nav);
+          if (nav === 'My Trips') {
+            // go back to current trip or search
+            if (!tripPlan.travel_details) setView('search');
+          }
+        }}
+      />
 
-      {view === 'search'  && <TripSearch onSubmit={handleSearch} isLoading={false} />}
-      {view === 'loading' && <LoadingScreen input={userInput} />}
-      {view === 'error'   && <ErrorScreen error={errorMsg} onRetry={handleNewTrip} />}
+      {/* Main content — swaps between views */}
+      <div className="flex-1 flex flex-col overflow-hidden relative">
+        <DarkModeToggle dark={darkMode} onToggle={() => setDarkMode(!darkMode)} />
 
-      {view === 'result' && (
-        <div className="flex h-screen overflow-hidden" style={{ background: DARK_BG }}>
-          <Sidebar
-            onNewTrip={handleNewTrip}
-            destination={tripPlan.travel_details?.destination ?? ''}
-            user={user}
-            onLogout={logout}
-          />
+        {/* Saved trips view — overrides the trip content area */}
+        {activeNav === 'Saved' && <SavedTripsPanel />}
 
+        {activeNav !== 'Saved' && view === 'search'  && <div className="flex-1 overflow-y-auto"><TripSearch onSubmit={handleSearch} isLoading={false} /></div>}
+        {activeNav !== 'Saved' && view === 'loading' && <div className="flex-1 overflow-y-auto"><LoadingScreen input={userInput} /></div>}
+        {activeNav !== 'Saved' && view === 'error'   && <div className="flex-1 overflow-y-auto"><ErrorScreen error={errorMsg} onRetry={handleNewTrip} /></div>}
+
+        {activeNav !== 'Saved' && view === 'result' && (
           <main className="flex-1 overflow-y-auto" style={{ background: DARK_BG }}>
             <div className="md:hidden h-[60px]" />
             {tripPlan.travel_details && <HeroSection travelDetails={tripPlan.travel_details} />}
@@ -439,10 +476,10 @@ export default function Home() {
                 '--shadow-lg':      '0 16px 48px rgba(0,0,0,0.55)',
               } as React.CSSProperties}
             >
-              {/* Tab Navigation */}
+              {/* Tab Navigation + Save button */}
               <div
                 ref={tabsRef}
-                className="flex overflow-x-auto no-scrollbar mb-8"
+                className="flex items-center overflow-x-auto no-scrollbar mb-8"
                 style={{
                   position: 'sticky',
                   top: 0,
@@ -457,6 +494,8 @@ export default function Home() {
                   paddingRight: '1rem',
                 }}
               >
+                {/* Tabs */}
+                <div className="flex flex-1 overflow-x-auto no-scrollbar">
                 {TABS.map(({ id, label, Icon }) => {
                   const active = activeTab === id;
                   const sectionLoading = loadingSections.has(id);
@@ -486,6 +525,43 @@ export default function Home() {
                     </button>
                   );
                 })}
+                </div>
+
+                {/* Save button */}
+                <button
+                  onClick={handleSave}
+                  disabled={saveStatus === 'saving' || saveStatus === 'saved'}
+                  className="flex-shrink-0 flex items-center gap-1.5 ml-3 mr-1 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 hover:brightness-110 active:scale-95 disabled:cursor-default"
+                  style={{
+                    background:
+                      saveStatus === 'saved'  ? 'rgba(52,211,153,0.15)' :
+                      saveStatus === 'error'  ? 'rgba(239,68,68,0.15)'  :
+                      'rgba(233,195,73,0.15)',
+                    color:
+                      saveStatus === 'saved'  ? '#34d399' :
+                      saveStatus === 'error'  ? '#f87171' :
+                      '#e9c349',
+                    border:
+                      saveStatus === 'saved'  ? '1px solid rgba(52,211,153,0.35)' :
+                      saveStatus === 'error'  ? '1px solid rgba(239,68,68,0.35)'  :
+                      '1px solid rgba(233,195,73,0.35)',
+                    letterSpacing: '0.06em',
+                    textTransform: 'uppercase',
+                    whiteSpace: 'nowrap',
+                  }}
+                  title={saveStatus === 'saved' ? 'Trip saved!' : 'Save this trip'}
+                >
+                  {saveStatus === 'saving' && <Loader2 size={12} className="animate-spin" />}
+                  {saveStatus === 'saved'  && <BookmarkCheck size={12} />}
+                  {saveStatus === 'error'  && <AlertTriangle size={12} />}
+                  {saveStatus === 'idle'   && <Bookmark size={12} />}
+                  <span>
+                    {saveStatus === 'saving' ? 'Saving…' :
+                     saveStatus === 'saved'  ? 'Saved!' :
+                     saveStatus === 'error'  ? 'Failed' :
+                     'Save Trip'}
+                  </span>
+                </button>
               </div>
 
               {/* Tab Content */}
@@ -516,8 +592,8 @@ export default function Home() {
               )}
             </div>
           </main>
-        </div>
-      )}
-    </>
+        )}
+      </div>
+    </div>
   );
 }

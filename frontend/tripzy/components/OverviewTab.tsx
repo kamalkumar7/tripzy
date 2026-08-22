@@ -1,7 +1,22 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import type { TravelDetails, BudgetBreakdown } from '@/lib/api';
 import { formatCurrency, getBudgetPercent } from '@/lib/api';
+
+// ── Cycling status messages shown while budget is being calculated ────────
+const BUDGET_TICKERS = [
+  '✈️  Checking flight prices…',
+  '🏨  Scouting hotels…',
+  '🍜  Tasting local cuisine…',
+  '🗺️  Mapping adventures…',
+  '💰  Crunching numbers…',
+  '🎒  Packing the itinerary…',
+  '🌐  Consulting travel gurus…',
+  '🏔️  Measuring the journey…',
+  '🍹  Finding hidden gems…',
+  '📍  Pinning your spots…',
+];
 
 interface OverviewTabProps {
   travelDetails: TravelDetails;
@@ -34,6 +49,23 @@ const innerCard: React.CSSProperties = {
 export default function OverviewTab({ travelDetails, budgetBreakdown }: OverviewTabProps) {
   const { duration, travelers, interests, budget } = travelDetails;
   const bb = budgetBreakdown;
+
+  // Cycling ticker state
+  const [tickerIdx, setTickerIdx] = useState(0);
+  const [tickerVisible, setTickerVisible] = useState(true);
+
+  useEffect(() => {
+    if (!budgetBreakdown?.is_estimate) return;
+    const interval = setInterval(() => {
+      // Fade out
+      setTickerVisible(false);
+      setTimeout(() => {
+        setTickerIdx(i => (i + 1) % BUDGET_TICKERS.length);
+        setTickerVisible(true); // Fade back in
+      }, 400);
+    }, 2200);
+    return () => clearInterval(interval);
+  }, [budgetBreakdown?.is_estimate]);
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -155,7 +187,11 @@ export default function OverviewTab({ travelDetails, budgetBreakdown }: Overview
             </div>
             <div>
               <p className="label-caps mb-1" style={{ color: 'rgba(255,255,255,0.35)' }}>Total Budget</p>
-              <p className="font-semibold" style={{ color: '#e9c349' }}>{formatCurrency(budget)}</p>
+              {(!budget || isNaN(Number(budget))) ? (
+                <div className="h-5 w-16 rounded animate-pulse" style={{ background: 'rgba(233,195,73,0.2)' }} />
+              ) : (
+                <p className="font-semibold" style={{ color: '#e9c349' }}>{formatCurrency(budget)}</p>
+              )}
             </div>
           </div>
         </div>
@@ -182,13 +218,30 @@ export default function OverviewTab({ travelDetails, budgetBreakdown }: Overview
             <>
               {/* Header */}
               <div className="flex justify-between items-start mb-6">
-                <h2
-                  className="text-2xl font-semibold"
-                  style={{ fontFamily: 'Georgia, serif', color: '#f1f5f9' }}
-                >
-                  Budget
-                </h2>
-                {budgetBreakdown.within_budget ? (
+                <div className="flex items-center gap-2">
+                  <h2
+                    className="text-2xl font-semibold"
+                    style={{ fontFamily: 'Georgia, serif', color: '#f1f5f9' }}
+                  >
+                    Budget
+                  </h2>
+                  {/* Pulsing dot while data is still estimated */}
+                  {budgetBreakdown.is_estimate && (
+                    <span
+                      className="w-2 h-2 rounded-full animate-pulse flex-shrink-0"
+                      style={{ background: '#e9c349', marginBottom: '2px' }}
+                      title="Calculating actual costs…"
+                    />
+                  )}
+                </div>
+                {budgetBreakdown.is_estimate ? (
+                  <span
+                    className="px-3 py-1 rounded-full label-caps text-[10px] flex items-center gap-1"
+                    style={{ background: 'rgba(233,195,73,0.12)', color: '#e9c349', border: '1px solid rgba(233,195,73,0.25)' }}
+                  >
+                    Estimated
+                  </span>
+                ) : budgetBreakdown.within_budget ? (
                   <span
                     className="px-3 py-1 rounded-full label-caps text-[10px] flex items-center gap-1"
                     style={{
@@ -224,6 +277,39 @@ export default function OverviewTab({ travelDetails, budgetBreakdown }: Overview
                 <p className="text-sm mt-1" style={{ color: 'rgba(255,255,255,0.4)' }}>
                   Est. spend: {formatCurrency(budgetBreakdown.total_estimated)}
                 </p>
+
+                {/* ── Animated calculating ticker ── */}
+                {budgetBreakdown.is_estimate && (
+                  <div className="mt-3 px-3">
+                    {/* Scanline progress bar */}
+                    <div
+                      className="w-full h-0.5 rounded-full overflow-hidden mb-2"
+                      style={{ background: 'rgba(233,195,73,0.1)' }}
+                    >
+                      <div
+                        className="h-full rounded-full"
+                        style={{
+                          width: '40%',
+                          background: 'linear-gradient(90deg, transparent, #e9c349, transparent)',
+                          animation: 'tripzy-scan 1.6s ease-in-out infinite',
+                        }}
+                      />
+                    </div>
+                    {/* Cycling message */}
+                    <p
+                      className="text-xs"
+                      style={{
+                        color: 'rgba(233,195,73,0.8)',
+                        opacity: tickerVisible ? 1 : 0,
+                        transition: 'opacity 0.35s ease',
+                        letterSpacing: '0.03em',
+                        minHeight: '1.2em',
+                      }}
+                    >
+                      {BUDGET_TICKERS[tickerIdx]}
+                    </p>
+                  </div>
+                )}
               </div>
 
               {/* Progress bars */}
