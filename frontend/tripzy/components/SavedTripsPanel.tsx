@@ -5,19 +5,15 @@ import { Bookmark, Loader2, Calendar, Users, MapPin, Trash2, Plane, AlertCircle 
 import { getSavedTrips, type SavedTripSummary } from '@/lib/api';
 import { getToken } from '@/lib/auth';
 
-const DARK_BG = '#020617';
-const CYAN    = '#38bdf8';
-const GOLD    = '#e9c349';
-
 interface SavedTripsPanelProps {
   /** Called when the user clicks a saved trip card to load it */
   onLoadTrip?: (trip: SavedTripSummary) => void;
 }
 
 export default function SavedTripsPanel({ onLoadTrip }: SavedTripsPanelProps) {
-  const [trips, setTrips]   = useState<SavedTripSummary[]>([]);
+  const [trips, setTrips]     = useState<SavedTripSummary[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError]   = useState('');
+  const [error, setError]     = useState('');
 
   const fetchTrips = async () => {
     setLoading(true);
@@ -51,21 +47,21 @@ export default function SavedTripsPanel({ onLoadTrip }: SavedTripsPanelProps) {
   return (
     <div
       className="flex-1 overflow-y-auto px-6 py-8"
-      style={{ background: DARK_BG }}
+      style={{ background: 'var(--background)' }}
     >
       {/* Header */}
       <div className="flex items-center gap-3 mb-8">
         <div
           className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-          style={{ background: 'rgba(56,189,248,0.1)', border: '1px solid rgba(56,189,248,0.2)' }}
+          style={{ background: 'rgba(4,22,39,0.07)', border: '1px solid var(--outline)' }}
         >
-          <Bookmark size={18} style={{ color: CYAN }} />
+          <Bookmark size={18} style={{ color: 'var(--primary)' }} />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-white" style={{ fontFamily: 'Georgia, serif' }}>
+          <h1 className="text-xl font-bold" style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}>
             Saved Trips
           </h1>
-          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>
+          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
             Your personal travel collection
           </p>
         </div>
@@ -74,8 +70,8 @@ export default function SavedTripsPanel({ onLoadTrip }: SavedTripsPanelProps) {
       {/* Loading */}
       {loading && (
         <div className="flex flex-col items-center justify-center py-24 gap-4">
-          <Loader2 size={28} style={{ color: CYAN }} className="animate-spin" />
-          <p className="text-sm" style={{ color: 'rgba(255,255,255,0.4)' }}>Loading your trips…</p>
+          <Loader2 size={28} style={{ color: 'var(--primary)' }} className="animate-spin" />
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Loading your trips…</p>
         </div>
       )}
 
@@ -83,10 +79,10 @@ export default function SavedTripsPanel({ onLoadTrip }: SavedTripsPanelProps) {
       {!loading && error && (
         <div
           className="flex items-center gap-3 p-4 rounded-xl mb-6"
-          style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}
+          style={{ background: 'rgba(186,26,26,0.06)', border: '1px solid rgba(186,26,26,0.2)' }}
         >
-          <AlertCircle size={16} style={{ color: '#f87171' }} />
-          <p className="text-sm" style={{ color: '#fca5a5' }}>{error}</p>
+          <AlertCircle size={16} style={{ color: 'var(--error)' }} />
+          <p className="text-sm" style={{ color: 'var(--error)' }}>{error}</p>
         </div>
       )}
 
@@ -95,15 +91,15 @@ export default function SavedTripsPanel({ onLoadTrip }: SavedTripsPanelProps) {
         <div className="flex flex-col items-center justify-center py-24 gap-4">
           <div
             className="w-20 h-20 rounded-3xl flex items-center justify-center"
-            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
+            style={{ background: 'var(--surface-low)', border: '1px solid var(--outline)' }}
           >
-            <Plane size={32} style={{ color: 'rgba(255,255,255,0.15)' }} />
+            <Plane size={32} style={{ color: 'var(--outline)' }} />
           </div>
-          <p className="text-lg font-semibold" style={{ color: 'rgba(255,255,255,0.5)', fontFamily: 'Georgia, serif' }}>
+          <p className="text-lg font-semibold" style={{ color: 'var(--text-secondary)', fontFamily: 'Playfair Display, serif' }}>
             No saved trips yet
           </p>
-          <p className="text-sm text-center max-w-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>
-            Plan a trip and click <span style={{ color: GOLD }}>Save Trip</span> to keep it here
+          <p className="text-sm text-center max-w-xs" style={{ color: 'var(--text-muted)' }}>
+            Plan a trip and click <span style={{ color: 'var(--gold)' }}>Save Trip</span> to keep it here
           </p>
         </div>
       )}
@@ -121,12 +117,7 @@ export default function SavedTripsPanel({ onLoadTrip }: SavedTripsPanelProps) {
             return (
               <div
                 key={trip.id}
-                className="group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-200 hover:scale-[1.02]"
-                style={{
-                  background: 'rgba(15,23,42,0.7)',
-                  border: '1px solid rgba(255,255,255,0.07)',
-                  boxShadow: '0 4px 24px rgba(0,0,0,0.3)',
-                }}
+                className="group relative card overflow-hidden cursor-pointer"
                 onClick={() => onLoadTrip?.(trip)}
               >
                 {/* City image */}
@@ -143,13 +134,13 @@ export default function SavedTripsPanel({ onLoadTrip }: SavedTripsPanelProps) {
                   />
                   <div
                     className="absolute inset-0"
-                    style={{ background: 'linear-gradient(to top, rgba(2,6,23,0.9) 0%, rgba(2,6,23,0.2) 60%, transparent 100%)' }}
+                    style={{ background: 'linear-gradient(to top, rgba(4,22,39,0.88) 0%, rgba(4,22,39,0.2) 60%, transparent 100%)' }}
                   />
                   {/* Delete button */}
                   <button
                     onClick={e => { e.stopPropagation(); handleDelete(trip.id); }}
                     className="absolute top-2.5 right-2.5 opacity-0 group-hover:opacity-100 transition-all duration-200 w-7 h-7 rounded-full flex items-center justify-center hover:scale-110"
-                    style={{ background: 'rgba(239,68,68,0.8)', backdropFilter: 'blur(8px)' }}
+                    style={{ background: 'rgba(186,26,26,0.85)', backdropFilter: 'blur(8px)' }}
                     title="Remove saved trip"
                   >
                     <Trash2 size={12} color="#fff" />
@@ -159,8 +150,8 @@ export default function SavedTripsPanel({ onLoadTrip }: SavedTripsPanelProps) {
                 {/* Card content */}
                 <div className="p-4">
                   <h3
-                    className="text-base font-bold text-white mb-2 truncate"
-                    style={{ fontFamily: 'Georgia, serif' }}
+                    className="text-base font-bold mb-2 truncate"
+                    style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}
                   >
                     {trip.destination}
                   </h3>
@@ -169,7 +160,7 @@ export default function SavedTripsPanel({ onLoadTrip }: SavedTripsPanelProps) {
                     {td?.duration && (
                       <span
                         className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full"
-                        style={{ background: 'rgba(56,189,248,0.1)', color: CYAN }}
+                        style={{ background: 'rgba(4,22,39,0.07)', color: 'var(--primary)', border: '1px solid var(--outline)' }}
                       >
                         <Calendar size={10} /> {td.duration} days
                       </span>
@@ -177,7 +168,7 @@ export default function SavedTripsPanel({ onLoadTrip }: SavedTripsPanelProps) {
                     {td?.travelers && (
                       <span
                         className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full"
-                        style={{ background: 'rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.6)' }}
+                        style={{ background: 'var(--surface-mid)', color: 'var(--text-secondary)', border: '1px solid var(--outline)' }}
                       >
                         <Users size={10} /> {td.travelers} people
                       </span>
@@ -185,14 +176,14 @@ export default function SavedTripsPanel({ onLoadTrip }: SavedTripsPanelProps) {
                     {td?.travel_type && (
                       <span
                         className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full"
-                        style={{ background: 'rgba(233,195,73,0.1)', color: GOLD }}
+                        style={{ background: 'rgba(233,195,73,0.1)', color: 'var(--gold)', border: '1px solid rgba(233,195,73,0.2)' }}
                       >
                         <MapPin size={10} /> {td.travel_type}
                       </span>
                     )}
                   </div>
 
-                  <p className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>
+                  <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
                     Saved {savedDate}
                   </p>
                 </div>

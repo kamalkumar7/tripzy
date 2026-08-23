@@ -7,14 +7,9 @@ import {
   MapPin, Clock, Truck, Lightbulb, ChevronDown, Calendar,
 } from 'lucide-react';
 
-
 interface ItineraryTabProps {
   itinerary: ItineraryDay[];
 }
-
-const DARK_BG = '#020617';
-const CYAN    = '#38bdf8';
-const GOLD    = '#e9c349';
 
 const timeSlots = [
   {
@@ -26,7 +21,7 @@ const timeSlots = [
     getTime:   (d: ItineraryDay) => d.morning?.time,
   },
   {
-    key: 'lunch'     as const, label: 'Lunch',     Icon: Utensils, color: GOLD,
+    key: 'lunch'     as const, label: 'Lunch',     Icon: Utensils, color: '#e9c349',
     getTitle:  (d: ItineraryDay) => d.lunch?.restaurant   || 'Lunch',
     getDesc:   (d: ItineraryDay) => d.lunch?.cuisine ? `${d.lunch.cuisine} cuisine` : undefined,
     getMeta:   (d: ItineraryDay) => d.lunch?.estimated_cost ? `${d.lunch.estimated_cost} per person` : undefined,
@@ -34,7 +29,7 @@ const timeSlots = [
     getTime:   (d: ItineraryDay) => d.lunch?.time,
   },
   {
-    key: 'afternoon' as const, label: 'Afternoon', Icon: Sun,      color: CYAN,
+    key: 'afternoon' as const, label: 'Afternoon', Icon: Sun,      color: '#38bdf8',
     getTitle:  (d: ItineraryDay) => d.afternoon?.activity || 'Afternoon Activity',
     getDesc:   (d: ItineraryDay) => d.afternoon?.description,
     getMeta:   (d: ItineraryDay) => d.afternoon?.place ? d.afternoon.place : undefined,
@@ -60,55 +55,61 @@ const timeSlots = [
 ];
 
 function DayCard({ day, isOpen, onToggle }: { day: ItineraryDay; isOpen: boolean; onToggle: () => void }) {
-  const glassCard: React.CSSProperties = {
-    backdropFilter: 'blur(20px)',
-    WebkitBackdropFilter: 'blur(20px)',
-    background: 'rgba(15,23,42,0.70)',
-    border: `1px solid ${isOpen ? 'rgba(56,189,248,0.25)' : 'rgba(255,255,255,0.07)'}`,
-    borderRadius: '1.125rem',
-    overflow: 'hidden',
-    transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-    boxShadow: isOpen ? '0 8px 32px rgba(56,189,248,0.08)' : '0 4px 20px rgba(0,0,0,0.3)',
-  };
-
   return (
-    <div style={glassCard}>
+    <div
+      style={{
+        background: 'var(--surface)',
+        border: isOpen ? '1px solid var(--primary)' : '1px solid var(--outline)',
+        borderRadius: '1.125rem',
+        overflow: 'hidden',
+        transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
+        boxShadow: isOpen ? 'var(--shadow-lg)' : 'var(--shadow-card)',
+      }}
+    >
       <button
         onClick={onToggle}
         className="w-full flex items-center justify-between p-5 text-left"
-        style={{ background: isOpen ? 'rgba(56,189,248,0.05)' : 'transparent' }}
+        style={{ background: isOpen ? 'rgba(4,22,39,0.04)' : 'transparent' }}
       >
         <div className="flex items-center gap-4">
           <div
             className="w-12 h-12 rounded-2xl flex flex-col items-center justify-center flex-shrink-0"
             style={{
-              background: isOpen ? `rgba(56,189,248,0.15)` : 'rgba(255,255,255,0.05)',
-              border: isOpen ? `1px solid rgba(56,189,248,0.3)` : '1px solid rgba(255,255,255,0.07)',
+              background: isOpen ? 'rgba(4,22,39,0.08)' : 'var(--surface-low)',
+              border: isOpen ? '1px solid var(--primary)' : '1px solid var(--outline)',
             }}
           >
-            <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '9px', fontWeight: 700, letterSpacing: '0.1em' }}>DAY</span>
-            <span style={{ color: isOpen ? CYAN : '#f1f5f9', fontFamily: 'Georgia, serif', fontSize: '20px', fontWeight: 700, lineHeight: 1 }}>
+            <span className="label-caps" style={{ color: 'var(--text-muted)', fontSize: '9px' }}>DAY</span>
+            <span
+              style={{
+                color: isOpen ? 'var(--primary)' : 'var(--text-primary)',
+                fontFamily: 'Playfair Display, serif',
+                fontSize: '20px',
+                fontWeight: 700,
+                lineHeight: 1,
+              }}
+            >
               {day.day}
             </span>
           </div>
           <div>
-            <p className="text-base font-semibold" style={{ fontFamily: 'Georgia, serif', color: '#f1f5f9' }}>
+            <p className="text-base font-semibold" style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}>
               {day.title}
             </p>
-            <p className="text-sm mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>{day.theme}</p>
+            <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>{day.theme}</p>
           </div>
         </div>
 
         <div className="flex items-center gap-4">
           {day.estimated_daily_cost && (
-            <span className="text-sm font-semibold hidden sm:block" style={{ color: GOLD }}>
+            <span className="text-sm font-semibold hidden sm:block" style={{ color: 'var(--gold)' }}>
               {day.estimated_daily_cost}
             </span>
           )}
           <ChevronDown
             size={18}
             style={{
-              color: 'rgba(255,255,255,0.4)',
+              color: 'var(--text-muted)',
               transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
               transition: 'transform 0.25s ease',
               flexShrink: 0,
@@ -118,7 +119,7 @@ function DayCard({ day, isOpen, onToggle }: { day: ItineraryDay; isOpen: boolean
       </button>
 
       {isOpen && (
-        <div className="px-5 pb-5" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="px-5 pb-5" style={{ borderTop: '1px solid var(--outline)' }}>
           <div className="mt-4 space-y-3">
             {timeSlots.map((slot) => {
               const title = slot.getTitle(day);
@@ -133,7 +134,7 @@ function DayCard({ day, isOpen, onToggle }: { day: ItineraryDay; isOpen: boolean
                 <div
                   key={slot.key}
                   className="flex gap-3 p-4 rounded-xl"
-                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}
+                  style={{ background: 'var(--surface-low)', border: '1px solid var(--outline)' }}
                 >
                   <div
                     className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -144,29 +145,29 @@ function DayCard({ day, isOpen, onToggle }: { day: ItineraryDay; isOpen: boolean
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2 flex-wrap">
                       <div className="flex items-center gap-2">
-                        <span style={{ color: slot.color, fontSize: '10px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                        <span className="label-caps" style={{ color: slot.color, fontSize: '10px' }}>
                           {slot.label}
                         </span>
                         {time && (
-                          <span className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>{time}</span>
+                          <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{time}</span>
                         )}
                       </div>
                       {dur && (
                         <span style={{
                           padding: '2px 8px', borderRadius: '9999px',
                           fontSize: '10px', fontWeight: 600,
-                          background: 'rgba(255,255,255,0.06)',
-                          color: 'rgba(255,255,255,0.5)',
-                          border: '1px solid rgba(255,255,255,0.08)',
+                          background: 'var(--surface-mid)',
+                          color: 'var(--text-muted)',
+                          border: '1px solid var(--outline)',
                         }}>
                           {dur}
                         </span>
                       )}
                     </div>
-                    <p className="text-sm font-semibold mt-1" style={{ color: '#f1f5f9' }}>{title}</p>
-                    {desc  && <p className="text-sm mt-1 leading-5" style={{ color: 'rgba(255,255,255,0.55)' }}>{desc}</p>}
+                    <p className="text-sm font-semibold mt-1" style={{ color: 'var(--text-primary)' }}>{title}</p>
+                    {desc  && <p className="text-sm mt-1 leading-5" style={{ color: 'var(--text-secondary)' }}>{desc}</p>}
                     {meta  && (
-                      <p className="flex items-center gap-1.5 text-xs mt-1.5" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                      <p className="flex items-center gap-1.5 text-xs mt-1.5" style={{ color: 'var(--text-muted)' }}>
                         <MapPin size={10} /> {meta}
                       </p>
                     )}
@@ -178,26 +179,26 @@ function DayCard({ day, isOpen, onToggle }: { day: ItineraryDay; isOpen: boolean
 
           {day.transportation && (
             <div className="mt-4 p-4 rounded-xl flex items-start gap-3"
-              style={{ background: 'rgba(167,139,250,0.06)', border: '1px solid rgba(167,139,250,0.15)' }}>
+              style={{ background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.2)' }}>
               <Truck size={16} color="#a78bfa" className="flex-shrink-0 mt-0.5" />
               <div>
-                <p style={{ color: '#a78bfa', fontSize: '10px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '3px' }}>
+                <p className="label-caps mb-0.5" style={{ color: '#a78bfa', fontSize: '10px' }}>
                   Transportation
                 </p>
-                <p className="text-sm" style={{ color: 'rgba(255,255,255,0.6)' }}>{day.transportation}</p>
+                <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{day.transportation}</p>
               </div>
             </div>
           )}
 
           {day.tips && day.tips.length > 0 && (
             <div className="mt-4">
-              <p style={{ color: GOLD, fontSize: '10px', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <Lightbulb size={11} color={GOLD} /> Tips
+              <p className="label-caps mb-2 flex items-center gap-1.5" style={{ color: 'var(--gold)', fontSize: '10px' }}>
+                <Lightbulb size={11} color="var(--gold)" /> Tips
               </p>
               <ul className="space-y-1">
                 {day.tips.map((tip, i) => (
-                  <li key={i} className="text-sm flex items-start gap-2" style={{ color: 'rgba(255,255,255,0.55)' }}>
-                    <span style={{ color: GOLD, marginTop: '2px' }}>•</span>
+                  <li key={i} className="text-sm flex items-start gap-2" style={{ color: 'var(--text-secondary)' }}>
+                    <span style={{ color: 'var(--gold)', marginTop: '2px' }}>•</span>
                     {tip}
                   </li>
                 ))}
@@ -215,9 +216,9 @@ export default function ItineraryTab({ itinerary }: ItineraryTabProps) {
 
   if (!itinerary || itinerary.length === 0) {
     return (
-      <div className="text-center py-20" style={{ color: 'rgba(255,255,255,0.35)' }}>
-        <Calendar size={48} color="rgba(255,255,255,0.15)" className="mx-auto mb-4" />
-        <p className="text-lg font-medium">No itinerary available</p>
+      <div className="text-center py-20" style={{ color: 'var(--text-muted)' }}>
+        <Calendar size={48} style={{ color: 'var(--outline)' }} className="mx-auto mb-4" />
+        <p className="text-lg font-medium" style={{ color: 'var(--text-secondary)' }}>No itinerary available</p>
       </div>
     );
   }
@@ -225,12 +226,12 @@ export default function ItineraryTab({ itinerary }: ItineraryTabProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-2">
-        <h2 className="text-2xl font-semibold" style={{ fontFamily: 'Georgia, serif', color: '#f1f5f9' }}>
+        <h2 className="text-2xl font-semibold" style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}>
           Day-by-Day Plan
         </h2>
         <span style={{
           padding: '4px 12px', borderRadius: '9999px', fontSize: '12px', fontWeight: 600,
-          background: 'rgba(56,189,248,0.1)', color: CYAN, border: '1px solid rgba(56,189,248,0.2)',
+          background: 'rgba(4,22,39,0.07)', color: 'var(--primary)', border: '1px solid var(--outline)',
         }}>
           {itinerary.length} Days
         </span>

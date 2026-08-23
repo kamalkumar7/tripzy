@@ -422,7 +422,7 @@ export default function Home() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: DARK_BG }}>
+    <div className="flex h-screen overflow-hidden" style={{ background: 'var(--background)' }}>
       {/* Sidebar — always visible once logged in */}
       <Sidebar
         onNewTrip={handleNewTrip}
@@ -454,32 +454,14 @@ export default function Home() {
         {activeNav === 'My Trips' && view === 'error'   && <div className="flex-1 overflow-y-auto"><ErrorScreen error={errorMsg} onRetry={handleNewTrip} /></div>}
 
         {activeNav === 'My Trips' && view === 'result' && (
-          <main className="flex-1 overflow-y-auto" style={{ background: DARK_BG }}>
+          <main className="flex-1 overflow-y-auto" style={{ background: 'var(--background)' }}>
             <div className="md:hidden h-[60px]" />
             {tripPlan.travel_details && <HeroSection travelDetails={tripPlan.travel_details} />}
 
-            {/* Content area — overrides CSS vars to dark values for all child tabs */}
+            {/* Content area — uses global design tokens from globals.css */}
             <div
               className="mx-auto px-4 md:px-8 py-8"
-              style={{
-                maxWidth: '1280px',
-                '--surface':        'rgba(15,23,42,0.72)',
-                '--surface-low':    'rgba(255,255,255,0.04)',
-                '--surface-mid':    'rgba(255,255,255,0.06)',
-                '--surface-high':   'rgba(255,255,255,0.08)',
-                '--surface-border': 'rgba(255,255,255,0.08)',
-                '--outline':        'rgba(255,255,255,0.09)',
-                '--text-primary':   '#f1f5f9',
-                '--text-secondary': 'rgba(255,255,255,0.65)',
-                '--text-muted':     'rgba(255,255,255,0.38)',
-                '--primary':        CYAN,
-                '--gold':           GOLD,
-                '--gold-dark':      GOLD,
-                '--success':        '#34d399',
-                '--error':          '#f87171',
-                '--shadow-card':    '0 8px 32px rgba(0,0,0,0.45)',
-                '--shadow-lg':      '0 16px 48px rgba(0,0,0,0.55)',
-              } as React.CSSProperties}
+              style={{ maxWidth: '1280px' }}
             >
               {/* Tab Navigation + Save button */}
               <div
@@ -489,10 +471,10 @@ export default function Home() {
                   position: 'sticky',
                   top: 0,
                   zIndex: 30,
-                  backdropFilter: 'blur(24px)',
-                  WebkitBackdropFilter: 'blur(24px)',
-                  background: 'rgba(2,6,23,0.90)',
-                  borderBottom: '1px solid rgba(255,255,255,0.07)',
+                  backdropFilter: 'blur(16px)',
+                  WebkitBackdropFilter: 'blur(16px)',
+                  background: 'var(--surface)',
+                  borderBottom: '1px solid var(--outline)',
                   marginLeft: '-1rem',
                   marginRight: '-1rem',
                   paddingLeft: '1rem',
@@ -510,8 +492,8 @@ export default function Home() {
                       onClick={() => handleTabChange(id)}
                       className="flex items-center gap-2 px-5 py-3.5 whitespace-nowrap transition-all duration-200 flex-shrink-0"
                       style={{
-                        color: active ? CYAN : 'rgba(255,255,255,0.42)',
-                        borderBottom: active ? `2px solid ${CYAN}` : '2px solid transparent',
+                        color: active ? 'var(--primary)' : 'var(--text-muted)',
+                        borderBottom: active ? '2px solid var(--gold)' : '2px solid transparent',
                         background: 'transparent',
                         fontWeight: active ? 700 : 500,
                         letterSpacing: '0.06em',
@@ -524,7 +506,7 @@ export default function Home() {
                       {sectionLoading && (
                         <span
                           className="w-1.5 h-1.5 rounded-full animate-pulse"
-                          style={{ background: CYAN, display: 'inline-block' }}
+                          style={{ background: 'var(--gold)', display: 'inline-block' }}
                         />
                       )}
                     </button>

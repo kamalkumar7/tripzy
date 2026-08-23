@@ -56,7 +56,7 @@ export default function Sidebar({ onNewTrip, destination, user, onLogout, active
             className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium w-full text-left transition-all duration-200"
             style={
               activeNav === label
-                ? { background: 'rgba(56,189,248,0.12)', color: CYAN, borderLeft: `3px solid ${CYAN}`, paddingLeft: '13px' }
+                ? { background: 'rgba(233,195,73,0.12)', color: GOLD, borderLeft: `3px solid ${GOLD}`, paddingLeft: '13px' }
                 : { color: 'rgba(255,255,255,0.5)' }
             }
             onMouseEnter={e => {
