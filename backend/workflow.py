@@ -8,6 +8,7 @@ from agents.place_agent import PlaceAgent
 from agents.restaurants_agent import RestaurantsAgent
 from agents.hotels_agent import HotelsAgent
 from agents.itinerary_agent import ItineraryAgent
+from agents.suggestions_agent import SuggestionsAgent
 
 # Force UTF-8 on stdout/stderr so emoji in log messages don't crash on Windows CP1252
 if hasattr(sys.stdout, 'reconfigure'):
@@ -34,6 +35,7 @@ class TravelPlanState(TypedDict):
     restaurants: list
     hotels: list
     itinerary: list
+    suggestions: dict
     budget_breakdown: dict
     error: str | None
 
@@ -46,6 +48,7 @@ class TravelPlanWorkflow:
         self.restaurants_agent = RestaurantsAgent()
         self.hotels_agent = HotelsAgent()
         self.itinerary_agent = ItineraryAgent()
+        self.suggestions_agent = SuggestionsAgent()
         
         # Build the workflow graph
         self.workflow = self._build_workflow()
@@ -222,6 +225,7 @@ class TravelPlanWorkflow:
                         "restaurants":    partial_state.get("restaurants", []),
                         "hotels":         partial_state.get("hotels", []),
                         "itinerary":      partial_state.get("itinerary", []),
+                        "suggestions":    partial_state.get("suggestions", {}),
                         "budget_breakdown": partial_state.get("budget_breakdown", {}),
                         "error":          partial_state.get("error"),
                     })
@@ -235,6 +239,7 @@ class TravelPlanWorkflow:
             "restaurants": [],
             "hotels": [],
             "itinerary": [],
+            "suggestions": {},
             "budget_breakdown": {},
             "error": None
         }
@@ -247,6 +252,7 @@ class TravelPlanWorkflow:
                 "restaurants": [],
                 "hotels": [],
                 "itinerary": [],
+                "suggestions": {},
                 "budget_breakdown": {},
                 "error": state.get("error")
             }
@@ -283,6 +289,7 @@ class TravelPlanWorkflow:
             "places": self.places_agent.find_places,
             "restaurants": self.restaurants_agent.find_restaurants,
             "hotels": self.hotels_agent.find_hotels,
+            "suggestions": self.suggestions_agent.get_suggestions,
         }
 
         with ThreadPoolExecutor(max_workers=len(agent_tasks)) as executor:
@@ -294,13 +301,16 @@ class TravelPlanWorkflow:
                 key = future_to_key[future]
                 try:
                     state[key] = future.result(timeout=60)
-                    logger.info(f"Found {len(state[key])} {key}")
+                    if isinstance(state[key], list):
+                        logger.info(f"Found {len(state[key])} {key}")
+                    else:
+                        logger.info(f"Generated {key}")
                 except FutureTimeoutError:
                     logger.warning(f"{key.title()} task timed out after 60 seconds")
-                    state[key] = []
+                    state[key] = [] if key != "suggestions" else {}
                 except Exception as e:
                     logger.info(f"{key.title()} error: {e}")
-                    state[key] = []
+                    state[key] = [] if key != "suggestions" else {}
 
                 # Refine budget every time hotels or places arrive (actual costs)
                 if key in ("hotels", "places") and (state.get("hotels") or state.get("places")):
@@ -326,6 +336,7 @@ class TravelPlanWorkflow:
             "restaurants": state.get("restaurants", []),
             "hotels": state.get("hotels", []),
             "itinerary": state.get("itinerary", []),
+            "suggestions": state.get("suggestions", {}),
             "budget_breakdown": state.get("budget_breakdown", {}),
             "error": state.get("error")
         }

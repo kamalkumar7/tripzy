@@ -9,13 +9,14 @@ import ItineraryTab from '@/components/ItineraryTab';
 import HotelsTab from '@/components/HotelsTab';
 import PlacesTab from '@/components/PlacesTab';
 import DiningTab from '@/components/DiningTab';
+import SuggestionsTab from '@/components/SuggestionsTab';
 import TripSearch from '@/components/TripSearch';
 import LoginPage from '@/components/LoginPage';
 import SavedTripsPanel from '@/components/SavedTripsPanel';
 import ExplorePanel from '@/components/ExplorePanel';
 import { useAuth } from '@/components/AuthContext';
 import {
-  Map, Calendar, Building2, Landmark, UtensilsCrossed,
+  Map, Calendar, Building2, Landmark, UtensilsCrossed, Sparkles,
   Check, Loader2, ArrowLeft, RefreshCw, Key, ClipboardList,
   Clock, AlertTriangle, Sun, Moon,
   Plane, Search, MapPin, DollarSign, Bookmark, BookmarkCheck,
@@ -23,11 +24,12 @@ import {
 
 // ── Tab definitions ────────────────────────────
 const TABS = [
-  { id: 'overview',   label: 'Overview',   Icon: Map           },
-  { id: 'itinerary',  label: 'Itinerary',  Icon: Calendar      },
-  { id: 'hotels',     label: 'Hotels',     Icon: Building2     },
-  { id: 'places',     label: 'Places',     Icon: Landmark      },
-  { id: 'dining',     label: 'Dining',     Icon: UtensilsCrossed },
+  { id: 'overview',    label: 'Overview',    Icon: Map           },
+  { id: 'itinerary',   label: 'Itinerary',   Icon: Calendar      },
+  { id: 'hotels',      label: 'Hotels',      Icon: Building2     },
+  { id: 'places',      label: 'Places',      Icon: Landmark      },
+  { id: 'dining',      label: 'Dining',      Icon: UtensilsCrossed },
+  { id: 'suggestions', label: 'Suggestions', Icon: Sparkles      },
 ] as const;
 
 type TabId = (typeof TABS)[number]['id'];
@@ -359,7 +361,7 @@ export default function Home() {
     setView('loading');
     setActiveTab('overview');
     setTripPlan({});
-    setLoadingSections(new Set(['overview', 'itinerary', 'hotels', 'places', 'dining']));
+    setLoadingSections(new Set(['overview', 'itinerary', 'hotels', 'places', 'dining', 'suggestions']));
 
     try {
       console.log('[Tripzy] Calling planTripProgressive...');
@@ -381,6 +383,7 @@ export default function Home() {
           if (partial.hotels && partial.hotels.length > 0) { next.delete('hotels'); }
           if (partial.places && partial.places.length > 0) { next.delete('places'); }
           if (partial.restaurants && partial.restaurants.length > 0) { next.delete('dining'); }
+          if (partial.suggestions && Object.keys(partial.suggestions).length > 0) { next.delete('suggestions'); }
           return next;
         });
       });
@@ -576,6 +579,11 @@ export default function Home() {
                 loadingSections.has('dining')
                   ? <TabSkeleton count={4} />
                   : <DiningTab restaurants={tripPlan.restaurants ?? []} />
+              )}
+              {activeTab === 'suggestions' && (
+                loadingSections.has('suggestions')
+                  ? <TabSkeleton count={3} />
+                  : <SuggestionsTab suggestions={tripPlan.suggestions} travelDetails={tripPlan.travel_details} />
               )}
             </div>
           </main>

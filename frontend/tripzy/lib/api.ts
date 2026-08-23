@@ -142,6 +142,58 @@ export interface BudgetBreakdown {
   is_estimate?: boolean;   // true while using % estimates before actual data arrives
 }
 
+export interface SeasonItem {
+  season_name: string;
+  weather_summary: string;
+  clothing_items: string[];
+  packing_essentials: string[];
+  dress_code_tips: string;
+}
+
+export interface SeasonalClothing {
+  climate_overview: string;
+  seasons: SeasonItem[];
+  general_dress_tips?: string[];
+}
+
+export interface ScamAlert {
+  title: string;
+  risk_level: 'High' | 'Medium' | 'Low' | string;
+  description: string;
+  prevention: string;
+  warning_signs?: string;
+}
+
+export interface MustDoActivity {
+  title: string;
+  category: string;
+  description: string;
+  insider_tip: string;
+  best_time?: string;
+  estimated_cost?: string;
+}
+
+export interface LocalHack {
+  topic: string;
+  category?: string;
+  tip: string;
+}
+
+export interface EmergencyContacts {
+  police?: string;
+  ambulance?: string;
+  tourist_helpline?: string;
+  emergency_notes?: string;
+}
+
+export interface SuggestionsData {
+  seasonal_clothing?: SeasonalClothing;
+  scams_and_safety?: ScamAlert[];
+  must_do_activities?: MustDoActivity[];
+  local_hacks_and_etiquette?: LocalHack[];
+  emergency_contacts?: EmergencyContacts;
+}
+
 export interface TripPlan {
   travel_details: TravelDetails;
   places: Place[];
@@ -149,6 +201,7 @@ export interface TripPlan {
   hotels: Hotel[];
   itinerary: ItineraryDay[];
   budget_breakdown: BudgetBreakdown;
+  suggestions?: SuggestionsData;
   error?: string | null;
 }
 
