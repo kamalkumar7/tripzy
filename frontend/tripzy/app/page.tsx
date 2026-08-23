@@ -558,7 +558,16 @@ export default function Home() {
               {activeTab === 'overview'  && (
                 loadingSections.has('overview')
                   ? <TabSkeleton count={2} />
-                  : <OverviewTab travelDetails={tripPlan.travel_details!} budgetBreakdown={tripPlan.budget_breakdown} />
+                  : <OverviewTab
+                      travelDetails={tripPlan.travel_details!}
+                      budgetBreakdown={tripPlan.budget_breakdown}
+                      places={tripPlan.places}
+                      restaurants={tripPlan.restaurants}
+                      hotels={tripPlan.hotels}
+                      itinerary={tripPlan.itinerary}
+                      suggestions={tripPlan.suggestions}
+                      onSelectTab={handleTabChange}
+                    />
               )}
               {activeTab === 'itinerary' && (
                 loadingSections.has('itinerary')

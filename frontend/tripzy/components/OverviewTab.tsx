@@ -1,8 +1,32 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { TravelDetails, BudgetBreakdown } from '@/lib/api';
+import type {
+  TravelDetails,
+  BudgetBreakdown,
+  Place,
+  Restaurant,
+  Hotel,
+  ItineraryDay,
+  SuggestionsData,
+} from '@/lib/api';
 import { formatCurrency, getBudgetPercent } from '@/lib/api';
+import {
+  Calendar,
+  Sparkles,
+  MapPin,
+  UtensilsCrossed,
+  Building2,
+  ShieldCheck,
+  SunMedium,
+  Shirt,
+  ArrowRight,
+  Lightbulb,
+  CheckCircle2,
+  Clock,
+  Star,
+  ShieldAlert,
+} from 'lucide-react';
 
 // ── Cycling status messages shown while budget is being calculated ────────
 const BUDGET_TICKERS = [
@@ -21,6 +45,12 @@ const BUDGET_TICKERS = [
 interface OverviewTabProps {
   travelDetails: TravelDetails;
   budgetBreakdown?: BudgetBreakdown;
+  places?: Place[];
+  restaurants?: Restaurant[];
+  hotels?: Hotel[];
+  itinerary?: ItineraryDay[];
+  suggestions?: SuggestionsData;
+  onSelectTab?: (tab: 'overview' | 'itinerary' | 'hotels' | 'places' | 'dining' | 'suggestions') => void;
 }
 
 const budgetItems = [
@@ -44,8 +74,17 @@ const innerCard: React.CSSProperties = {
   borderRadius: '0.875rem',
 };
 
-export default function OverviewTab({ travelDetails, budgetBreakdown }: OverviewTabProps) {
-  const { duration, travelers, interests, budget } = travelDetails;
+export default function OverviewTab({
+  travelDetails,
+  budgetBreakdown,
+  places = [],
+  restaurants = [],
+  hotels = [],
+  itinerary = [],
+  suggestions,
+  onSelectTab,
+}: OverviewTabProps) {
+  const { duration, travelers, interests, budget, destination, overview, travel_type } = travelDetails;
   const bb = budgetBreakdown;
 
   // Cycling ticker state
@@ -57,25 +96,74 @@ export default function OverviewTab({ travelDetails, budgetBreakdown }: Overview
     const interval = setInterval(() => {
       setTickerVisible(false);
       setTimeout(() => {
-        setTickerIdx(i => (i + 1) % BUDGET_TICKERS.length);
+        setTickerIdx((i) => (i + 1) % BUDGET_TICKERS.length);
         setTickerVisible(true);
       }, 400);
     }, 2200);
     return () => clearInterval(interval);
   }, [budgetBreakdown?.is_estimate]);
 
+  // Derived financial & itinerary intelligence
+  const totalEstSpend = bb?.total_estimated || 0;
+  const dailySpend = duration > 0 ? Math.round(totalEstSpend / duration) : 0;
+  const spendPerPerson = travelers > 0 ? Math.round(totalEstSpend / travelers) : 0;
+  const budgetUtilization = bb?.user_budget && bb.user_budget > 0
+    ? Math.round((totalEstSpend / bb.user_budget) * 100)
+    : 0;
+
+  // Top highlight places (up to 3)
+  const topPlaces = places.slice(0, 3);
+
+  // Climate / packing quick insights
+  const season = suggestions?.seasonal_clothing?.seasons?.[0];
+  const climateOverview = suggestions?.seasonal_clothing?.climate_overview ||
+    `${destination} has distinctive regional climate characteristics. Packing breathable layers and sun protection is recommended.`;
+  const packingEssentials = season?.packing_essentials?.slice(0, 3) || [
+    'Comfortable walking shoes',
+    'Breathable lightweight clothing',
+    'Universal power adapter & power bank',
+  ];
+
+  // Emergency & Helpline info
+  const emergencyContacts = suggestions?.emergency_contacts || {
+    police: '999 / 112',
+    ambulance: '999 / 991',
+    tourist_helpline: '1300-88-5050',
+  };
+
+  // Top local hack
+  const topHack = suggestions?.local_hacks_and_etiquette?.[0] || {
+    topic: 'Local Courtesy & Etiquette',
+    tip: 'Carry small local currency notes for night markets, and dress respectfully when visiting cultural and sacred heritage sites.',
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-      {/* Left — Trip Details */}
+      {/* Left Column — Detailed Trip Overview */}
       <div className="lg:col-span-8 flex flex-col gap-6">
-        {/* Trip Details Bento */}
+        
+        {/* 1. Trip Details Bento (Preserved & Enhanced) */}
         <div style={glassCard} className="p-6">
-          <h2
-            className="text-2xl font-semibold mb-6"
-            style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}
-          >
-            Trip Details
-          </h2>
+          <div className="flex justify-between items-center mb-6">
+            <h2
+              className="text-2xl font-semibold"
+              style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}
+            >
+              Trip Details
+            </h2>
+            <span
+              className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5"
+              style={{
+                background: 'rgba(233,195,73,0.12)',
+                color: 'var(--gold)',
+                border: '1px solid rgba(233,195,73,0.25)',
+              }}
+            >
+              <Sparkles size={13} />
+              AI Tailored Plan
+            </span>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {/* Duration */}
             <div className="flex items-start gap-4 p-4" style={innerCard}>
@@ -144,17 +232,52 @@ export default function OverviewTab({ travelDetails, budgetBreakdown }: Overview
               {interests.map((interest) => (
                 <span
                   key={interest}
-                  className="tag"
-                  style={{ color: 'var(--primary)' }}
+                  className="tag text-xs"
+                  style={{
+                    color: 'var(--primary)',
+                    background: 'var(--surface-low)',
+                    border: '1px solid var(--outline)',
+                  }}
                 >
                   {interest}
                 </span>
               ))}
             </div>
           )}
+
+          {/* ── Key Metrics Ribbon (Daily spend, Per traveler, Sights, Stays) ── */}
+          <div
+            className="mt-6 pt-5 grid grid-cols-2 sm:grid-cols-4 gap-3"
+            style={{ borderTop: '1px solid var(--outline)' }}
+          >
+            <div className="p-3 rounded-lg" style={{ background: 'var(--surface-low)' }}>
+              <p className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>Daily Est. Spend</p>
+              <p className="text-base font-bold mt-0.5" style={{ color: '#38bdf8' }}>
+                {dailySpend > 0 ? `${formatCurrency(dailySpend)}/day` : '—'}
+              </p>
+            </div>
+            <div className="p-3 rounded-lg" style={{ background: 'var(--surface-low)' }}>
+              <p className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>Est. / Traveler</p>
+              <p className="text-base font-bold mt-0.5" style={{ color: '#a78bfa' }}>
+                {spendPerPerson > 0 ? `${formatCurrency(spendPerPerson)}/person` : '—'}
+              </p>
+            </div>
+            <div className="p-3 rounded-lg" style={{ background: 'var(--surface-low)' }}>
+              <p className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>Curated Sights</p>
+              <p className="text-base font-bold mt-0.5" style={{ color: '#34d399' }}>
+                {places.length > 0 ? `${places.length} Attractions` : `${duration * 2}+ Sights`}
+              </p>
+            </div>
+            <div className="p-3 rounded-lg" style={{ background: 'var(--surface-low)' }}>
+              <p className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>Stay Options</p>
+              <p className="text-base font-bold mt-0.5" style={{ color: 'var(--gold)' }}>
+                {hotels.length > 0 ? `${hotels.length} Curated Stays` : 'Handpicked Stays'}
+              </p>
+            </div>
+          </div>
         </div>
 
-        {/* About This Trip */}
+        {/* 2. About This Trip (Preserved & Enhanced) */}
         <div style={glassCard} className="p-6">
           <h2
             className="text-2xl font-semibold mb-4"
@@ -163,30 +286,260 @@ export default function OverviewTab({ travelDetails, budgetBreakdown }: Overview
             About This Trip
           </h2>
           <p className="text-base leading-7" style={{ color: 'var(--text-secondary)' }}>
-            {travelDetails.overview}
+            {overview}
           </p>
           <div
-            className="mt-4 pt-4 flex items-center gap-6"
+            className="mt-5 pt-4 flex flex-wrap items-center justify-between gap-4"
             style={{ borderTop: '1px solid var(--outline)' }}
           >
-            <div>
-              <p className="label-caps mb-1" style={{ color: 'var(--text-muted)' }}>Travel Style</p>
-              <p className="font-semibold" style={{ color: 'var(--primary)' }}>{travelDetails.travel_type}</p>
+            <div className="flex items-center gap-6">
+              <div>
+                <p className="label-caps mb-1" style={{ color: 'var(--text-muted)' }}>Travel Style</p>
+                <p className="font-semibold" style={{ color: 'var(--primary)' }}>{travel_type}</p>
+              </div>
+              <div>
+                <p className="label-caps mb-1" style={{ color: 'var(--text-muted)' }}>Total Budget</p>
+                {(!budget || isNaN(Number(budget))) ? (
+                  <div className="h-5 w-16 rounded animate-pulse" style={{ background: 'rgba(233,195,73,0.2)' }} />
+                ) : (
+                  <p className="font-semibold" style={{ color: 'var(--gold)' }}>{formatCurrency(budget)}</p>
+                )}
+              </div>
             </div>
-            <div>
-              <p className="label-caps mb-1" style={{ color: 'var(--text-muted)' }}>Total Budget</p>
-              {(!budget || isNaN(Number(budget))) ? (
-                <div className="h-5 w-16 rounded animate-pulse" style={{ background: 'rgba(233,195,73,0.2)' }} />
-              ) : (
-                <p className="font-semibold" style={{ color: 'var(--gold)' }}>{formatCurrency(budget)}</p>
-              )}
-            </div>
+
+            {/* Quick Action to view itinerary */}
+            {onSelectTab && (
+              <button
+                onClick={() => onSelectTab('itinerary')}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all hover:scale-105 cursor-pointer"
+                style={{
+                  background: 'rgba(233,195,73,0.12)',
+                  color: 'var(--gold)',
+                  border: '1px solid rgba(233,195,73,0.3)',
+                }}
+              >
+                <span>View Full Day-by-Day Plan</span>
+                <ArrowRight size={14} />
+              </button>
+            )}
           </div>
         </div>
+
+        {/* 3. Signature Highlights Preview */}
+        {topPlaces.length > 0 && (
+          <div style={glassCard} className="p-6">
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h3
+                  className="text-xl font-semibold"
+                  style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}
+                >
+                  Signature Highlights
+                </h3>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                  Hand-selected top attractions for this itinerary
+                </p>
+              </div>
+              {onSelectTab && (
+                <button
+                  onClick={() => onSelectTab('places')}
+                  className="text-xs font-semibold flex items-center gap-1 hover:underline cursor-pointer"
+                  style={{ color: 'var(--gold)' }}
+                >
+                  <span>Explore all {places.length} places</span>
+                  <ArrowRight size={13} />
+                </button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+              {topPlaces.map((place, idx) => (
+                <div
+                  key={idx}
+                  className="rounded-xl overflow-hidden flex flex-col transition-all duration-200 hover:-translate-y-1 hover:shadow-lg"
+                  style={{
+                    background: 'var(--surface-low)',
+                    border: '1px solid var(--outline)',
+                  }}
+                >
+                  <div className="relative h-28 w-full overflow-hidden bg-slate-800">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={
+                        place.image_url ||
+                        `https://source.unsplash.com/400x300/?${encodeURIComponent(place.name)},travel`
+                      }
+                      alt={place.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = `https://picsum.photos/seed/${encodeURIComponent(place.name)}/400/300`;
+                      }}
+                    />
+                    <div
+                      className="absolute inset-0"
+                      style={{ background: 'linear-gradient(to top, rgba(2,6,23,0.7) 0%, transparent 60%)' }}
+                    />
+                    <span
+                      className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-bold label-caps"
+                      style={{
+                        background: 'rgba(2,6,23,0.75)',
+                        color: 'var(--gold)',
+                        border: '1px solid rgba(233,195,73,0.3)',
+                      }}
+                    >
+                      {place.category || 'Sight'}
+                    </span>
+                  </div>
+
+                  <div className="p-3.5 flex flex-col flex-1 justify-between">
+                    <div>
+                      <div className="flex items-center justify-between gap-1 mb-1">
+                        <h4 className="font-semibold text-sm line-clamp-1" style={{ color: 'var(--text-primary)' }}>
+                          {place.name}
+                        </h4>
+                        {place.rating > 0 && (
+                          <span className="flex items-center gap-0.5 text-xs font-bold text-amber-400">
+                            <Star size={11} fill="currentColor" />
+                            {place.rating.toFixed(1)}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs line-clamp-2 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                        {place.description}
+                      </p>
+                    </div>
+
+                    <div
+                      className="mt-3 pt-2 flex items-center justify-between text-[11px]"
+                      style={{ borderTop: '1px solid var(--outline)', color: 'var(--text-muted)' }}
+                    >
+                      <span className="flex items-center gap-1">
+                        <Clock size={11} />
+                        {place.duration || '2-3 hrs'}
+                      </span>
+                      <span className="font-semibold" style={{ color: place.entry_fee === 'Free' ? '#34d399' : 'var(--text-primary)' }}>
+                        {place.entry_fee || 'Varies'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* 4. Travel Intelligence & Logistics Bento */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Climate & Packing Brief */}
+          <div style={glassCard} className="p-5 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'rgba(233,195,73,0.15)', color: 'var(--gold)' }}
+                >
+                  <SunMedium size={16} />
+                </div>
+                <h3 className="font-semibold text-base" style={{ color: 'var(--text-primary)' }}>
+                  Climate & Packing Snapshot
+                </h3>
+              </div>
+              <p className="text-xs leading-relaxed mb-3" style={{ color: 'var(--text-secondary)' }}>
+                {climateOverview}
+              </p>
+
+              <div className="space-y-1.5">
+                <p className="text-[11px] font-bold uppercase tracking-wider mb-1" style={{ color: 'var(--text-muted)' }}>
+                  Essential Essentials:
+                </p>
+                {packingEssentials.map((item, idx) => (
+                  <div key={idx} className="flex items-center gap-2 text-xs" style={{ color: 'var(--text-primary)' }}>
+                    <CheckCircle2 size={13} className="text-emerald-500 flex-shrink-0" />
+                    <span className="line-clamp-1">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {onSelectTab && (
+              <div className="mt-4 pt-3" style={{ borderTop: '1px solid var(--outline)' }}>
+                <button
+                  onClick={() => onSelectTab('suggestions')}
+                  className="text-xs font-semibold flex items-center gap-1.5 hover:underline cursor-pointer"
+                  style={{ color: 'var(--gold)' }}
+                >
+                  <Shirt size={13} />
+                  <span>Full Seasonal Packing Guide & Weather →</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Local Etiquette & Safety Hotlines */}
+          <div style={glassCard} className="p-5 flex flex-col justify-between">
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <div
+                  className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+                  style={{ background: 'rgba(52,211,153,0.15)', color: '#34d399' }}
+                >
+                  <ShieldCheck size={16} />
+                </div>
+                <h3 className="font-semibold text-base" style={{ color: 'var(--text-primary)' }}>
+                  Local Etiquette & Safety
+                </h3>
+              </div>
+
+              {/* Top Etiquette Tip */}
+              <div className="p-3 rounded-lg mb-3" style={{ background: 'var(--surface-low)', border: '1px solid var(--outline)' }}>
+                <p className="text-xs font-semibold mb-1 flex items-center gap-1.5" style={{ color: 'var(--gold)' }}>
+                  <Lightbulb size={13} />
+                  {topHack.topic}
+                </p>
+                <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                  {topHack.tip}
+                </p>
+              </div>
+
+              {/* Emergency Helplines */}
+              <div>
+                <p className="text-[11px] font-bold uppercase tracking-wider mb-2" style={{ color: 'var(--text-muted)' }}>
+                  Emergency Assistance Numbers:
+                </p>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="p-2 rounded flex items-center justify-between" style={{ background: 'var(--surface-low)' }}>
+                    <span style={{ color: 'var(--text-muted)' }}>Police:</span>
+                    <span className="font-mono font-bold" style={{ color: '#38bdf8' }}>{emergencyContacts.police || '999/112'}</span>
+                  </div>
+                  <div className="p-2 rounded flex items-center justify-between" style={{ background: 'var(--surface-low)' }}>
+                    <span style={{ color: 'var(--text-muted)' }}>Ambulance:</span>
+                    <span className="font-mono font-bold" style={{ color: '#f87171' }}>{emergencyContacts.ambulance || '999/991'}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {onSelectTab && (
+              <div className="mt-4 pt-3" style={{ borderTop: '1px solid var(--outline)' }}>
+                <button
+                  onClick={() => onSelectTab('suggestions')}
+                  className="text-xs font-semibold flex items-center gap-1.5 hover:underline cursor-pointer"
+                  style={{ color: '#34d399' }}
+                >
+                  <ShieldAlert size={13} />
+                  <span>View Scam Alerts & Safety Dossier →</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
       </div>
 
-      {/* Right — Budget Widget */}
-      <div className="lg:col-span-4">
+      {/* Right Column — Budget Widget & Quick Explorer */}
+      <div className="lg:col-span-4 flex flex-col gap-6">
+        
+        {/* Sticky Budget Widget (Preserved & Enhanced) */}
         <div style={{ ...glassCard, position: 'sticky', top: '80px' }} className="p-6">
           {!budgetBreakdown ? (
             <div className="animate-pulse space-y-4">
@@ -224,14 +577,22 @@ export default function OverviewTab({ travelDetails, budgetBreakdown }: Overview
                 {budgetBreakdown.is_estimate ? (
                   <span
                     className="px-3 py-1 rounded-full label-caps text-[10px] flex items-center gap-1"
-                    style={{ background: 'rgba(233,195,73,0.12)', color: 'var(--gold)', border: '1px solid rgba(233,195,73,0.25)' }}
+                    style={{
+                      background: 'rgba(233,195,73,0.12)',
+                      color: 'var(--gold)',
+                      border: '1px solid rgba(233,195,73,0.25)',
+                    }}
                   >
                     Estimated
                   </span>
                 ) : budgetBreakdown.within_budget ? (
                   <span
                     className="px-3 py-1 rounded-full label-caps text-[10px] flex items-center gap-1"
-                    style={{ background: 'var(--success-bg)', color: 'var(--success)', border: '1px solid var(--success-border)' }}
+                    style={{
+                      background: 'var(--success-bg)',
+                      color: 'var(--success)',
+                      border: '1px solid var(--success-border)',
+                    }}
                   >
                     <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
                       <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
@@ -241,7 +602,11 @@ export default function OverviewTab({ travelDetails, budgetBreakdown }: Overview
                 ) : (
                   <span
                     className="px-3 py-1 rounded-full label-caps text-[10px] flex items-center gap-1"
-                    style={{ background: 'rgba(186,26,26,0.08)', color: 'var(--error)', border: '1px solid rgba(186,26,26,0.2)' }}
+                    style={{
+                      background: 'rgba(186,26,26,0.08)',
+                      color: 'var(--error)',
+                      border: '1px solid rgba(186,26,26,0.2)',
+                    }}
                   >
                     Over Budget
                   </span>
@@ -347,6 +712,65 @@ export default function OverviewTab({ travelDetails, budgetBreakdown }: Overview
                   {formatCurrency(budgetBreakdown.remaining)}
                 </span>
               </div>
+
+              {/* Financial Health Summary */}
+              {budgetBreakdown.user_budget > 0 && (
+                <div
+                  className="mt-4 p-3 rounded-lg text-xs flex items-center justify-between"
+                  style={{
+                    background: 'var(--surface-low)',
+                    border: '1px solid var(--outline)',
+                  }}
+                >
+                  <span style={{ color: 'var(--text-muted)' }}>Budget Allocated:</span>
+                  <span className="font-semibold" style={{ color: budgetUtilization <= 100 ? 'var(--gold)' : 'var(--error)' }}>
+                    {budgetUtilization}% ({formatCurrency(budgetBreakdown.remaining)} buffer)
+                  </span>
+                </div>
+              )}
+
+              {/* Quick Tab Jump Navigator */}
+              {onSelectTab && (
+                <div className="mt-6 pt-5" style={{ borderTop: '1px solid var(--outline)' }}>
+                  <p className="text-[11px] font-bold uppercase tracking-wider mb-3" style={{ color: 'var(--text-muted)' }}>
+                    Explore Plan Sections
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => onSelectTab('itinerary')}
+                      className="p-2.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all hover:scale-102 cursor-pointer"
+                      style={{ background: 'var(--surface-low)', border: '1px solid var(--outline)', color: 'var(--text-primary)' }}
+                    >
+                      <Calendar size={14} className="text-sky-400" />
+                      <span>Itinerary ({itinerary.length > 0 ? `${itinerary.length}d` : `${duration}d`})</span>
+                    </button>
+                    <button
+                      onClick={() => onSelectTab('hotels')}
+                      className="p-2.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all hover:scale-102 cursor-pointer"
+                      style={{ background: 'var(--surface-low)', border: '1px solid var(--outline)', color: 'var(--text-primary)' }}
+                    >
+                      <Building2 size={14} className="text-amber-400" />
+                      <span>Hotels ({hotels.length})</span>
+                    </button>
+                    <button
+                      onClick={() => onSelectTab('places')}
+                      className="p-2.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all hover:scale-102 cursor-pointer"
+                      style={{ background: 'var(--surface-low)', border: '1px solid var(--outline)', color: 'var(--text-primary)' }}
+                    >
+                      <MapPin size={14} className="text-emerald-400" />
+                      <span>Places ({places.length})</span>
+                    </button>
+                    <button
+                      onClick={() => onSelectTab('dining')}
+                      className="p-2.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all hover:scale-102 cursor-pointer"
+                      style={{ background: 'var(--surface-low)', border: '1px solid var(--outline)', color: 'var(--text-primary)' }}
+                    >
+                      <UtensilsCrossed size={14} className="text-purple-400" />
+                      <span>Dining ({restaurants.length})</span>
+                    </button>
+                  </div>
+                </div>
+              )}
             </>
           )}
         </div>
