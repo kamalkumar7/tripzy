@@ -1,7 +1,153 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Loader2, ArrowRight, Clock, X } from 'lucide-react';
+import { Loader2, ArrowRight, Clock } from 'lucide-react';
+
+function TravelParticles() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+
+    // Use fewer particles on smaller screens
+    const particleCount = Math.min(Math.floor(width / 25), 40);
+    
+    class Particle {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      radius: number;
+      progress: number;
+
+      constructor() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        // Slow drifting movement
+        this.vx = (Math.random() - 0.5) * 0.3;
+        this.vy = (Math.random() - 0.5) * 0.3;
+        this.radius = Math.random() * 2 + 1.5;
+        this.progress = Math.random();
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.progress += 0.005;
+        if (this.progress > 1) this.progress = 0;
+
+        if (this.x < 0 || this.x > width) this.vx *= -1;
+        if (this.y < 0 || this.y > height) this.vy *= -1;
+      }
+
+      draw() {
+        if (!ctx) return;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        const isDark = document.documentElement.classList.contains('dark');
+        ctx.fillStyle = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.15)';
+        ctx.fill();
+      }
+    }
+
+    const particles: Particle[] = [];
+    for (let i = 0; i < particleCount; i++) {
+      particles.push(new Particle());
+    }
+
+    let animationFrameId: number;
+
+    const drawFlightPath = (p1: Particle, p2: Particle, opacity: number) => {
+      if (!ctx) return;
+      const isDark = document.documentElement.classList.contains('dark');
+      
+      const dx = p2.x - p1.x;
+      const dy = p2.y - p1.y;
+      
+      // Control point for a gentle curve (arc)
+      const cx = p1.x + dx / 2 - dy * 0.15;
+      const cy = p1.y + dy / 2 + dx * 0.15;
+
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.quadraticCurveTo(cx, cy, p2.x, p2.y);
+      
+      const routeColor = isDark ? `rgba(14, 165, 233, ${opacity * 0.6})` : `rgba(14, 165, 233, ${opacity * 0.4})`;
+      ctx.strokeStyle = routeColor;
+      ctx.lineWidth = 1.2;
+      ctx.setLineDash([4, 6]); 
+      ctx.stroke();
+      ctx.setLineDash([]);
+      
+      // Draw a tiny "plane" dot moving along the path occasionally
+      if (p1.progress > 0.2 && p1.progress < 0.8) {
+        const t = p1.progress;
+        // Bezier interpolation
+        const bx = (1 - t) * (1 - t) * p1.x + 2 * (1 - t) * t * cx + t * t * p2.x;
+        const by = (1 - t) * (1 - t) * p1.y + 2 * (1 - t) * t * cy + t * t * p2.y;
+        
+        ctx.beginPath();
+        ctx.arc(bx, by, 2, 0, Math.PI * 2);
+        ctx.fillStyle = isDark ? `rgba(14, 165, 233, ${opacity})` : `rgba(2, 132, 199, ${opacity})`;
+        ctx.fill();
+      }
+    };
+
+    const animate = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      for (let i = 0; i < particles.length; i++) {
+        particles[i].update();
+        particles[i].draw();
+
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          const maxDist = 200;
+          if (dist < maxDist) {
+            const opacity = Math.pow(1 - dist / maxDist, 2);
+            drawFlightPath(particles[i], particles[j], opacity);
+          }
+        }
+      }
+
+      animationFrameId = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    const handleResize = () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 pointer-events-none"
+      style={{ zIndex: 0 }}
+    />
+  );
+}
 
 interface TripSearchProps {
   onSubmit: (input: string) => void;
@@ -115,224 +261,155 @@ export default function TripSearch({ onSubmit, isLoading }: TripSearchProps) {
   const isSubmitActive = Boolean(input.trim()) && !isLoading;
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-slate-950">
-      {/* ── Hero slideshow ─────────────────────────────── */}
-      {DESTINATIONS.map((dest, i) => (
-        <div
-          key={dest.img}
-          className="absolute inset-0"
-          style={{
-            opacity: i === heroIdx ? 1 : i === prevIdx ? 0 : 0,
-            transition: 'opacity 0.8s cubic-bezier(.4,0,.2,1)',
-            zIndex: i === heroIdx ? 2 : i === prevIdx ? 1 : 0,
-          }}
-        >
-          <img
-            src={dest.img}
-            alt={dest.name}
-            className="h-full w-full object-cover"
-            style={{ transform: i === heroIdx && !transitioning ? 'scale(1.04)' : 'scale(1)', transition: 'transform 6s ease-out' }}
-          />
-        </div>
-      ))}
-
-      {/* Overlay layers */}
-      <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(2,6,23,0.92) 0%, rgba(2,6,23,0.55) 55%, rgba(2,6,23,0.75) 100%)' }} />
-      <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: 'linear-gradient(to top, rgba(2,6,23,0.98) 0%, transparent 50%)' }} />
-
+    <div className="min-h-screen overflow-y-auto flex flex-col relative" style={{ background: 'var(--background)' }}>
+      <TravelParticles />
       {/* ── Content ────────────────────────────────────── */}
-      <div className="relative z-20 flex min-h-screen flex-col">
+      <div className="flex-1 flex flex-col items-center justify-center px-4 pt-16 pb-12 relative z-10">
 
-        {/* Top nav bar */}
-        <header className="flex items-center justify-between px-8 py-6">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 backdrop-blur text-white font-bold text-lg border border-white/10">T</div>
-            <span className="text-xl font-semibold text-white tracking-tight">Tripzy</span>
-            <span className="ml-1 rounded-full bg-cyan-500/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest text-cyan-400 border border-cyan-500/30">AI</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-white/50">
-            <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            AI-Powered Planning
-          </div>
-        </header>
+        {/* Headline */}
+        <h1 className="mb-4 max-w-3xl text-center text-5xl font-bold leading-tight sm:text-6xl"
+            style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}>
+          Where do you want<br />to go next?
+        </h1>
+        <p className="mb-10 max-w-xl text-center text-base leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+          Describe your dream trip. AI builds a full itinerary, finds hotels, restaurants, and activities in seconds.
+        </p>
 
-        {/* Main content */}
-        <div className="flex flex-1 flex-col items-center justify-center px-4 pb-8 pt-4">
-
-          {/* Current destination chip */}
+        {/* Search card */}
+        <div className="w-full max-w-2xl relative z-10">
           <div
-            className="mb-6 flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 backdrop-blur-md"
-            style={{ transition: 'all 0.5s ease' }}
+            className="overflow-hidden rounded-3xl border transition-shadow duration-300 hover:shadow-xl"
+            style={{ background: 'var(--surface)', borderColor: 'var(--outline)', boxShadow: 'var(--shadow-card)' }}
           >
-            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: cur.color, display: 'inline-block', flexShrink: 0 }} />
-            <span className="text-sm font-semibold text-white">{cur.name}</span>
-            <span className="text-white/40">·</span>
-            <span className="text-xs text-white/60">{cur.country}</span>
-          </div>
-
-          {/* Headline */}
-          <h1 className="mb-4 max-w-3xl text-center text-5xl font-bold text-white leading-tight sm:text-6xl" style={{ fontFamily: 'Georgia, serif', textShadow: '0 2px 30px rgba(0,0,0,0.4)' }}>
-            Where do you want<br />to go next?
-          </h1>
-          <p className="mb-10 max-w-xl text-center text-base text-white/60 leading-relaxed">
-            Describe your dream trip. AI builds full itinerary, finds hotels, restaurants, and activities in seconds.
-          </p>
-
-          {/* Search card */}
-          <div className="w-full max-w-2xl">
-            <div>
-              <div
-                className="overflow-hidden rounded-3xl border border-white/10 shadow-2xl"
-                style={{ backdropFilter: 'blur(24px)', background: 'rgba(15,23,42,0.75)' }}
-              >
-                {/* Input */}
-                <div className="relative p-5 pb-3">
-                  <textarea
-                    ref={textareaRef}
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
-                        e.preventDefault();
-                        console.log('[Tripzy] Ctrl+Enter pressed');
-                        doSubmit(input);
-                      }
-                    }}
-                    placeholder="e.g. 7 days in Tokyo for 2 people, $4500, love food and culture..."
-                    rows={3}
-                    disabled={isLoading}
-                    className="w-full resize-none bg-transparent text-base text-white placeholder-white/30 outline-none leading-relaxed"
-                  />
-                </div>
-
-                {/* Bottom bar */}
-                <div className="flex items-center justify-between border-t border-white/8 px-5 py-3">
-                  <span className="text-xs text-white/40">Ctrl+Enter to submit</span>
-                  <button
-                    type="button"
-                    onClick={handleButtonClick}
-                    className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-                    style={{
-                      background: isSubmitActive
-                        ? 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)'
-                        : 'rgba(255,255,255,0.08)',
-                      color: isSubmitActive ? '#ffffff' : 'rgba(255,255,255,0.35)',
-                      boxShadow: isSubmitActive ? '0 4px 20px rgba(14,165,233,0.45)' : 'none',
-                      cursor: isSubmitActive ? 'pointer' : 'default',
-                      opacity: isLoading ? 0.6 : 1,
-                    }}
-                  >
-                    {isLoading ? (
-                      <><svg className="h-4 w-4 animate-spin" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.219-8.56" /></svg>Planning...</>
-                    ) : (
-                      <>Plan My Trip<svg className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" /></svg></>
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick prompts */}
-            <div className="mt-4 flex flex-wrap justify-center gap-2">
-              {QUICK_PROMPTS.map((qp) => (
-                <button
-                  key={qp.label}
-                  type="button"
-                  onClick={() => fillAndSubmit(qp.prompt)}
-                  disabled={isLoading}
-                  className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-medium text-white/70 backdrop-blur transition-all hover:border-white/25 hover:bg-white/10 hover:text-white disabled:opacity-40"
-                >
-                  {qp.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Recent searches — clean row, no dropdown overlap */}
-            {recentSearches.length > 0 && (
-              <div className="mt-5 w-full max-w-2xl">
-                <div
-                  className="overflow-hidden rounded-2xl border border-white/8"
-                  style={{ backdropFilter: 'blur(16px)', background: 'rgba(15,23,42,0.55)' }}
-                >
-                  <div className="flex items-center justify-between border-b border-white/8 px-4 py-2.5">
-                    <div className="flex items-center gap-2">
-                      <svg className="h-3 w-3 text-white/40" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-white/40">Recent</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => { window.localStorage.removeItem(STORAGE_KEY); setRecentSearches([]); }}
-                      className="text-[10px] font-semibold text-white/30 transition hover:text-white/60"
-                    >
-                      Clear
-                    </button>
-                  </div>
-                  <div className="flex flex-col divide-y divide-white/5">
-                    {recentSearches.map((s) => (
-                      <button
-                        key={s}
-                        type="button"
-                        onClick={() => fillAndSubmit(s)}
-                        className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-white/5"
-                      >
-                        <span className="flex-shrink-0 text-white/25">↗</span>
-                        <span className="truncate text-sm text-white/70">{s}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* ── Bottom section: destinations strip ─────────── */}
-        <div className="relative z-20 pb-6 px-6">
-          {/* Slide indicators */}
-          <div className="mb-5 flex justify-center gap-1.5">
-            {DESTINATIONS.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => jumpTo(i)}
-                className="rounded-full transition-all duration-300"
-                style={{
-                  width: i === heroIdx ? '24px' : '6px',
-                  height: '6px',
-                  background: i === heroIdx ? '#0ea5e9' : 'rgba(255,255,255,0.3)',
+            {/* Input */}
+            <div className="relative p-6 pb-3">
+              <textarea
+                ref={textareaRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    doSubmit(input);
+                  }
                 }}
+                placeholder="e.g. 7 days in Tokyo for 2 people, $4500, love food and culture..."
+                rows={3}
+                disabled={isLoading}
+                className="w-full resize-none bg-transparent text-lg outline-none leading-relaxed placeholder:opacity-50"
+                style={{ color: 'var(--text-primary)' }}
               />
-            ))}
-          </div>
+            </div>
 
-          {/* Horizontal destination cards */}
-          <div className="flex gap-3 overflow-x-auto pb-2 justify-center flex-wrap">
-            {DESTINATIONS.map((dest, i) => (
+            {/* Bottom bar */}
+            <div className="flex items-center justify-between px-6 py-4 border-t" style={{ borderColor: 'var(--outline)', background: 'var(--surface-low)' }}>
+              <span className="text-xs font-medium" style={{ color: 'var(--text-muted)' }}>Ctrl+Enter to submit</span>
               <button
-                key={dest.name}
-                onClick={() => { jumpTo(i); fillAndSubmit(`Plan a trip to ${dest.name}, ${dest.country}`); }}
-                onMouseEnter={() => setActiveDestHovered(i)}
-                onMouseLeave={() => setActiveDestHovered(null)}
-                className="group relative flex-shrink-0 overflow-hidden rounded-2xl border transition-all duration-300"
+                type="button"
+                onClick={handleButtonClick}
+                className="flex items-center gap-2 rounded-xl px-6 py-2.5 text-sm font-bold transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
                 style={{
-                  width: '120px',
-                  height: '90px',
-                  borderColor: i === heroIdx ? '#0ea5e9' : 'rgba(255,255,255,0.1)',
-                  boxShadow: i === heroIdx ? '0 0 20px rgba(14,165,233,0.4)' : 'none',
-                  transform: activeDestHovered === i ? 'scale(1.05) translateY(-3px)' : 'scale(1)',
+                  background: isSubmitActive ? 'var(--primary)' : 'var(--surface-mid)',
+                  color: isSubmitActive ? '#FFFFFF' : 'var(--text-muted)',
+                  border: isSubmitActive ? 'none' : '1px solid var(--outline)',
+                  boxShadow: isSubmitActive ? '0 4px 15px rgba(0,0,0,0.1)' : 'none',
+                  cursor: isSubmitActive ? 'pointer' : 'default',
+                  opacity: isLoading ? 0.6 : 1,
                 }}
               >
-                <img src={dest.img} alt={dest.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(2,6,23,0.85) 0%, transparent 60%)' }} />
-                <div className="absolute bottom-0 left-0 right-0 p-2">
-                  <p className="text-[10px] font-bold uppercase tracking-wider" style={{ color: dest.color }}>{dest.country}</p>
-                  <p className="text-xs font-semibold text-white">{dest.name}</p>
-                </div>
-                {i === heroIdx && (
-                  <div className="absolute top-2 right-2 h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
+                {isLoading ? (
+                  <><Loader2 size={16} className="animate-spin" /> Planning...</>
+                ) : (
+                  <>Plan My Trip <ArrowRight size={16} /></>
                 )}
+              </button>
+            </div>
+          </div>
+
+          {/* Quick prompts */}
+          <div className="mt-6 flex flex-wrap justify-center gap-2">
+            {QUICK_PROMPTS.map((qp) => (
+              <button
+                key={qp.label}
+                type="button"
+                onClick={() => fillAndSubmit(qp.prompt)}
+                disabled={isLoading}
+                className="rounded-full px-4 py-2 text-xs font-semibold transition-all hover:-translate-y-0.5 disabled:opacity-40"
+                style={{ background: 'var(--surface-low)', color: 'var(--text-secondary)', border: '1px solid var(--outline)' }}
+              >
+                {qp.label}
               </button>
             ))}
           </div>
+
+          {/* Recent searches */}
+          {recentSearches.length > 0 && (
+            <div className="mt-6 w-full mx-auto max-w-xl">
+              <div className="overflow-hidden rounded-2xl border" style={{ background: 'var(--surface)', borderColor: 'var(--outline)' }}>
+                <div className="flex items-center justify-between border-b px-4 py-3" style={{ borderColor: 'var(--outline)', background: 'var(--surface-low)' }}>
+                  <div className="flex items-center gap-2">
+                    <Clock size={12} style={{ color: 'var(--text-muted)' }} />
+                    <span className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-muted)' }}>Recent</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => { window.localStorage.removeItem(STORAGE_KEY); setRecentSearches([]); }}
+                    className="text-[10px] font-semibold transition hover:opacity-70"
+                    style={{ color: 'var(--text-muted)' }}
+                  >
+                    Clear
+                  </button>
+                </div>
+                <div className="flex flex-col divide-y" style={{ borderColor: 'var(--outline)' }}>
+                  {recentSearches.map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => fillAndSubmit(s)}
+                      className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors"
+                      style={{ color: 'var(--text-primary)' }}
+                      onMouseOver={(e) => e.currentTarget.style.background = 'var(--surface-low)'}
+                      onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
+                    >
+                      <ArrowRight size={14} style={{ color: 'var(--text-muted)' }} className="flex-shrink-0" />
+                      <span className="truncate text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>{s}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── Bottom section: destinations strip ─────────── */}
+      <div className="w-full pb-16 px-6 mt-4">
+        <h3 className="text-xs font-bold uppercase tracking-widest mb-6 text-center" style={{ color: 'var(--text-muted)' }}>
+          Popular Destinations
+        </h3>
+        <div className="flex gap-4 overflow-x-auto pb-4 justify-center flex-wrap no-scrollbar max-w-6xl mx-auto">
+          {DESTINATIONS.slice(0, 8).map((dest, i) => (
+            <button
+              key={dest.name}
+              onClick={() => { fillAndSubmit(`Plan a trip to ${dest.name}, ${dest.country}`); }}
+              className="group flex items-center gap-3 pr-4 p-1.5 rounded-full transition-all duration-300 card hover:-translate-y-1"
+              style={{
+                background: 'var(--surface)',
+                border: '1px solid var(--outline)',
+              }}
+            >
+              <img
+                src={dest.img}
+                alt={dest.name}
+                className="w-10 h-10 rounded-full object-cover border"
+                style={{ borderColor: 'var(--outline)' }}
+              />
+              <div className="text-left">
+                <p className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>{dest.name}</p>
+                <p className="text-[10px] font-semibold uppercase" style={{ color: dest.color }}>{dest.country}</p>
+              </div>
+            </button>
+          ))}
         </div>
       </div>
     </div>
