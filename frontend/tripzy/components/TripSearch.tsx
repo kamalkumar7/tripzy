@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Loader2, ArrowRight, Clock } from 'lucide-react';
+import { Loader2, ArrowRight, Clock, MapPin, Compass, Heart, Camera, Umbrella, Mountain } from 'lucide-react';
 
 function TravelParticles() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -168,12 +168,12 @@ const DESTINATIONS = [
 ];
 
 const QUICK_PROMPTS = [
-  { label: 'Tokyo · 7 days',     prompt: 'Plan a 7-day trip to Tokyo for 2 people, budget $4500, interested in culture and food' },
-  { label: 'Bali Adventure',     prompt: 'Adventure trip to Bali for 10 days, $5000 budget, love beaches and hiking' },
-  { label: 'Paris Romance',      prompt: 'Romantic trip to Paris for 5 days with a budget of $3000' },
-  { label: 'Santorini · 6 days', prompt: 'Luxury getaway to Santorini for 6 days, budget $5000, interested in sunsets and local food' },
-  { label: 'Maldives Honeymoon', prompt: 'Relaxing Maldives trip for 7 days, $8000 budget, couple honeymoon' },
-  { label: 'Swiss Alps · 8 days',prompt: 'Switzerland Alps adventure for 8 days, $6000 budget, skiing and hiking' },
+  { label: 'Tokyo · 7 days',     icon: MapPin,   prompt: 'Plan a 7-day trip to Tokyo for 2 people, budget $4500, interested in culture and food' },
+  { label: 'Bali Adventure',     icon: Compass,  prompt: 'Adventure trip to Bali for 10 days, $5000 budget, love beaches and hiking' },
+  { label: 'Paris Romance',      icon: Heart,    prompt: 'Romantic trip to Paris for 5 days with a budget of $3000' },
+  { label: 'Santorini · 6 days', icon: Camera,   prompt: 'Luxury getaway to Santorini for 6 days, budget $5000, interested in sunsets and local food' },
+  { label: 'Maldives Honeymoon', icon: Umbrella, prompt: 'Relaxing Maldives trip for 7 days, $8000 budget, couple honeymoon' },
+  { label: 'Swiss Alps · 8 days',icon: Mountain, prompt: 'Switzerland Alps adventure for 8 days, $6000 budget, skiing and hiking' },
 ];
 
 const STORAGE_KEY = 'tripzy_recent_searches';
@@ -334,9 +334,10 @@ export default function TripSearch({ onSubmit, isLoading }: TripSearchProps) {
                 type="button"
                 onClick={() => fillAndSubmit(qp.prompt)}
                 disabled={isLoading}
-                className="rounded-full px-4 py-2 text-xs font-semibold transition-all hover:-translate-y-0.5 disabled:opacity-40"
+                className="flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition-all hover:-translate-y-0.5 disabled:opacity-40"
                 style={{ background: 'var(--surface-low)', color: 'var(--text-secondary)', border: '1px solid var(--outline)' }}
               >
+                <qp.icon size={13} style={{ opacity: 0.7 }} />
                 {qp.label}
               </button>
             ))}
