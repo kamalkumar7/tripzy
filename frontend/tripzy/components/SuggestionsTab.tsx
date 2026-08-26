@@ -24,6 +24,7 @@ import {
   Lock,
   Layers,
   Sparkle,
+  ChevronDown,
 } from 'lucide-react';
 
 interface SuggestionsTabProps {
@@ -33,6 +34,7 @@ interface SuggestionsTabProps {
 
 export default function SuggestionsTab({ suggestions, travelDetails }: SuggestionsTabProps) {
   const [activeFilter, setActiveFilter] = useState<'all' | 'clothing' | 'scams' | 'activities' | 'hacks'>('all');
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
   const [selectedSeasonIdx, setSelectedSeasonIdx] = useState<number>(0);
   const [checkedEssentials, setCheckedEssentials] = useState<Record<string, boolean>>({});
 
@@ -225,6 +227,13 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
     }));
   };
 
+  const toggleSection = (section: string) => {
+    setOpenSections(prev => ({
+      ...prev,
+      [section]: !prev[section]
+    }));
+  };
+
   const getSeasonIcon = (name: string) => {
     const lower = name.toLowerCase();
     if (lower.includes('rain') || lower.includes('monsoon') || lower.includes('wet')) return CloudRain;
@@ -237,25 +246,25 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
     const lower = risk.toLowerCase();
     if (lower.includes('high')) {
       return {
-        bg: 'rgba(239, 68, 68, 0.12)',
-        color: '#f87171',
-        border: 'rgba(239, 68, 68, 0.3)',
-        label: 'High Alert',
+        bg: 'rgba(186, 26, 26, 0.08)',
+        color: 'var(--error)',
+        border: 'rgba(186, 26, 26, 0.25)',
+        label: 'High Risk',
       };
     }
     if (lower.includes('med')) {
       return {
-        bg: 'rgba(233, 195, 73, 0.12)',
-        color: '#e9c349',
+        bg: 'rgba(233, 195, 73, 0.15)',
+        color: 'var(--gold)',
         border: 'rgba(233, 195, 73, 0.3)',
         label: 'Moderate Risk',
       };
     }
     return {
-      bg: 'rgba(56, 189, 248, 0.12)',
-      color: '#38bdf8',
-      border: 'rgba(56, 189, 248, 0.3)',
-      label: 'Caution',
+      bg: 'var(--success-bg)',
+      color: 'var(--success)',
+      border: 'var(--success-border)',
+      label: 'Low Risk / Caution',
     };
   };
 
@@ -266,9 +275,9 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
         <div className="flex items-center gap-2">
           <div
             className="w-8 h-8 rounded-xl flex items-center justify-center"
-            style={{ background: 'rgba(233, 195, 73, 0.12)', border: '1px solid rgba(233, 195, 73, 0.25)' }}
+            style={{ background: 'var(--surface-mid)', border: '1px solid var(--outline)' }}
           >
-            <Sparkles size={16} className="text-[var(--gold)]" />
+            <Sparkles size={16} className="text-[var(--text-primary)]" />
           </div>
           <div>
             <h2 className="text-xl font-bold leading-tight" style={{ color: 'var(--text-primary)' }}>
@@ -311,31 +320,42 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
 
       {/* ── SECTION 1: CLOTHES TO WEAR & SEASONAL PACKING GUIDE ── */}
       {(activeFilter === 'all' || activeFilter === 'clothing') && (
-        <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-[rgba(56,189,248,0.1)] border border-[rgba(56,189,248,0.25)]">
-                <Shirt size={14} className="text-[var(--primary)]" />
+        <section className="bg-[var(--surface)] border border-[var(--outline)] rounded-2xl overflow-hidden">
+          <button
+            onClick={() => toggleSection('clothing')}
+            className="w-full flex items-center justify-between p-4 transition-colors hover:bg-[var(--surface-high)]"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--surface-mid)] border border-[var(--outline)]">
+                <Shirt size={16} className="text-[var(--text-primary)]" />
               </div>
-              <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
+              <h3 className="text-base sm:text-lg font-bold text-left" style={{ color: 'var(--text-primary)' }}>
                 Seasonal Clothing & Packing Guide
               </h3>
             </div>
-            <span className="text-xs px-2.5 py-1 rounded-full font-medium" style={{ background: 'var(--surface-mid)', color: 'var(--text-muted)' }}>
-              Tailored for {destination}
-            </span>
-          </div>
+            <div className="flex items-center gap-3">
+              <span className="hidden sm:inline-block text-xs px-2.5 py-1 rounded-full font-medium" style={{ background: 'var(--surface-mid)', color: 'var(--text-muted)' }}>
+                Tailored for {destination}
+              </span>
+              <ChevronDown
+                size={20}
+                className={`text-[var(--text-muted)] transition-transform duration-300 ${openSections['clothing'] ? 'rotate-180' : ''}`}
+              />
+            </div>
+          </button>
 
-          {/* Climate summary overview */}
+          {openSections['clothing'] && (
+            <div className="p-4 pt-0 space-y-4 border-t border-[var(--outline)] mt-2">
+              {/* Climate summary overview */}
           {clothingData?.climate_overview && (
             <div
               className="p-4 rounded-2xl flex items-start gap-3"
               style={{
-                background: 'rgba(56, 189, 248, 0.05)',
-                border: '1px solid rgba(56, 189, 248, 0.15)',
+                background: 'var(--surface-low)',
+                border: '1px solid var(--outline)',
               }}
             >
-              <Info size={18} className="text-[var(--primary)] mt-0.5 flex-shrink-0" />
+              <Info size={18} className="text-[var(--text-primary)] mt-0.5 flex-shrink-0" />
               <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                 {clothingData.climate_overview}
               </p>
@@ -405,7 +425,7 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
                 </div>
                 <div
                   className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5"
-                  style={{ background: 'rgba(56,189,248,0.1)', color: '#38bdf8', border: '1px solid rgba(56,189,248,0.2)' }}
+                  style={{ background: 'var(--surface-mid)', color: 'var(--text-primary)', border: '1px solid var(--outline)' }}
                 >
                   <Sun size={12} /> Recommended Wardrobe
                 </div>
@@ -416,7 +436,7 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
                 {/* What to Wear List */}
                 <div className="space-y-3">
                   <div className="flex items-center gap-2">
-                    <Shirt size={14} className="text-[var(--gold)]" />
+                    <Shirt size={14} className="text-[var(--text-primary)]" />
                     <h5 className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
                       Clothing to Wear
                     </h5>
@@ -428,8 +448,8 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
                         className="flex items-start gap-2.5 p-2.5 rounded-xl transition-all"
                         style={{ background: 'var(--surface-mid)', border: '1px solid var(--outline)' }}
                       >
-                        <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: 'rgba(233,195,73,0.15)' }}>
-                          <CheckCircle2 size={12} className="text-[var(--gold)]" />
+                        <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: 'var(--surface-low)' }}>
+                          <CheckCircle2 size={12} className="text-[var(--text-primary)]" />
                         </div>
                         <span className="text-xs leading-relaxed" style={{ color: 'var(--text-primary)' }}>
                           {item}
@@ -443,7 +463,7 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <CheckSquare size={14} className="text-[var(--primary)]" />
+                      <CheckSquare size={14} className="text-[var(--text-primary)]" />
                       <h5 className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
                         Essential Packing Checklist
                       </h5>
@@ -460,13 +480,13 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
                           onClick={() => toggleCheck(`${activeSeason.season_name}-${item}`)}
                           className="w-full flex items-start gap-2.5 p-2.5 rounded-xl text-left transition-all hover:brightness-105"
                           style={{
-                            background: isChecked ? 'rgba(52, 211, 153, 0.08)' : 'var(--surface-mid)',
-                            border: isChecked ? '1px solid rgba(52, 211, 153, 0.3)' : '1px solid var(--outline)',
+                            background: isChecked ? 'var(--surface-low)' : 'var(--surface-mid)',
+                            border: '1px solid var(--outline)',
                           }}
                         >
                           <div className="mt-0.5 flex-shrink-0">
                             {isChecked ? (
-                              <CheckSquare size={14} className="text-[#34d399]" />
+                              <CheckSquare size={14} className="text-[var(--success)]" />
                             ) : (
                               <Square size={14} className="text-[var(--text-muted)]" />
                             )}
@@ -492,13 +512,13 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
                 <div
                   className="p-3.5 rounded-xl flex items-start gap-3"
                   style={{
-                    background: 'rgba(233, 195, 73, 0.07)',
-                    border: '1px solid rgba(233, 195, 73, 0.25)',
+                    background: 'var(--surface-low)',
+                    border: '1px solid var(--outline)',
                   }}
                 >
-                  <AlertTriangle size={15} className="text-[var(--gold)] mt-0.5 flex-shrink-0" />
+                  <AlertTriangle size={15} className="text-[var(--text-primary)] mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="text-xs font-bold text-[var(--gold)] mb-0.5">Cultural & Temple Dress Code</p>
+                    <p className="text-xs font-bold text-[var(--text-primary)] mb-0.5">Cultural & Temple Dress Code</p>
                     <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                       {activeSeason.dress_code_tips}
                     </p>
@@ -521,11 +541,13 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
                     className="p-2.5 rounded-xl text-xs flex items-start gap-2 bg-[var(--surface-mid)] border border-[var(--outline)]"
                     style={{ color: 'var(--text-secondary)' }}
                   >
-                    <span className="text-[var(--gold)] font-bold">•</span>
+                    <span className="text-[var(--text-primary)] font-bold">•</span>
                     <span>{tip}</span>
                   </div>
                 ))}
               </div>
+            </div>
+          )}
             </div>
           )}
         </section>
@@ -533,55 +555,65 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
 
       {/* ── SECTION 2: BEWARE OF SCAMS & SAFETY ADVISORY ────── */}
       {(activeFilter === 'all' || activeFilter === 'scams') && (
-        <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.25)]">
-                <ShieldAlert size={14} className="text-[#f87171]" />
+        <section className="bg-[var(--surface)] border border-[var(--outline)] rounded-2xl overflow-hidden">
+          <button
+            onClick={() => toggleSection('scams')}
+            className="w-full flex items-center justify-between p-4 transition-colors hover:bg-[var(--surface-high)]"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--surface-mid)] border border-[var(--outline)]">
+                <ShieldAlert size={16} className="text-[var(--text-primary)]" />
               </div>
-              <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
+              <h3 className="text-base sm:text-lg font-bold text-left" style={{ color: 'var(--text-primary)' }}>
                 Beware of Scams & Safety Watch
               </h3>
             </div>
-            <span className="text-xs px-2.5 py-1 rounded-full font-medium" style={{ background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.25)' }}>
-              Travel Smart & Safe
-            </span>
-          </div>
+            <div className="flex items-center gap-3">
+              <span className="hidden sm:inline-block text-xs px-2.5 py-1 rounded-full font-medium" style={{ background: 'var(--surface-mid)', color: 'var(--text-primary)', border: '1px solid var(--outline)' }}>
+                Travel Smart & Safe
+              </span>
+              <ChevronDown
+                size={20}
+                className={`text-[var(--text-muted)] transition-transform duration-300 ${openSections['scams'] ? 'rotate-180' : ''}`}
+              />
+            </div>
+          </button>
 
-          {/* Emergency Helpline Banner */}
+          {openSections['scams'] && (
+            <div className="p-4 pt-0 space-y-4 border-t border-[var(--outline)] mt-2">
+              {/* Emergency Helpline Banner */}
           {data.emergency_contacts && (
             <div
               className="p-4 rounded-2xl grid grid-cols-1 sm:grid-cols-3 gap-3 items-center"
               style={{
-                background: 'linear-gradient(135deg, rgba(15,23,42,0.85) 0%, rgba(30,41,59,0.7) 100%)',
-                border: '1px solid rgba(56, 189, 248, 0.2)',
+                background: 'var(--color-primary)',
               }}
             >
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-[rgba(56,189,248,0.15)] text-[var(--primary)]">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-[rgba(255,255,255,0.1)] text-[#ffffff]">
                   <PhoneCall size={16} />
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase font-bold text-[var(--text-muted)]">Police & Emergency</p>
-                  <p className="text-sm font-bold text-[var(--text-primary)]">{data.emergency_contacts.police || '112 / 999'}</p>
+                  <p className="text-[10px] uppercase font-bold text-[rgba(255,255,255,0.7)]">Police & Emergency</p>
+                  <p className="text-sm font-bold text-[#ffffff]">{data.emergency_contacts.police || '112 / 999'}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-[rgba(52,211,153,0.15)] text-[#34d399]">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-[rgba(255,255,255,0.1)] text-[#ffffff]">
                   <ShieldCheck size={16} />
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase font-bold text-[var(--text-muted)]">Ambulance / Medical</p>
-                  <p className="text-sm font-bold text-[var(--text-primary)]">{data.emergency_contacts.ambulance || '112 / 999'}</p>
+                  <p className="text-[10px] uppercase font-bold text-[rgba(255,255,255,0.7)]">Ambulance / Medical</p>
+                  <p className="text-sm font-bold text-[#ffffff]">{data.emergency_contacts.ambulance || '112 / 999'}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-[rgba(233,195,73,0.15)] text-[var(--gold)]">
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-[rgba(255,255,255,0.1)] text-[#ffffff]">
                   <Lock size={16} />
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase font-bold text-[var(--text-muted)]">Tourist Assistance</p>
-                  <p className="text-xs font-semibold text-[var(--text-secondary)] truncate">{data.emergency_contacts.tourist_helpline || 'Major Visitor Centers'}</p>
+                  <p className="text-[10px] uppercase font-bold text-[rgba(255,255,255,0.7)]">Tourist Assistance</p>
+                  <p className="text-xs font-semibold text-[rgba(255,255,255,0.9)] truncate">{data.emergency_contacts.tourist_helpline || 'Major Visitor Centers'}</p>
                 </div>
               </div>
             </div>
@@ -627,11 +659,11 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
                     {/* How to Avoid / Prevention */}
                     <div
                       className="p-2.5 rounded-xl flex items-start gap-2"
-                      style={{ background: 'rgba(52, 211, 153, 0.07)', border: '1px solid rgba(52, 211, 153, 0.2)' }}
+                      style={{ background: 'var(--surface-low)', border: '1px solid var(--outline)' }}
                     >
-                      <ShieldCheck size={14} className="text-[#34d399] mt-0.5 flex-shrink-0" />
+                      <ShieldCheck size={14} className="text-[var(--text-primary)] mt-0.5 flex-shrink-0" />
                       <div>
-                        <p className="text-[10px] font-bold text-[#34d399] uppercase tracking-wide">How to Prevent</p>
+                        <p className="text-[10px] font-bold text-[var(--text-primary)] uppercase tracking-wide">How to Prevent</p>
                         <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                           {scam.prevention}
                         </p>
@@ -642,11 +674,11 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
                     {scam.warning_signs && (
                       <div
                         className="p-2 rounded-xl flex items-start gap-2"
-                        style={{ background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.15)' }}
+                        style={{ background: 'var(--surface-low)', border: '1px solid var(--outline)' }}
                       >
-                        <AlertTriangle size={12} className="text-[#f87171] mt-0.5 flex-shrink-0" />
+                        <AlertTriangle size={12} className="text-[var(--text-primary)] mt-0.5 flex-shrink-0" />
                         <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
-                          <strong className="text-[#f87171]">Red Flag:</strong> {scam.warning_signs}
+                          <strong className="text-[var(--text-primary)]">Red Flag:</strong> {scam.warning_signs}
                         </p>
                       </div>
                     )}
@@ -655,27 +687,40 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
               );
             })}
           </div>
+            </div>
+          )}
         </section>
       )}
 
       {/* ── SECTION 3: MUST-DO ACTIVITIES & HIDDEN GEMS ────── */}
       {(activeFilter === 'all' || activeFilter === 'activities') && (
-        <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-[rgba(233,195,73,0.1)] border border-[rgba(233,195,73,0.25)]">
-                <Sparkles size={14} className="text-[var(--gold)]" />
+        <section className="bg-[var(--surface)] border border-[var(--outline)] rounded-2xl overflow-hidden">
+          <button
+            onClick={() => toggleSection('activities')}
+            className="w-full flex items-center justify-between p-4 transition-colors hover:bg-[var(--surface-high)]"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--surface-mid)] border border-[var(--outline)]">
+                <Sparkles size={16} className="text-[var(--text-primary)]" />
               </div>
-              <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
-                Additional Must-Do Activities & Hidden Gems
+              <h3 className="text-base sm:text-lg font-bold text-left" style={{ color: 'var(--text-primary)' }}>
+                Must-Do Activities & Hidden Gems
               </h3>
             </div>
-            <span className="text-xs px-2.5 py-1 rounded-full font-medium" style={{ background: 'var(--surface-mid)', color: 'var(--text-muted)' }}>
-              Curated Experiences
-            </span>
-          </div>
+            <div className="flex items-center gap-3">
+              <span className="hidden sm:inline-block text-xs px-2.5 py-1 rounded-full font-medium" style={{ background: 'var(--surface-mid)', color: 'var(--text-muted)' }}>
+                Curated Experiences
+              </span>
+              <ChevronDown
+                size={20}
+                className={`text-[var(--text-muted)] transition-transform duration-300 ${openSections['activities'] ? 'rotate-180' : ''}`}
+              />
+            </div>
+          </button>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {openSections['activities'] && (
+            <div className="p-4 pt-0 space-y-4 border-t border-[var(--outline)] mt-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {data.must_do_activities?.map((activity, i) => (
               <div
                 key={i}
@@ -691,16 +736,16 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
                     <span
                       className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full"
                       style={{
-                        background: 'rgba(233, 195, 73, 0.1)',
-                        color: 'var(--gold)',
-                        border: '1px solid rgba(233, 195, 73, 0.25)',
+                        background: 'var(--surface-low)',
+                        color: 'var(--text-primary)',
+                        border: '1px solid var(--outline)',
                       }}
                     >
                       {activity.category || 'Experience'}
                     </span>
                     {activity.estimated_cost && (
                       <span className="text-xs font-semibold flex items-center gap-1" style={{ color: 'var(--text-muted)' }}>
-                        <DollarSign size={11} className="text-[var(--gold)]" />
+                        <DollarSign size={11} className="text-[var(--text-primary)]" />
                         {activity.estimated_cost}
                       </span>
                     )}
@@ -718,7 +763,7 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
                 <div className="space-y-2 pt-2 border-t border-[var(--outline)]">
                   {activity.best_time && (
                     <div className="flex items-center gap-1.5 text-xs text-[var(--text-muted)]">
-                      <Clock size={12} className="text-[var(--primary)]" />
+                      <Clock size={12} className="text-[var(--text-primary)]" />
                       <span>Best Time: {activity.best_time}</span>
                     </div>
                   )}
@@ -726,11 +771,11 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
                   {activity.insider_tip && (
                     <div
                       className="p-2.5 rounded-xl flex items-start gap-2"
-                      style={{ background: 'rgba(56, 189, 248, 0.06)', border: '1px solid rgba(56, 189, 248, 0.2)' }}
+                      style={{ background: 'var(--surface-low)', border: '1px solid var(--outline)' }}
                     >
-                      <Sparkle size={13} className="text-[var(--primary)] mt-0.5 flex-shrink-0" />
+                      <Sparkle size={13} className="text-[var(--text-primary)] mt-0.5 flex-shrink-0" />
                       <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                        <strong className="text-[var(--primary)] font-semibold">Insider Tip: </strong>
+                        <strong className="text-[var(--text-primary)] font-semibold">Insider Tip: </strong>
                         {activity.insider_tip}
                       </p>
                     </div>
@@ -739,27 +784,40 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
               </div>
             ))}
           </div>
+            </div>
+          )}
         </section>
       )}
 
       {/* ── SECTION 4: LOCAL HACKS & TRAVEL ETIQUETTE ───────── */}
       {(activeFilter === 'all' || activeFilter === 'hacks') && (
-        <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-[rgba(52,211,153,0.1)] border border-[rgba(52,211,153,0.25)]">
-                <Lightbulb size={14} className="text-[#34d399]" />
+        <section className="bg-[var(--surface)] border border-[var(--outline)] rounded-2xl overflow-hidden">
+          <button
+            onClick={() => toggleSection('hacks')}
+            className="w-full flex items-center justify-between p-4 transition-colors hover:bg-[var(--surface-high)]"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--surface-mid)] border border-[var(--outline)]">
+                <Lightbulb size={16} className="text-[var(--text-primary)]" />
               </div>
-              <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
+              <h3 className="text-base sm:text-lg font-bold text-left" style={{ color: 'var(--text-primary)' }}>
                 Local Hacks & Cultural Etiquette
               </h3>
             </div>
-            <span className="text-xs px-2.5 py-1 rounded-full font-medium" style={{ background: 'var(--surface-mid)', color: 'var(--text-muted)' }}>
-              Insider Knowledge
-            </span>
-          </div>
+            <div className="flex items-center gap-3">
+              <span className="hidden sm:inline-block text-xs px-2.5 py-1 rounded-full font-medium" style={{ background: 'var(--surface-mid)', color: 'var(--text-muted)' }}>
+                Insider Knowledge
+              </span>
+              <ChevronDown
+                size={20}
+                className={`text-[var(--text-muted)] transition-transform duration-300 ${openSections['hacks'] ? 'rotate-180' : ''}`}
+              />
+            </div>
+          </button>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {openSections['hacks'] && (
+            <div className="p-4 pt-0 space-y-4 border-t border-[var(--outline)] mt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {data.local_hacks_and_etiquette?.map((hack, i) => (
               <div
                 key={i}
@@ -770,7 +828,7 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
                 }}
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-[var(--gold)]">{hack.topic}</span>
+                  <span className="text-xs font-bold text-[var(--text-primary)]">{hack.topic}</span>
                   {hack.category && (
                     <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[var(--surface-mid)] text-[var(--text-muted)]">
                       {hack.category}
@@ -783,6 +841,8 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
               </div>
             ))}
           </div>
+            </div>
+          )}
         </section>
       )}
     </div>
