@@ -58,7 +58,7 @@ export default function SavedTripsPanel({ onLoadTrip }: SavedTripsPanelProps) {
           <Bookmark size={18} style={{ color: 'var(--primary)' }} />
         </div>
         <div>
-          <h1 className="text-xl font-bold" style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}>
+          <h1 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>
             Saved Trips
           </h1>
           <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
@@ -95,11 +95,11 @@ export default function SavedTripsPanel({ onLoadTrip }: SavedTripsPanelProps) {
           >
             <Plane size={32} style={{ color: 'var(--outline)' }} />
           </div>
-          <p className="text-lg font-semibold" style={{ color: 'var(--text-secondary)', fontFamily: 'Playfair Display, serif' }}>
+          <p className="text-lg font-semibold" style={{ color: 'var(--text-secondary)' }}>
             No saved trips yet
           </p>
           <p className="text-sm text-center max-w-xs" style={{ color: 'var(--text-muted)' }}>
-            Plan a trip and click <span style={{ color: 'var(--gold)' }}>Save Trip</span> to keep it here
+            Plan a trip and click <span style={{ color: 'var(--color-primary)', fontWeight: 600 }}>Save Trip</span> to keep it here
           </p>
         </div>
       )}
@@ -117,11 +117,12 @@ export default function SavedTripsPanel({ onLoadTrip }: SavedTripsPanelProps) {
             return (
               <div
                 key={trip.id}
-                className="group relative card overflow-hidden cursor-pointer"
+                className="group flex flex-col transition-all duration-200 card cursor-pointer"
                 onClick={() => onLoadTrip?.(trip)}
+                style={{ padding: '0' }}
               >
                 {/* City image */}
-                <div className="relative h-36 overflow-hidden">
+                <div className="relative aspect-[4/3] overflow-hidden" style={{ borderTopLeftRadius: 'var(--radius-lg)', borderTopRightRadius: 'var(--radius-lg)' }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={`https://source.unsplash.com/600x300/?${encodeURIComponent(city)},travel,city`}
@@ -134,7 +135,7 @@ export default function SavedTripsPanel({ onLoadTrip }: SavedTripsPanelProps) {
                   />
                   <div
                     className="absolute inset-0"
-                    style={{ background: 'linear-gradient(to top, rgba(4,22,39,0.88) 0%, rgba(4,22,39,0.2) 60%, transparent 100%)' }}
+                    style={{ background: 'linear-gradient(to top, rgba(15,15,15,0.88) 0%, rgba(15,15,15,0.2) 60%, transparent 100%)' }}
                   />
                   {/* Delete button */}
                   <button
@@ -151,7 +152,7 @@ export default function SavedTripsPanel({ onLoadTrip }: SavedTripsPanelProps) {
                 <div className="p-4">
                   <h3
                     className="text-base font-bold mb-2 truncate"
-                    style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}
+                    style={{ color: 'var(--text-primary)' }}
                   >
                     {trip.destination}
                   </h3>
@@ -160,7 +161,7 @@ export default function SavedTripsPanel({ onLoadTrip }: SavedTripsPanelProps) {
                     {td?.duration && (
                       <span
                         className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full"
-                        style={{ background: 'rgba(4,22,39,0.07)', color: 'var(--primary)', border: '1px solid var(--outline)' }}
+                        style={{ background: 'var(--bg-surface)', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)' }}
                       >
                         <Calendar size={10} /> {td.duration} days
                       </span>
@@ -168,7 +169,7 @@ export default function SavedTripsPanel({ onLoadTrip }: SavedTripsPanelProps) {
                     {td?.travelers && (
                       <span
                         className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full"
-                        style={{ background: 'var(--surface-mid)', color: 'var(--text-secondary)', border: '1px solid var(--outline)' }}
+                        style={{ background: 'var(--bg-surface)', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)' }}
                       >
                         <Users size={10} /> {td.travelers} people
                       </span>
@@ -176,7 +177,7 @@ export default function SavedTripsPanel({ onLoadTrip }: SavedTripsPanelProps) {
                     {td?.travel_type && (
                       <span
                         className="flex items-center gap-1 text-xs px-2 py-0.5 rounded-full"
-                        style={{ background: 'rgba(233,195,73,0.1)', color: 'var(--gold)', border: '1px solid rgba(233,195,73,0.2)' }}
+                        style={{ background: 'var(--bg-surface)', color: 'var(--text-secondary)', border: '1px solid var(--border-subtle)' }}
                       >
                         <MapPin size={10} /> {td.travel_type}
                       </span>

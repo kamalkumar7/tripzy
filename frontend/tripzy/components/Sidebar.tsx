@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { MapPin, Globe, Bookmark, Plus, Plane, Menu, X, LogOut } from 'lucide-react';
+import { MapPin, Globe, Bookmark, Plus, Plane, Menu, X, LogOut, Sun, Moon } from 'lucide-react';
 import type { AuthUser } from '@/lib/auth';
 
 interface SidebarProps {
@@ -11,6 +11,8 @@ interface SidebarProps {
   onLogout?: () => void;
   activeNav?: string;
   onNavChange?: (label: string) => void;
+  darkMode?: boolean;
+  onToggleDarkMode?: () => void;
 }
 
 const navItems = [
@@ -19,31 +21,28 @@ const navItems = [
   { Icon: Bookmark, label: 'Saved'    },
 ];
 
-export default function Sidebar({ onNewTrip, destination, user, onLogout, activeNav = 'My Trips', onNavChange }: SidebarProps) {
+export default function Sidebar({ onNewTrip, destination, user, onLogout, activeNav = 'My Trips', onNavChange, darkMode, onToggleDarkMode }: SidebarProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [imgError, setImgError] = useState(false);
 
   const renderContent = () => (
     <div className="flex flex-col h-full">
       {/* Brand */}
-      <div className="px-6 py-7" style={{ borderBottom: '1px solid var(--surface-border)' }}>
-        <div className="flex items-center gap-3 mb-1">
+      <div className="px-6 py-7">
+        <div className="flex items-center gap-3">
           <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm"
-            style={{ background: 'var(--gold)', color: '#041627' }}
+            className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{ background: 'var(--color-primary)', color: '#FFFFFF' }}
           >
             <Plane size={16} strokeWidth={2.5} />
           </div>
           <span
             className="text-xl font-bold tracking-tight"
-            style={{ fontFamily: 'Georgia, serif', color: 'var(--text-primary)' }}
+            style={{ color: 'var(--text-primary)' }}
           >
             Tripzy
           </span>
         </div>
-        <p className="text-xs mt-1 pl-12 font-medium" style={{ color: 'var(--text-muted)' }}>
-          Elite Concierge
-        </p>
       </div>
 
       {/* Nav */}
@@ -59,16 +58,14 @@ export default function Sidebar({ onNewTrip, destination, user, onLogout, active
               }}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium w-full text-left transition-all duration-200 ${
                 isActive
-                  ? 'shadow-sm'
-                  : 'hover:bg-[var(--surface-mid)] hover:text-[var(--text-primary)]'
+                  ? ''
+                  : 'hover:bg-gray-100 hover:text-[var(--text-primary)] dark:hover:bg-gray-800'
               }`}
               style={
                 isActive
                   ? {
-                      background: 'rgba(233,195,73,0.15)',
-                      color: 'var(--gold-dark)',
-                      borderLeft: '3px solid var(--gold)',
-                      paddingLeft: '13px',
+                      background: 'rgba(255, 56, 92, 0.1)',
+                      color: 'var(--color-primary)',
                     }
                   : {
                       color: 'var(--text-secondary)',
@@ -122,13 +119,11 @@ export default function Sidebar({ onNewTrip, destination, user, onLogout, active
             onNewTrip();
             setMobileOpen(false);
           }}
-          className="w-full flex items-center justify-center gap-2 py-3 rounded-full font-bold transition-all duration-200 hover:brightness-110 active:scale-95 shadow-sm"
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-full font-semibold transition-all duration-200 hover:brightness-110 active:scale-95"
           style={{
-            background: 'var(--gold)',
-            color: '#041627',
-            fontSize: '11px',
-            letterSpacing: '0.1em',
-            textTransform: 'uppercase',
+            background: 'var(--color-primary)',
+            color: '#FFFFFF',
+            fontSize: '13px',
           }}
         >
           <Plus size={14} strokeWidth={3} />
@@ -153,16 +148,14 @@ export default function Sidebar({ onNewTrip, destination, user, onLogout, active
                 src={user.picture}
                 alt={user.name}
                 onError={() => setImgError(true)}
-                className="w-8 h-8 rounded-full object-cover"
-                style={{ border: '1.5px solid var(--gold)' }}
+                className="w-9 h-9 rounded-full object-cover"
               />
             ) : (
               <div
-                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
+                className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold"
                 style={{
-                  background: 'rgba(233,195,73,0.2)',
-                  color: 'var(--gold-dark)',
-                  border: '1.5px solid var(--gold)',
+                  background: 'rgba(255,56,92,0.1)',
+                  color: 'var(--color-primary)',
                 }}
               >
                 {user.name?.charAt(0).toUpperCase() ?? 'U'}
@@ -191,17 +184,30 @@ export default function Sidebar({ onNewTrip, destination, user, onLogout, active
             </p>
           </div>
 
-          {/* Sign out */}
-          {onLogout && (
-            <button
-              onClick={onLogout}
-              title="Sign out"
-              className="p-1.5 rounded-lg flex-shrink-0 transition-all duration-200 hover:bg-[var(--surface-mid)]"
-              style={{ color: 'var(--text-muted)' }}
-            >
-              <LogOut size={13} />
-            </button>
-          )}
+          {/* Actions */}
+          <div className="flex items-center gap-1 flex-shrink-0">
+            {onToggleDarkMode && (
+              <button
+                onClick={onToggleDarkMode}
+                title={darkMode ? 'Light Mode' : 'Dark Mode'}
+                className="p-1.5 rounded-lg transition-all duration-200 hover:bg-[var(--surface-mid)]"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                {darkMode ? <Sun size={14} /> : <Moon size={14} />}
+              </button>
+            )}
+            
+            {onLogout && (
+              <button
+                onClick={onLogout}
+                title="Sign out"
+                className="p-1.5 rounded-lg transition-all duration-200 hover:bg-[var(--surface-mid)]"
+                style={{ color: 'var(--text-muted)' }}
+              >
+                <LogOut size={13} />
+              </button>
+            )}
+          </div>
         </div>
       )}
     </div>
@@ -231,14 +237,14 @@ export default function Sidebar({ onNewTrip, destination, user, onLogout, active
       >
         <div className="flex items-center gap-2">
           <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center shadow-xs"
-            style={{ background: 'var(--gold)', color: '#041627' }}
+            className="w-8 h-8 rounded-lg flex items-center justify-center"
+            style={{ background: 'var(--color-primary)', color: '#FFFFFF' }}
           >
             <Plane size={14} strokeWidth={2.5} />
           </div>
           <span
             className="text-lg font-bold"
-            style={{ fontFamily: 'Georgia, serif', color: 'var(--text-primary)' }}
+            style={{ color: 'var(--text-primary)' }}
           >
             Tripzy
           </span>
@@ -246,8 +252,8 @@ export default function Sidebar({ onNewTrip, destination, user, onLogout, active
         <div className="flex items-center gap-2">
           <button
             onClick={onNewTrip}
-            className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full shadow-xs transition-all duration-200 hover:brightness-110 active:scale-95"
-            style={{ background: 'var(--gold)', color: '#041627' }}
+            className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full transition-all duration-200 hover:brightness-110 active:scale-95"
+            style={{ background: 'var(--color-primary)', color: '#FFFFFF' }}
           >
             <Plus size={11} strokeWidth={3} /> New Trip
           </button>

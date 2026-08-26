@@ -153,19 +153,19 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
       <div
         className="max-w-6xl mx-auto mb-10 text-center md:text-left flex flex-col md:flex-row items-center justify-between gap-6 p-6 md:p-8 rounded-3xl"
         style={{
-          background: 'linear-gradient(135deg, rgba(4,22,39,0.06) 0%, rgba(233,195,73,0.06) 100%)',
-          border: '1px solid var(--outline)',
-          boxShadow: 'var(--shadow-card)',
+          background: 'var(--bg-surface)',
+          border: '1px solid var(--border-subtle)',
         }}
       >
         <div>
           {/* Badge */}
           <div
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full mb-3 label-caps"
+            className="inline-flex items-center gap-2 px-3 py-1 mb-3 label-caps"
             style={{
-              background: 'rgba(4,22,39,0.08)',
+              background: 'var(--bg-elevated)',
               color: 'var(--text-secondary)',
-              border: '1px solid var(--outline)',
+              border: '1px solid var(--border-subtle)',
+              borderRadius: 'var(--radius-pill)',
             }}
           >
             <Compass size={13} />
@@ -174,7 +174,7 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
 
           <h1
             className="text-3xl md:text-4xl font-extrabold mb-2"
-            style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}
+            style={{ color: 'var(--text-primary)' }}
           >
             Explore Destinations
           </h1>
@@ -188,8 +188,8 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
 
         <div className="flex-shrink-0 flex items-center gap-3">
           <div
-            className="w-12 h-12 rounded-2xl flex items-center justify-center"
-            style={{ background: 'rgba(233,195,73,0.12)', color: 'var(--gold)' }}
+            className="w-12 h-12 flex items-center justify-center rounded-full"
+            style={{ background: 'rgba(255, 56, 92, 0.1)', color: 'var(--color-primary)' }}
           >
             <Sparkles size={24} />
           </div>
@@ -198,18 +198,14 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
 
       {/* ── AI Concierge Widget ────────────────────────── */}
       <div
-        className="max-w-6xl mx-auto mb-12 p-6 rounded-3xl"
-        style={{
-          background: 'var(--surface)',
-          border: '1px solid var(--outline)',
-          boxShadow: 'var(--shadow-card)',
-        }}
+        className="max-w-6xl mx-auto mb-12 p-6 card"
+        style={{ borderRadius: 'var(--radius-xl)' }}
       >
         <div className="flex items-center gap-2 mb-4">
-          <Zap size={18} style={{ color: 'var(--gold)' }} />
+          <Zap size={18} style={{ color: 'var(--color-primary)' }} />
           <h2
             className="text-lg font-bold"
-            style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}
+            style={{ color: 'var(--text-primary)' }}
           >
             AI Concierge: Custom Trip Generator
           </h2>
@@ -289,11 +285,12 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
 
         <button
           onClick={handleConciergeGenerate}
-          className="w-full py-3.5 rounded-2xl font-bold text-sm flex items-center justify-center gap-2 transition-all duration-200 hover:brightness-110 active:scale-[0.99]"
+          className="w-full font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200 hover:brightness-110 active:scale-95"
           style={{
-            background: '#041627',
-            color: 'var(--gold)',
-            boxShadow: '0 4px 14px rgba(4,22,39,0.35)',
+            background: 'var(--color-primary)',
+            color: '#FFFFFF',
+            borderRadius: 'var(--radius-md)',
+            height: '48px'
           }}
         >
           <Sparkles size={16} />
@@ -304,10 +301,10 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
       {/* ── Trending Prompt Ideas ─────────────────────── */}
       <div className="max-w-6xl mx-auto mb-12">
         <div className="flex items-center gap-2 mb-4">
-          <Flame size={18} style={{ color: 'var(--gold)' }} />
+          <Flame size={18} style={{ color: 'var(--color-primary)' }} />
           <h2
             className="text-xl font-bold"
-            style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}
+            style={{ color: 'var(--text-primary)' }}
           >
             Trending AI Ideas
           </h2>
@@ -343,7 +340,7 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
 
               <div
                 className="mt-4 pt-3 flex items-center justify-between text-xs font-bold"
-                style={{ borderTop: '1px solid var(--outline)', color: 'var(--primary)' }}
+                style={{ borderTop: '1px solid var(--border-subtle)', color: 'var(--color-primary)' }}
               >
                 <span>Build with AI</span>
                 <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
@@ -357,10 +354,10 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
       <div className="max-w-6xl mx-auto mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-2">
-            <Globe size={18} style={{ color: 'var(--primary)' }} />
+            <Globe size={18} style={{ color: 'var(--color-primary)' }} />
             <h2
               className="text-xl font-bold"
-              style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}
+              style={{ color: 'var(--text-primary)' }}
             >
               Curated Worldwide Destinations
             </h2>
@@ -374,9 +371,9 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
                 onClick={() => setSelectedVibe(vibe)}
                 className="px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200"
                 style={{
-                  background: selectedVibe === vibe ? 'var(--primary)' : 'var(--surface)',
-                  color: selectedVibe === vibe ? 'var(--gold)' : 'var(--text-muted)',
-                  border: `1px solid ${selectedVibe === vibe ? 'var(--primary)' : 'var(--outline)'}`,
+                  background: selectedVibe === vibe ? 'var(--color-primary)' : 'transparent',
+                  color: selectedVibe === vibe ? '#FFFFFF' : 'var(--text-muted)',
+                  border: `1px solid ${selectedVibe === vibe ? 'var(--color-primary)' : 'var(--border-subtle)'}`,
                 }}
               >
                 {vibe}
@@ -390,10 +387,12 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
           {filteredDestinations.map(dest => (
             <div
               key={dest.id}
-              className="group rounded-3xl overflow-hidden flex flex-col transition-all duration-300 card"
+              className="group flex flex-col transition-all duration-200 card cursor-pointer"
+              onClick={() => onSelectPrompt(dest.suggestedPrompt)}
+              style={{ padding: '0' }}
             >
               {/* Image Banner */}
-              <div className="relative h-48 overflow-hidden">
+              <div className="relative aspect-[4/3] overflow-hidden" style={{ borderTopLeftRadius: 'var(--radius-lg)', borderTopRightRadius: 'var(--radius-lg)' }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={dest.image}
@@ -402,7 +401,7 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
                 />
                 <div
                   className="absolute inset-0"
-                  style={{ background: 'linear-gradient(to top, rgba(4,22,39,0.88) 0%, transparent 60%)' }}
+                  style={{ background: 'linear-gradient(to top, rgba(15,15,15,0.88) 0%, transparent 60%)' }}
                 />
 
                 {/* Vibe badge */}
@@ -410,7 +409,7 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
                   <span
                     className="px-3 py-1 rounded-full text-xs font-bold"
                     style={{
-                      background: 'rgba(4,22,39,0.72)',
+                      background: 'rgba(15,15,15,0.72)',
                       color: '#ffffff',
                       backdropFilter: 'blur(8px)',
                       border: '1px solid rgba(255,255,255,0.15)',
@@ -424,13 +423,12 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
                 <div className="absolute bottom-3 left-3 right-3 text-white">
                   <span
                     className="label-caps"
-                    style={{ color: 'var(--gold-bright)', letterSpacing: '0.12em', fontSize: '10px' }}
+                    style={{ color: '#EBEBEB', letterSpacing: '0.12em', fontSize: '10px' }}
                   >
                     {dest.country}
                   </span>
                   <h3
-                    className="text-2xl font-bold"
-                    style={{ fontFamily: 'Playfair Display, serif' }}
+                    className="text-2xl font-bold tracking-tight"
                   >
                     {dest.name}
                   </h3>
@@ -490,11 +488,14 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
 
                 {/* Plan CTA button */}
                 <button
-                  onClick={() => onSelectPrompt(dest.suggestedPrompt)}
-                  className="w-full py-3 rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all duration-200 hover:brightness-110 active:scale-95"
+                  onClick={(e) => { e.stopPropagation(); onSelectPrompt(dest.suggestedPrompt); }}
+                  className="w-full font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200"
                   style={{
-                    background: '#041627',
-                    color: '#e9c349',
+                    height: '44px',
+                    borderRadius: 'var(--radius-md)',
+                    background: 'transparent',
+                    border: '1px solid var(--border-subtle)',
+                    color: 'var(--text-primary)',
                   }}
                 >
                   <Zap size={13} />

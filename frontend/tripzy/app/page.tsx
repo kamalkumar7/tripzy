@@ -300,25 +300,7 @@ function TabSkeleton({ count = 3 }: { count?: number }) {
   );
 }
 
-// ── Dark mode toggle ───────────────────────────
-function DarkModeToggle({ dark, onToggle }: { dark: boolean; onToggle: () => void }) {
-  return (
-    <button
-      onClick={onToggle}
-      title={dark ? 'Light Mode' : 'Dark Mode'}
-      className="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-200 hover:scale-105"
-      style={{
-        background: dark ? GOLD : 'rgba(15,23,42,0.9)',
-        color: dark ? DARK_BG : CYAN,
-        boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
-        border: '1px solid rgba(255,255,255,0.1)',
-        backdropFilter: 'blur(12px)',
-      }}
-    >
-      {dark ? <Sun size={18} /> : <Moon size={18} />}
-    </button>
-  );
-}
+// ── Dark mode toggle removed from here (now in Sidebar) ─
 
 // ── Auth Loading Spinner ───────────────────────
 function AuthLoadingSpinner() {
@@ -433,6 +415,8 @@ export default function Home() {
         user={user}
         onLogout={logout}
         activeNav={activeNav}
+        darkMode={darkMode}
+        onToggleDarkMode={() => setDarkMode(!darkMode)}
         onNavChange={nav => {
           setActiveNav(nav);
           if (nav === 'My Trips') {
@@ -444,7 +428,6 @@ export default function Home() {
 
       {/* Main content — swaps between views */}
       <div className="flex-1 flex flex-col overflow-hidden relative">
-        <DarkModeToggle dark={darkMode} onToggle={() => setDarkMode(!darkMode)} />
 
         {/* Saved trips view — overrides the trip content area */}
         {activeNav === 'Saved' && <SavedTripsPanel />}
