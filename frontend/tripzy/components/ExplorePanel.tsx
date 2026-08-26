@@ -131,7 +131,7 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
   const [selectedVibe, setSelectedVibe] = useState<typeof VIBES[number]>('All');
 
   // AI Concierge Generator state
-  const [mood, setMood] = useState('Cultural & Historical');
+  const [mood, setMood] = useState('Tropical Beach');
   const [durationDays, setDurationDays] = useState(5);
   const [budgetTier, setBudgetTier] = useState('Moderate');
 
@@ -214,72 +214,97 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
           Configure your preferences below and let the AI agent craft a custom itinerary tailored specifically for you.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="space-y-8 mb-8">
           {/* Mood Selector */}
           <div>
-            <label className="block label-caps mb-2" style={{ color: 'var(--text-muted)' }}>
+            <label className="block label-caps mb-3" style={{ color: 'var(--text-muted)' }}>
               Travel Vibe
             </label>
-            <select
-              value={mood}
-              onChange={e => setMood(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl text-sm font-medium focus:outline-none"
-              style={{
-                background: 'var(--surface-low)',
-                border: '1px solid var(--outline)',
-                color: 'var(--text-primary)',
-              }}
-            >
-              <option value="Tropical Beach">🏖️ Tropical Beach & Relaxation</option>
-              <option value="Cultural & Historical">🏛️ Cultural & Historic Exploration</option>
-              <option value="Alpine Mountain Adventure">⛰️ Mountain & Hiking Adventure</option>
-              <option value="Foodie Street Cuisine">🍜 Foodie & Culinary Food Trail</option>
-              <option value="High-End Luxury">💎 High-End Luxury Escapes</option>
-              <option value="Backpacking Budget">🎒 Backpacking & Hidden Gems</option>
-            </select>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { label: 'Tropical Beach', icon: '🏖️' },
+                { label: 'Cultural & Historical', icon: '🏛️' },
+                { label: 'Alpine Mountain Adventure', icon: '⛰️' },
+                { label: 'Foodie Street Cuisine', icon: '🍜' },
+                { label: 'High-End Luxury', icon: '💎' },
+                { label: 'Backpacking Budget', icon: '🎒' }
+              ].map(v => (
+                <button
+                  key={v.label}
+                  type="button"
+                  onClick={(e) => { e.preventDefault(); setMood(v.label); }}
+                  className="px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-2"
+                  style={{
+                    backgroundColor: mood === v.label ? 'var(--color-primary)' : 'transparent',
+                    color: mood === v.label ? '#FFFFFF' : 'var(--text-primary)',
+                    borderColor: mood === v.label ? 'var(--color-primary)' : 'var(--border-subtle)',
+                    borderWidth: '1px',
+                    borderStyle: 'solid',
+                  }}
+                >
+                  <span>{v.icon}</span> {v.label}
+                </button>
+              ))}
+            </div>
           </div>
 
-          {/* Duration Selector */}
-          <div>
-            <label className="block label-caps mb-2" style={{ color: 'var(--text-muted)' }}>
-              Duration
-            </label>
-            <select
-              value={durationDays}
-              onChange={e => setDurationDays(Number(e.target.value))}
-              className="w-full px-4 py-2.5 rounded-xl text-sm font-medium focus:outline-none"
-              style={{
-                background: 'var(--surface-low)',
-                border: '1px solid var(--outline)',
-                color: 'var(--text-primary)',
-              }}
-            >
-              <option value={3}>⚡ 3 Days (Weekend Break)</option>
-              <option value={5}>🗓️ 5 Days (Standard Trip)</option>
-              <option value={7}>✈️ 7 Days (Full Week)</option>
-              <option value={10}>🌍 10+ Days (Grand Tour)</option>
-            </select>
-          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Duration Selector */}
+            <div>
+              <label className="block label-caps mb-3" style={{ color: 'var(--text-muted)' }}>
+                Duration (Days)
+              </label>
+              <div className="flex p-1 rounded-xl" style={{ background: 'var(--surface-low)', border: '1px solid var(--border-subtle)' }}>
+                {[
+                  { val: 3, label: '3 Days' },
+                  { val: 5, label: '5 Days' },
+                  { val: 7, label: '7 Days' },
+                  { val: 10, label: '10+ Days' }
+                ].map(d => (
+                  <button
+                    key={d.val}
+                    type="button"
+                    onClick={(e) => { e.preventDefault(); setDurationDays(d.val); }}
+                    className="flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-200"
+                    style={{
+                      backgroundColor: durationDays === d.val ? 'var(--bg-surface)' : 'transparent',
+                      color: durationDays === d.val ? 'var(--text-primary)' : 'var(--text-muted)',
+                      boxShadow: durationDays === d.val ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
+                    }}
+                  >
+                    {d.label}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-          {/* Budget Tier */}
-          <div>
-            <label className="block label-caps mb-2" style={{ color: 'var(--text-muted)' }}>
-              Budget Style
-            </label>
-            <select
-              value={budgetTier}
-              onChange={e => setBudgetTier(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl text-sm font-medium focus:outline-none"
-              style={{
-                background: 'var(--surface-low)',
-                border: '1px solid var(--outline)',
-                color: 'var(--text-primary)',
-              }}
-            >
-              <option value="Budget-Friendly">💵 Budget-Friendly</option>
-              <option value="Moderate">💳 Moderate / Balanced</option>
-              <option value="Luxury">💎 Premium Luxury</option>
-            </select>
+            {/* Budget Tier */}
+            <div>
+              <label className="block label-caps mb-3" style={{ color: 'var(--text-muted)' }}>
+                Budget Style
+              </label>
+              <div className="flex p-1 rounded-xl" style={{ background: 'var(--surface-low)', border: '1px solid var(--border-subtle)' }}>
+                {[
+                  { val: 'Budget-Friendly', label: 'Budget' },
+                  { val: 'Moderate', label: 'Moderate' },
+                  { val: 'Luxury', label: 'Luxury' }
+                ].map(b => (
+                  <button
+                    key={b.val}
+                    type="button"
+                    onClick={(e) => { e.preventDefault(); setBudgetTier(b.val); }}
+                    className="flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-200"
+                    style={{
+                      backgroundColor: budgetTier === b.val ? 'var(--bg-surface)' : 'transparent',
+                      color: budgetTier === b.val ? 'var(--text-primary)' : 'var(--text-muted)',
+                      boxShadow: budgetTier === b.val ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
+                    }}
+                  >
+                    {b.label}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 

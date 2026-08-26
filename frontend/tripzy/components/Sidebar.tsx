@@ -82,35 +82,7 @@ export default function Sidebar({ onNewTrip, destination, user, onLogout, active
         })}
       </nav>
 
-      {/* Current trip */}
-      {destination && (
-        <div
-          className="mx-3 mb-3 p-4 rounded-xl shadow-xs"
-          style={{
-            background: 'var(--surface-low)',
-            border: '1px solid var(--surface-border)',
-          }}
-        >
-          <p
-            style={{
-              fontSize: '10px',
-              fontWeight: 700,
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              color: 'var(--text-muted)',
-              marginBottom: '4px',
-            }}
-          >
-            Current Trip
-          </p>
-          <p
-            className="text-sm font-semibold truncate"
-            style={{ color: 'var(--text-primary)' }}
-          >
-            {destination}
-          </p>
-        </div>
-      )}
+      {/* Current trip - Hidden per user request */}
 
       {/* New Trip Button */}
       <div className="px-3 pb-3">
