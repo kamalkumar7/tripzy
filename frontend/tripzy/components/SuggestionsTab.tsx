@@ -271,7 +271,7 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
             <Sparkles size={16} className="text-[var(--gold)]" />
           </div>
           <div>
-            <h2 className="text-xl font-bold leading-tight" style={{ fontFamily: 'Playfair Display, Georgia, serif', color: 'var(--text-primary)' }}>
+            <h2 className="text-xl font-bold leading-tight" style={{ color: 'var(--text-primary)' }}>
               Curated Suggestions & Travel Wisdom
             </h2>
             <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
@@ -296,9 +296,9 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
                 onClick={() => setActiveFilter(id as typeof activeFilter)}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200"
                 style={{
-                  background: active ? 'var(--gold)' : 'transparent',
-                  color: active ? '#020617' : 'var(--text-muted)',
-                  boxShadow: active ? '0 2px 8px rgba(233, 195, 73, 0.25)' : 'none',
+                  background: active ? 'var(--text-primary)' : 'transparent',
+                  color: active ? 'var(--surface)' : 'var(--text-muted)',
+                  boxShadow: active ? '0 2px 8px rgba(0, 0, 0, 0.15)' : 'none',
                 }}
               >
                 <Icon size={12} />
@@ -317,7 +317,7 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
               <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-[rgba(56,189,248,0.1)] border border-[rgba(56,189,248,0.25)]">
                 <Shirt size={14} className="text-[var(--primary)]" />
               </div>
-              <h3 className="text-lg font-bold" style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}>
+              <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
                 Seasonal Clothing & Packing Guide
               </h3>
             </div>
@@ -355,17 +355,17 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
                     className="p-3 rounded-2xl text-left transition-all duration-200 flex flex-col justify-between"
                     style={{
                       background: isSelected ? 'var(--surface-high)' : 'var(--surface)',
-                      border: isSelected ? '1.5px solid var(--gold)' : '1px solid var(--outline)',
-                      boxShadow: isSelected ? '0 4px 16px rgba(233,195,73,0.12)' : 'none',
+                      border: isSelected ? '1.5px solid var(--text-primary)' : '1px solid var(--outline)',
+                      boxShadow: isSelected ? '0 4px 16px rgba(0,0,0,0.1)' : 'none',
                     }}
                   >
                     <div className="flex items-center justify-between mb-2">
                       <IconComponent
                         size={16}
-                        style={{ color: isSelected ? 'var(--gold)' : 'var(--text-muted)' }}
+                        style={{ color: isSelected ? 'var(--text-primary)' : 'var(--text-muted)' }}
                       />
                       {isSelected && (
-                        <span className="w-2 h-2 rounded-full bg-[var(--gold)] animate-pulse" />
+                        <span className="w-2 h-2 rounded-full bg-[var(--color-primary)] animate-pulse" />
                       )}
                     </div>
                     <p
@@ -396,7 +396,7 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
               {/* Header: Season Name & Weather */}
               <div className="flex flex-wrap items-center justify-between gap-2 pb-4 border-b border-[var(--outline)]">
                 <div>
-                  <h4 className="text-base font-bold" style={{ color: 'var(--gold)' }}>
+                  <h4 className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>
                     {activeSeason.season_name}
                   </h4>
                   <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
@@ -539,7 +539,7 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
               <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-[rgba(239,68,68,0.1)] border border-[rgba(239,68,68,0.25)]">
                 <ShieldAlert size={14} className="text-[#f87171]" />
               </div>
-              <h3 className="text-lg font-bold" style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}>
+              <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
                 Beware of Scams & Safety Watch
               </h3>
             </div>
@@ -666,7 +666,7 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
               <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-[rgba(233,195,73,0.1)] border border-[rgba(233,195,73,0.25)]">
                 <Sparkles size={14} className="text-[var(--gold)]" />
               </div>
-              <h3 className="text-lg font-bold" style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}>
+              <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
                 Additional Must-Do Activities & Hidden Gems
               </h3>
             </div>
@@ -750,7 +750,7 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
               <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-[rgba(52,211,153,0.1)] border border-[rgba(52,211,153,0.25)]">
                 <Lightbulb size={14} className="text-[#34d399]" />
               </div>
-              <h3 className="text-lg font-bold" style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}>
+              <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>
                 Local Hacks & Cultural Etiquette
               </h3>
             </div>

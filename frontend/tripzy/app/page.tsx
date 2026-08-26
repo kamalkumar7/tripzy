@@ -479,12 +479,12 @@ export default function Home() {
                       className="flex items-center gap-2 px-5 py-3.5 whitespace-nowrap transition-all duration-200 flex-shrink-0"
                       style={{
                         color: active ? 'var(--primary)' : 'var(--text-muted)',
-                        borderBottom: active ? '2px solid var(--gold)' : '2px solid transparent',
+                        borderBottom: active ? '2px solid var(--text-primary)' : '2px solid transparent',
                         background: 'transparent',
-                        fontWeight: active ? 700 : 500,
-                        letterSpacing: '0.06em',
+                        fontWeight: active ? 600 : 500,
+                        letterSpacing: '0.04em',
                         textTransform: 'uppercase',
-                        fontSize: '11px',
+                        fontSize: '12px',
                       }}
                     >
                       <Icon size={13} />
@@ -492,7 +492,7 @@ export default function Home() {
                       {sectionLoading && (
                         <span
                           className="w-1.5 h-1.5 rounded-full animate-pulse"
-                          style={{ background: 'var(--gold)', display: 'inline-block' }}
+                          style={{ background: 'var(--color-primary)', display: 'inline-block' }}
                         />
                       )}
                     </button>
@@ -507,20 +507,15 @@ export default function Home() {
                   className="flex-shrink-0 flex items-center gap-1.5 ml-3 mr-1 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all duration-200 hover:brightness-110 active:scale-95 disabled:cursor-default"
                   style={{
                     background:
-                      saveStatus === 'saved'  ? 'rgba(52,211,153,0.15)' :
-                      saveStatus === 'error'  ? 'rgba(239,68,68,0.15)'  :
-                      'rgba(233,195,73,0.15)',
-                    color:
-                      saveStatus === 'saved'  ? '#34d399' :
-                      saveStatus === 'error'  ? '#f87171' :
-                      '#e9c349',
-                    border:
-                      saveStatus === 'saved'  ? '1px solid rgba(52,211,153,0.35)' :
-                      saveStatus === 'error'  ? '1px solid rgba(239,68,68,0.35)'  :
-                      '1px solid rgba(233,195,73,0.35)',
-                    letterSpacing: '0.06em',
+                      saveStatus === 'saved'  ? 'var(--success)' :
+                      saveStatus === 'error'  ? 'var(--error)'  :
+                      'var(--color-primary)',
+                    color: '#FFFFFF',
+                    border: 'none',
+                    letterSpacing: '0.04em',
                     textTransform: 'uppercase',
                     whiteSpace: 'nowrap',
+                    padding: '8px 16px',
                   }}
                   title={saveStatus === 'saved' ? 'Trip saved!' : 'Save this trip'}
                 >

@@ -9,9 +9,9 @@ interface DiningTabProps {
 }
 
 const budgetConfig: Record<string, { bg: string; color: string; label: string }> = {
-  Budget:        { bg: 'rgba(52,211,153,0.1)',  color: '#34d399', label: 'Budget'      },
-  'Mid-range':   { bg: 'rgba(233,195,73,0.1)',  color: '#e9c349', label: 'Mid-range'   },
-  'Fine Dining': { bg: 'rgba(167,139,250,0.1)', color: '#a78bfa', label: 'Fine Dining' },
+  Budget:        { bg: 'var(--surface-mid)',  color: 'var(--text-primary)', label: 'Budget'      },
+  'Mid-range':   { bg: 'var(--surface-mid)',  color: 'var(--text-primary)', label: 'Mid-range'   },
+  'Fine Dining': { bg: 'var(--surface-mid)',  color: 'var(--text-primary)', label: 'Fine Dining' },
 };
 
 const atmosphereIconMap: Record<string, React.ElementType> = {
@@ -29,8 +29,8 @@ function StarRating({ rating }: { rating: number }) {
         <Star
           key={s}
           size={12}
-          fill={s <= Math.round(rating) ? '#e9c349' : 'none'}
-          color={s <= Math.round(rating) ? '#e9c349' : 'var(--outline)'}
+          fill={s <= Math.round(rating) ? (rating >= 4.0 ? 'var(--success)' : 'var(--gold)') : 'none'}
+          color={s <= Math.round(rating) ? (rating >= 4.0 ? 'var(--success)' : 'var(--gold)') : 'var(--outline)'}
           strokeWidth={1.5}
         />
       ))}
@@ -77,7 +77,7 @@ function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
         {/* Reservation needed badge */}
         {restaurant.reservation_needed && (
           <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full"
-            style={{ background: 'rgba(186,26,26,0.85)', color: 'white', backdropFilter: 'blur(8px)', fontSize: '10px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            style={{ background: 'var(--color-primary)', color: 'white', backdropFilter: 'blur(8px)', fontSize: '10px', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
             Book Ahead
           </div>
         )}
@@ -86,14 +86,14 @@ function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
       {/* Content */}
       <div className="p-5 flex flex-col flex-1">
         <div className="flex items-start justify-between gap-2 mb-1">
-          <h3 className="text-base font-semibold leading-tight" style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}>
+          <h3 className="text-base font-bold leading-tight" style={{ color: 'var(--text-primary)' }}>
             {restaurant.name}
           </h3>
           <StarRating rating={restaurant.rating} />
         </div>
 
         <div className="flex items-center gap-2 mb-3">
-          <span className="text-sm font-medium" style={{ color: 'var(--gold)' }}>{restaurant.cuisine}</span>
+          <span className="text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{restaurant.cuisine}</span>
           <span style={{ color: 'var(--outline)' }}>•</span>
           <span className="flex items-center gap-1 text-xs" style={{ color: 'var(--text-muted)' }}>
             <AtmIcon size={11} /> {restaurant.atmosphere}
@@ -117,7 +117,7 @@ function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
             <div className="flex flex-wrap gap-1.5">
               {restaurant.specialties.map((dish, i) => (
                 <span key={i} className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium"
-                  style={{ background: 'rgba(233,195,73,0.08)', color: 'var(--gold)', border: '1px solid rgba(233,195,73,0.2)' }}>
+                  style={{ background: 'var(--surface-low)', color: 'var(--text-primary)', border: '1px solid var(--outline)' }}>
                   <Utensils size={9} />
                   {dish}
                 </span>
@@ -130,7 +130,7 @@ function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
         <div className="mt-auto pt-3 space-y-2" style={{ borderTop: '1px solid var(--outline)' }}>
           <div className="flex justify-between items-center">
             <span className="text-sm" style={{ color: 'var(--text-muted)' }}>Avg. Cost / Person</span>
-            <span className="font-bold" style={{ color: 'var(--primary)', fontFamily: 'Playfair Display, serif' }}>
+            <span className="font-bold" style={{ color: 'var(--text-primary)' }}>
               {restaurant.avg_cost_per_person}
             </span>
           </div>
@@ -147,7 +147,7 @@ function RestaurantCard({ restaurant }: { restaurant: Restaurant }) {
           {restaurant.maps_link && (
             <a href={restaurant.maps_link} target="_blank" rel="noopener noreferrer"
               className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:brightness-110"
-              style={{ background: '#041627', color: '#e9c349' }}>
+              style={{ background: 'var(--color-primary)', color: '#ffffff' }}>
               <Navigation size={13} /> Directions
             </a>
           )}
@@ -180,7 +180,7 @@ export default function DiningTab({ restaurants }: DiningTabProps) {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold" style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}>
+        <h2 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
           Dining Guide
         </h2>
         <span style={{ padding: '4px 12px', borderRadius: '9999px', fontSize: '12px', fontWeight: 600, background: 'rgba(4,22,39,0.07)', color: 'var(--primary)', border: '1px solid var(--outline)' }}>

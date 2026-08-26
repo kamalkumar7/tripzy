@@ -9,11 +9,11 @@ interface PlacesTabProps {
 }
 
 const timeColors: Record<string, string> = {
-  morning:    '#fb923c',
-  afternoon:  '#38bdf8',
-  evening:    '#a78bfa',
-  night:      '#8b949e',
-  'any time': '#34d399',
+  morning:    'var(--text-primary)',
+  afternoon:  'var(--text-primary)',
+  evening:    'var(--text-primary)',
+  night:      'var(--text-primary)',
+  'any time': 'var(--text-primary)',
 };
 
 function StarRating({ rating }: { rating: number }) {
@@ -23,8 +23,8 @@ function StarRating({ rating }: { rating: number }) {
         <Star
           key={s}
           size={12}
-          fill={s <= Math.round(rating) ? '#e9c349' : 'none'}
-          color={s <= Math.round(rating) ? '#e9c349' : 'var(--outline)'}
+          fill={s <= Math.round(rating) ? (rating >= 4.0 ? 'var(--success)' : 'var(--gold)') : 'none'}
+          color={s <= Math.round(rating) ? (rating >= 4.0 ? 'var(--success)' : 'var(--gold)') : 'var(--outline)'}
           strokeWidth={1.5}
         />
       ))}
@@ -84,7 +84,7 @@ function PlaceCard({ place }: { place: Place }) {
       {/* Content */}
       <div className="p-5 flex flex-col flex-1">
         <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="text-base font-semibold leading-tight" style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}>
+          <h3 className="text-base font-bold leading-tight" style={{ color: 'var(--text-primary)' }}>
             {place.name}
           </h3>
           <StarRating rating={place.rating} />
@@ -102,8 +102,8 @@ function PlaceCard({ place }: { place: Place }) {
         <div className="grid grid-cols-3 gap-2 mb-4">
           {[
             { label: 'Best Time', value: place.best_time, color: timeColor,        Icon: Clock      },
-            { label: 'Duration',  value: place.duration,  color: '#38bdf8',        Icon: Clock      },
-            { label: 'Entry',     value: place.entry_fee, color: isFree ? '#34d399' : 'var(--gold)', Icon: DollarSign },
+            { label: 'Duration',  value: place.duration,  color: 'var(--text-primary)', Icon: Clock      },
+            { label: 'Entry',     value: place.entry_fee, color: isFree ? '#34d399' : 'var(--text-primary)', Icon: DollarSign },
           ].map(({ label, value, color, Icon }) => (
             <div key={label} className="p-2.5 rounded-xl text-center"
               style={{ background: 'var(--surface-low)', border: '1px solid var(--outline)' }}>
@@ -118,8 +118,8 @@ function PlaceCard({ place }: { place: Place }) {
         {/* How to reach */}
         {place.how_to_reach && (
           <div className="mb-3 p-3 rounded-xl flex items-start gap-2"
-            style={{ background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.18)' }}>
-            <Navigation size={13} color="#a78bfa" className="flex-shrink-0 mt-0.5" />
+            style={{ background: 'var(--surface-low)', border: '1px solid var(--outline)' }}>
+            <Navigation size={13} color="var(--text-primary)" className="flex-shrink-0 mt-0.5" />
             <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>{place.how_to_reach}</p>
           </div>
         )}
@@ -127,9 +127,9 @@ function PlaceCard({ place }: { place: Place }) {
         {/* Tip */}
         {place.tips && (
           <div className="mb-4 p-3 rounded-xl"
-            style={{ background: 'rgba(233,195,73,0.08)', border: '1px solid rgba(233,195,73,0.18)' }}>
+            style={{ background: 'var(--surface-low)', border: '1px solid var(--outline)' }}>
             <p className="text-xs">
-              <span className="inline-flex items-center gap-1 font-semibold" style={{ color: 'var(--gold)' }}>
+              <span className="inline-flex items-center gap-1 font-semibold" style={{ color: 'var(--text-primary)' }}>
                 <Lightbulb size={11} /> Tip:{' '}
               </span>
               <span style={{ color: 'var(--text-secondary)' }}>{place.tips}</span>
@@ -142,7 +142,7 @@ function PlaceCard({ place }: { place: Place }) {
           {place.maps_link && (
             <a href={place.maps_link} target="_blank" rel="noopener noreferrer"
               className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:brightness-110"
-              style={{ background: '#041627', color: '#e9c349' }}>
+              style={{ background: 'var(--color-primary)', color: '#ffffff' }}>
               <Navigation size={13} /> View on Map
             </a>
           )}
@@ -168,7 +168,7 @@ export default function PlacesTab({ places }: PlacesTabProps) {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold" style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}>
+        <h2 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
           Places to Visit
         </h2>
         <span style={{ padding: '4px 12px', borderRadius: '9999px', fontSize: '12px', fontWeight: 600, background: 'rgba(4,22,39,0.07)', color: 'var(--primary)', border: '1px solid var(--outline)' }}>

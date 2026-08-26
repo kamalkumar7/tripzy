@@ -54,11 +54,11 @@ interface OverviewTabProps {
 }
 
 const budgetItems = [
-  { key: 'accommodation' as const, label: 'Accommodation', color: '#38bdf8' },
-  { key: 'food' as const, label: 'Food & Dining', color: '#e9c349' },
-  { key: 'transportation' as const, label: 'Transportation', color: '#a78bfa' },
-  { key: 'activities' as const, label: 'Activities', color: '#34d399' },
-  { key: 'miscellaneous' as const, label: 'Miscellaneous', color: '#fb923c' },
+  { key: 'accommodation' as const, label: 'Accommodation', color: 'var(--text-primary)' },
+  { key: 'food' as const, label: 'Food & Dining', color: 'var(--text-primary)' },
+  { key: 'transportation' as const, label: 'Transportation', color: 'var(--text-primary)' },
+  { key: 'activities' as const, label: 'Activities', color: 'var(--text-primary)' },
+  { key: 'miscellaneous' as const, label: 'Miscellaneous', color: 'var(--text-primary)' },
 ];
 
 const glassCard: React.CSSProperties = {
@@ -146,17 +146,17 @@ export default function OverviewTab({
         <div style={glassCard} className="p-6">
           <div className="flex justify-between items-center mb-6">
             <h2
-              className="text-2xl font-semibold"
-              style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}
+              className="text-2xl font-bold tracking-tight"
+              style={{ color: 'var(--text-primary)' }}
             >
               Trip Details
             </h2>
             <span
               className="px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5"
               style={{
-                background: 'rgba(233,195,73,0.12)',
-                color: 'var(--gold)',
-                border: '1px solid rgba(233,195,73,0.25)',
+                background: 'rgba(255, 56, 92, 0.08)',
+                color: 'var(--color-primary)',
+                border: '1px solid rgba(255, 56, 92, 0.2)',
               }}
             >
               <Sparkles size={13} />
@@ -168,8 +168,8 @@ export default function OverviewTab({
             {/* Duration */}
             <div className="flex items-start gap-4 p-4" style={innerCard}>
               <div
-                className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-                style={{ background: 'rgba(56,189,248,0.12)', color: '#38bdf8' }}
+                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'var(--surface-mid)', color: 'var(--text-primary)' }}
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
                   <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
@@ -189,8 +189,8 @@ export default function OverviewTab({
             {/* Travelers */}
             <div className="flex items-start gap-4 p-4" style={innerCard}>
               <div
-                className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-                style={{ background: 'rgba(167,139,250,0.12)', color: '#a78bfa' }}
+                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'var(--surface-mid)', color: 'var(--text-primary)' }}
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
                   <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -210,8 +210,8 @@ export default function OverviewTab({
             {/* Interests */}
             <div className="flex items-start gap-4 p-4" style={innerCard}>
               <div
-                className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-                style={{ background: 'rgba(233,195,73,0.12)', color: 'var(--gold)' }}
+                className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: 'var(--surface-mid)', color: 'var(--text-primary)' }}
               >
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
                   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
@@ -252,25 +252,25 @@ export default function OverviewTab({
           >
             <div className="p-3 rounded-lg" style={{ background: 'var(--surface-low)' }}>
               <p className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>Daily Est. Spend</p>
-              <p className="text-base font-bold mt-0.5" style={{ color: '#38bdf8' }}>
+              <p className="text-base font-bold mt-0.5" style={{ color: 'var(--text-primary)' }}>
                 {dailySpend > 0 ? `${formatCurrency(dailySpend)}/day` : '—'}
               </p>
             </div>
-            <div className="p-3 rounded-lg" style={{ background: 'var(--surface-low)' }}>
-              <p className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>Est. / Traveler</p>
-              <p className="text-base font-bold mt-0.5" style={{ color: '#a78bfa' }}>
+            <div className="p-4 rounded-xl" style={{ background: 'var(--surface-low)' }}>
+              <p className="text-[11px] font-medium label-caps" style={{ color: 'var(--text-muted)' }}>Est. / Traveler</p>
+              <p className="text-base font-bold mt-0.5" style={{ color: 'var(--text-primary)' }}>
                 {spendPerPerson > 0 ? `${formatCurrency(spendPerPerson)}/person` : '—'}
               </p>
             </div>
             <div className="p-3 rounded-lg" style={{ background: 'var(--surface-low)' }}>
               <p className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>Curated Sights</p>
-              <p className="text-base font-bold mt-0.5" style={{ color: '#34d399' }}>
+              <p className="text-base font-bold mt-0.5" style={{ color: 'var(--text-primary)' }}>
                 {places.length > 0 ? `${places.length} Attractions` : `${duration * 2}+ Sights`}
               </p>
             </div>
-            <div className="p-3 rounded-lg" style={{ background: 'var(--surface-low)' }}>
-              <p className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>Stay Options</p>
-              <p className="text-base font-bold mt-0.5" style={{ color: 'var(--gold)' }}>
+            <div className="p-4 rounded-xl" style={{ background: 'var(--surface-low)' }}>
+              <p className="text-[11px] font-medium label-caps" style={{ color: 'var(--text-muted)' }}>Stay Options</p>
+              <p className="text-base font-bold mt-0.5" style={{ color: 'var(--text-primary)' }}>
                 {hotels.length > 0 ? `${hotels.length} Curated Stays` : 'Handpicked Stays'}
               </p>
             </div>
@@ -280,8 +280,8 @@ export default function OverviewTab({
         {/* 2. About This Trip (Preserved & Enhanced) */}
         <div style={glassCard} className="p-6">
           <h2
-            className="text-2xl font-semibold mb-4"
-            style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}
+            className="text-2xl font-bold tracking-tight mb-4"
+            style={{ color: 'var(--text-primary)' }}
           >
             About This Trip
           </h2>
@@ -300,9 +300,9 @@ export default function OverviewTab({
               <div>
                 <p className="label-caps mb-1" style={{ color: 'var(--text-muted)' }}>Total Budget</p>
                 {(!budget || isNaN(Number(budget))) ? (
-                  <div className="h-5 w-16 rounded animate-pulse" style={{ background: 'rgba(233,195,73,0.2)' }} />
+                  <div className="h-5 w-16 rounded animate-pulse" style={{ background: 'var(--surface-mid)' }} />
                 ) : (
-                  <p className="font-semibold" style={{ color: 'var(--gold)' }}>{formatCurrency(budget)}</p>
+                  <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>{formatCurrency(budget)}</p>
                 )}
               </div>
             </div>
@@ -331,8 +331,8 @@ export default function OverviewTab({
             <div className="flex justify-between items-center mb-4">
               <div>
                 <h3
-                  className="text-xl font-semibold"
-                  style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}
+                  className="text-xl font-bold tracking-tight"
+                  style={{ color: 'var(--text-primary)' }}
                 >
                   Signature Highlights
                 </h3>
@@ -344,7 +344,7 @@ export default function OverviewTab({
                 <button
                   onClick={() => onSelectTab('places')}
                   className="text-xs font-semibold flex items-center gap-1 hover:underline cursor-pointer"
-                  style={{ color: 'var(--gold)' }}
+                  style={{ color: 'var(--text-primary)' }}
                 >
                   <span>Explore all {places.length} places</span>
                   <ArrowRight size={13} />
@@ -383,8 +383,8 @@ export default function OverviewTab({
                       className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-bold label-caps"
                       style={{
                         background: 'rgba(2,6,23,0.75)',
-                        color: 'var(--gold)',
-                        border: '1px solid rgba(233,195,73,0.3)',
+                        color: 'var(--color-primary)',
+                        border: '1px solid rgba(255,56,92,0.3)',
                       }}
                     >
                       {place.category || 'Sight'}
@@ -398,7 +398,7 @@ export default function OverviewTab({
                           {place.name}
                         </h4>
                         {place.rating > 0 && (
-                          <span className="flex items-center gap-0.5 text-xs font-bold text-amber-400">
+                          <span className="flex items-center gap-0.5 text-xs font-bold" style={{ color: 'var(--text-primary)' }}>
                             <Star size={11} fill="currentColor" />
                             {place.rating.toFixed(1)}
                           </span>
@@ -417,7 +417,7 @@ export default function OverviewTab({
                         <Clock size={11} />
                         {place.duration || '2-3 hrs'}
                       </span>
-                      <span className="font-semibold" style={{ color: place.entry_fee === 'Free' ? '#34d399' : 'var(--text-primary)' }}>
+                      <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>
                         {place.entry_fee || 'Varies'}
                       </span>
                     </div>
@@ -436,7 +436,7 @@ export default function OverviewTab({
               <div className="flex items-center gap-2 mb-3">
                 <div
                   className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-                  style={{ background: 'rgba(233,195,73,0.15)', color: 'var(--gold)' }}
+                  style={{ background: 'var(--surface-mid)', color: 'var(--text-primary)' }}
                 >
                   <SunMedium size={16} />
                 </div>
@@ -466,7 +466,7 @@ export default function OverviewTab({
                 <button
                   onClick={() => onSelectTab('suggestions')}
                   className="text-xs font-semibold flex items-center gap-1.5 hover:underline cursor-pointer"
-                  style={{ color: 'var(--gold)' }}
+                  style={{ color: 'var(--text-primary)' }}
                 >
                   <Shirt size={13} />
                   <span>Full Seasonal Packing Guide & Weather →</span>
@@ -481,7 +481,7 @@ export default function OverviewTab({
               <div className="flex items-center gap-2 mb-3">
                 <div
                   className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-                  style={{ background: 'rgba(52,211,153,0.15)', color: '#34d399' }}
+                  style={{ background: 'var(--surface-mid)', color: 'var(--text-primary)' }}
                 >
                   <ShieldCheck size={16} />
                 </div>
@@ -492,7 +492,7 @@ export default function OverviewTab({
 
               {/* Top Etiquette Tip */}
               <div className="p-3 rounded-lg mb-3" style={{ background: 'var(--surface-low)', border: '1px solid var(--outline)' }}>
-                <p className="text-xs font-semibold mb-1 flex items-center gap-1.5" style={{ color: 'var(--gold)' }}>
+                <p className="text-xs font-semibold mb-1 flex items-center gap-1.5" style={{ color: 'var(--text-primary)' }}>
                   <Lightbulb size={13} />
                   {topHack.topic}
                 </p>
@@ -509,11 +509,11 @@ export default function OverviewTab({
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div className="p-2 rounded flex items-center justify-between" style={{ background: 'var(--surface-low)' }}>
                     <span style={{ color: 'var(--text-muted)' }}>Police:</span>
-                    <span className="font-mono font-bold" style={{ color: '#38bdf8' }}>{emergencyContacts.police || '999/112'}</span>
+                    <span className="font-mono font-bold" style={{ color: 'var(--text-primary)' }}>{emergencyContacts.police || '999/112'}</span>
                   </div>
                   <div className="p-2 rounded flex items-center justify-between" style={{ background: 'var(--surface-low)' }}>
                     <span style={{ color: 'var(--text-muted)' }}>Ambulance:</span>
-                    <span className="font-mono font-bold" style={{ color: '#f87171' }}>{emergencyContacts.ambulance || '999/991'}</span>
+                    <span className="font-mono font-bold" style={{ color: 'var(--text-primary)' }}>{emergencyContacts.ambulance || '999/991'}</span>
                   </div>
                 </div>
               </div>
@@ -524,7 +524,7 @@ export default function OverviewTab({
                 <button
                   onClick={() => onSelectTab('suggestions')}
                   className="text-xs font-semibold flex items-center gap-1.5 hover:underline cursor-pointer"
-                  style={{ color: '#34d399' }}
+                  style={{ color: 'var(--text-primary)' }}
                 >
                   <ShieldAlert size={13} />
                   <span>View Scam Alerts & Safety Dossier →</span>
@@ -561,8 +561,8 @@ export default function OverviewTab({
               <div className="flex justify-between items-start mb-6">
                 <div className="flex items-center gap-2">
                   <h2
-                    className="text-2xl font-semibold"
-                    style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}
+                    className="text-2xl font-bold tracking-tight"
+                    style={{ color: 'var(--text-primary)' }}
                   >
                     Budget
                   </h2>
@@ -578,9 +578,9 @@ export default function OverviewTab({
                   <span
                     className="px-3 py-1 rounded-full label-caps text-[10px] flex items-center gap-1"
                     style={{
-                      background: 'rgba(233,195,73,0.12)',
-                      color: 'var(--gold)',
-                      border: '1px solid rgba(233,195,73,0.25)',
+                      background: 'rgba(255,56,92,0.08)',
+                      color: 'var(--color-primary)',
+                      border: '1px solid rgba(255,56,92,0.2)',
                     }}
                   >
                     Estimated
@@ -620,8 +620,8 @@ export default function OverviewTab({
               >
                 <p className="label-caps mb-1" style={{ color: 'var(--text-muted)' }}>Total Budget</p>
                 <p
-                  className="text-4xl font-bold"
-                  style={{ fontFamily: 'Playfair Display, serif', color: 'var(--gold)' }}
+                  className="text-4xl font-extrabold tracking-tight"
+                  style={{ color: 'var(--text-primary)' }}
                 >
                   {formatCurrency(budgetBreakdown.user_budget)}
                 </p>
@@ -640,7 +640,7 @@ export default function OverviewTab({
                         className="h-full rounded-full"
                         style={{
                           width: '40%',
-                          background: 'linear-gradient(90deg, transparent, var(--gold), transparent)',
+                          background: 'linear-gradient(90deg, transparent, var(--color-primary), transparent)',
                           animation: 'tripzy-scan 1.6s ease-in-out infinite',
                         }}
                       />
@@ -648,7 +648,7 @@ export default function OverviewTab({
                     <p
                       className="text-xs"
                       style={{
-                        color: 'var(--gold)',
+                        color: 'var(--color-primary)',
                         opacity: tickerVisible ? 1 : 0,
                         transition: 'opacity 0.35s ease',
                         letterSpacing: '0.03em',
@@ -707,7 +707,7 @@ export default function OverviewTab({
                 <span className="text-sm" style={{ color: 'var(--text-muted)' }}>Remaining</span>
                 <span
                   className="text-lg font-bold"
-                  style={{ color: budgetBreakdown.remaining >= 0 ? 'var(--success)' : 'var(--error)' }}
+                  style={{ color: budgetBreakdown.remaining >= 0 ? 'var(--text-primary)' : 'var(--error)' }}
                 >
                   {formatCurrency(budgetBreakdown.remaining)}
                 </span>
@@ -723,7 +723,7 @@ export default function OverviewTab({
                   }}
                 >
                   <span style={{ color: 'var(--text-muted)' }}>Budget Allocated:</span>
-                  <span className="font-semibold" style={{ color: budgetUtilization <= 100 ? 'var(--gold)' : 'var(--error)' }}>
+                  <span className="font-semibold" style={{ color: budgetUtilization <= 100 ? 'var(--text-primary)' : 'var(--error)' }}>
                     {budgetUtilization}% ({formatCurrency(budgetBreakdown.remaining)} buffer)
                   </span>
                 </div>
@@ -741,7 +741,7 @@ export default function OverviewTab({
                       className="p-2.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all hover:scale-102 cursor-pointer"
                       style={{ background: 'var(--surface-low)', border: '1px solid var(--outline)', color: 'var(--text-primary)' }}
                     >
-                      <Calendar size={14} className="text-sky-400" />
+                      <Calendar size={14} />
                       <span>Itinerary ({itinerary.length > 0 ? `${itinerary.length}d` : `${duration}d`})</span>
                     </button>
                     <button
@@ -749,7 +749,7 @@ export default function OverviewTab({
                       className="p-2.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all hover:scale-102 cursor-pointer"
                       style={{ background: 'var(--surface-low)', border: '1px solid var(--outline)', color: 'var(--text-primary)' }}
                     >
-                      <Building2 size={14} className="text-amber-400" />
+                      <Building2 size={14} />
                       <span>Hotels ({hotels.length})</span>
                     </button>
                     <button
@@ -757,7 +757,7 @@ export default function OverviewTab({
                       className="p-2.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all hover:scale-102 cursor-pointer"
                       style={{ background: 'var(--surface-low)', border: '1px solid var(--outline)', color: 'var(--text-primary)' }}
                     >
-                      <MapPin size={14} className="text-emerald-400" />
+                      <MapPin size={14} />
                       <span>Places ({places.length})</span>
                     </button>
                     <button
@@ -765,7 +765,7 @@ export default function OverviewTab({
                       className="p-2.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all hover:scale-102 cursor-pointer"
                       style={{ background: 'var(--surface-low)', border: '1px solid var(--outline)', color: 'var(--text-primary)' }}
                     >
-                      <UtensilsCrossed size={14} className="text-purple-400" />
+                      <UtensilsCrossed size={14} />
                       <span>Dining ({restaurants.length})</span>
                     </button>
                   </div>

@@ -13,7 +13,7 @@ interface ItineraryTabProps {
 
 const timeSlots = [
   {
-    key: 'morning'   as const, label: 'Morning',   Icon: Sunrise,  color: '#fb923c',
+    key: 'morning'   as const, label: 'Morning',   Icon: Sunrise,  color: 'var(--text-primary)',
     getTitle:  (d: ItineraryDay) => d.morning?.activity   || 'Morning Activity',
     getDesc:   (d: ItineraryDay) => d.morning?.description,
     getMeta:   (d: ItineraryDay) => d.morning?.place ? d.morning.place : undefined,
@@ -21,7 +21,7 @@ const timeSlots = [
     getTime:   (d: ItineraryDay) => d.morning?.time,
   },
   {
-    key: 'lunch'     as const, label: 'Lunch',     Icon: Utensils, color: '#e9c349',
+    key: 'lunch'     as const, label: 'Lunch',     Icon: Utensils, color: 'var(--text-primary)',
     getTitle:  (d: ItineraryDay) => d.lunch?.restaurant   || 'Lunch',
     getDesc:   (d: ItineraryDay) => d.lunch?.cuisine ? `${d.lunch.cuisine} cuisine` : undefined,
     getMeta:   (d: ItineraryDay) => d.lunch?.estimated_cost ? `${d.lunch.estimated_cost} per person` : undefined,
@@ -29,7 +29,7 @@ const timeSlots = [
     getTime:   (d: ItineraryDay) => d.lunch?.time,
   },
   {
-    key: 'afternoon' as const, label: 'Afternoon', Icon: Sun,      color: '#38bdf8',
+    key: 'afternoon' as const, label: 'Afternoon', Icon: Sun,      color: 'var(--text-primary)',
     getTitle:  (d: ItineraryDay) => d.afternoon?.activity || 'Afternoon Activity',
     getDesc:   (d: ItineraryDay) => d.afternoon?.description,
     getMeta:   (d: ItineraryDay) => d.afternoon?.place ? d.afternoon.place : undefined,
@@ -37,7 +37,7 @@ const timeSlots = [
     getTime:   (d: ItineraryDay) => d.afternoon?.time,
   },
   {
-    key: 'evening'   as const, label: 'Evening',   Icon: Sunset,   color: '#a78bfa',
+    key: 'evening'   as const, label: 'Evening',   Icon: Sunset,   color: 'var(--text-primary)',
     getTitle:  (d: ItineraryDay) => d.evening?.activity   || 'Evening',
     getDesc:   (d: ItineraryDay) => d.evening?.description,
     getMeta:   () => undefined,
@@ -45,7 +45,7 @@ const timeSlots = [
     getTime:   (d: ItineraryDay) => d.evening?.time,
   },
   {
-    key: 'dinner'    as const, label: 'Dinner',    Icon: Moon,     color: '#34d399',
+    key: 'dinner'    as const, label: 'Dinner',    Icon: Moon,     color: 'var(--text-primary)',
     getTitle:  (d: ItineraryDay) => (d as any).dinner?.restaurant || (d as any).dinner?.activity || 'Dinner',
     getDesc:   (d: ItineraryDay) => (d as any).dinner?.description || (d as any).dinner?.cuisine,
     getMeta:   () => undefined,
@@ -83,9 +83,8 @@ function DayCard({ day, isOpen, onToggle }: { day: ItineraryDay; isOpen: boolean
             <span
               style={{
                 color: isOpen ? 'var(--primary)' : 'var(--text-primary)',
-                fontFamily: 'Playfair Display, serif',
                 fontSize: '20px',
-                fontWeight: 700,
+                fontWeight: 800,
                 lineHeight: 1,
               }}
             >
@@ -93,7 +92,7 @@ function DayCard({ day, isOpen, onToggle }: { day: ItineraryDay; isOpen: boolean
             </span>
           </div>
           <div>
-            <p className="text-base font-semibold" style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}>
+            <p className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>
               {day.title}
             </p>
             <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>{day.theme}</p>
@@ -102,7 +101,7 @@ function DayCard({ day, isOpen, onToggle }: { day: ItineraryDay; isOpen: boolean
 
         <div className="flex items-center gap-4">
           {day.estimated_daily_cost && (
-            <span className="text-sm font-semibold hidden sm:block" style={{ color: 'var(--gold)' }}>
+            <span className="text-sm font-semibold hidden sm:block" style={{ color: 'var(--text-primary)' }}>
               {day.estimated_daily_cost}
             </span>
           )}
@@ -138,7 +137,7 @@ function DayCard({ day, isOpen, onToggle }: { day: ItineraryDay; isOpen: boolean
                 >
                   <div
                     className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ background: `${slot.color}18` }}
+                    style={{ background: 'var(--surface-mid)' }}
                   >
                     <slot.Icon size={16} color={slot.color} />
                   </div>
@@ -179,10 +178,10 @@ function DayCard({ day, isOpen, onToggle }: { day: ItineraryDay; isOpen: boolean
 
           {day.transportation && (
             <div className="mt-4 p-4 rounded-xl flex items-start gap-3"
-              style={{ background: 'rgba(167,139,250,0.08)', border: '1px solid rgba(167,139,250,0.2)' }}>
-              <Truck size={16} color="#a78bfa" className="flex-shrink-0 mt-0.5" />
+              style={{ background: 'var(--surface-low)', border: '1px solid var(--outline)' }}>
+              <Truck size={16} color="var(--text-primary)" className="flex-shrink-0 mt-0.5" />
               <div>
-                <p className="label-caps mb-0.5" style={{ color: '#a78bfa', fontSize: '10px' }}>
+                <p className="label-caps mb-0.5" style={{ color: 'var(--text-primary)', fontSize: '10px' }}>
                   Transportation
                 </p>
                 <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>{day.transportation}</p>
@@ -192,13 +191,13 @@ function DayCard({ day, isOpen, onToggle }: { day: ItineraryDay; isOpen: boolean
 
           {day.tips && day.tips.length > 0 && (
             <div className="mt-4">
-              <p className="label-caps mb-2 flex items-center gap-1.5" style={{ color: 'var(--gold)', fontSize: '10px' }}>
-                <Lightbulb size={11} color="var(--gold)" /> Tips
+              <p className="label-caps mb-2 flex items-center gap-1.5" style={{ color: 'var(--text-primary)', fontSize: '10px' }}>
+                <Lightbulb size={11} color="var(--text-primary)" /> Tips
               </p>
               <ul className="space-y-1">
                 {day.tips.map((tip, i) => (
                   <li key={i} className="text-sm flex items-start gap-2" style={{ color: 'var(--text-secondary)' }}>
-                    <span style={{ color: 'var(--gold)', marginTop: '2px' }}>•</span>
+                    <span style={{ color: 'var(--text-primary)', marginTop: '2px' }}>•</span>
                     {tip}
                   </li>
                 ))}
@@ -226,7 +225,7 @@ export default function ItineraryTab({ itinerary }: ItineraryTabProps) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-2">
-        <h2 className="text-2xl font-semibold" style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}>
+        <h2 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
           Day-by-Day Plan
         </h2>
         <span style={{

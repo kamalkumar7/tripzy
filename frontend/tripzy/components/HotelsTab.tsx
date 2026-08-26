@@ -19,11 +19,11 @@ const amenityIcons: Record<string, React.ElementType> = {
 };
 
 const categoryColors: Record<string, string> = {
-  Budget:   '#6b7280',
-  '3-Star': '#4f6073',
-  '4-Star': '#a78bfa',
-  '5-Star': '#e9c349',
-  Boutique: '#38bdf8',
+  Budget:   'var(--text-primary)',
+  '3-Star': 'var(--text-primary)',
+  '4-Star': 'var(--text-primary)',
+  '5-Star': 'var(--text-primary)',
+  Boutique: 'var(--text-primary)',
 };
 
 function StarRating({ rating }: { rating: number }) {
@@ -33,8 +33,8 @@ function StarRating({ rating }: { rating: number }) {
         <Star
           key={s}
           size={12}
-          fill={s <= Math.round(rating) ? '#e9c349' : 'none'}
-          color={s <= Math.round(rating) ? '#e9c349' : 'var(--outline)'}
+          fill={s <= Math.round(rating) ? (rating >= 4.0 ? 'var(--success)' : 'var(--gold)') : 'none'}
+          color={s <= Math.round(rating) ? (rating >= 4.0 ? 'var(--success)' : 'var(--gold)') : 'var(--outline)'}
           strokeWidth={1.5}
         />
       ))}
@@ -67,8 +67,8 @@ function HotelCard({ hotel }: { hotel: Hotel }) {
         {/* Category badge */}
         <div className="absolute top-3 left-3">
           <span className="px-2.5 py-1 rounded-full label-caps" style={{
-            background: catColor + '22', color: catColor,
-            border: `1px solid ${catColor}44`,
+            background: 'var(--surface-mid)', color: catColor,
+            border: `1px solid var(--outline)`,
             fontSize: '10px',
             backdropFilter: 'blur(8px)',
           }}>
@@ -78,7 +78,7 @@ function HotelCard({ hotel }: { hotel: Hotel }) {
 
         {/* Price badge */}
         <div className="absolute top-3 right-3 px-3 py-1 rounded-full"
-          style={{ backdropFilter: 'blur(12px)', background: 'rgba(4,22,39,0.72)', color: '#ffffff', fontSize: '13px', fontWeight: 700 }}>
+          style={{ backdropFilter: 'blur(12px)', background: 'var(--color-primary)', color: '#ffffff', fontSize: '13px', fontWeight: 700 }}>
           {hotel.price_per_night} / night
         </div>
       </div>
@@ -86,7 +86,7 @@ function HotelCard({ hotel }: { hotel: Hotel }) {
       {/* Content */}
       <div className="p-5 flex flex-col flex-1">
         <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="text-base font-semibold leading-tight" style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}>
+          <h3 className="text-base font-bold leading-tight" style={{ color: 'var(--text-primary)' }}>
             {hotel.name}
           </h3>
           <StarRating rating={hotel.rating} />
@@ -129,7 +129,7 @@ function HotelCard({ hotel }: { hotel: Hotel }) {
           </div>
           <div className="flex items-center justify-between">
             <span className="text-sm" style={{ color: 'var(--text-muted)' }}>Total (Est.)</span>
-            <span className="font-bold" style={{ color: 'var(--gold)', fontFamily: 'Playfair Display, serif' }}>{hotel.total_estimated}</span>
+            <span className="font-bold" style={{ color: 'var(--text-primary)' }}>{hotel.total_estimated}</span>
           </div>
           {hotel.proximity && (
             <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
@@ -141,8 +141,8 @@ function HotelCard({ hotel }: { hotel: Hotel }) {
         {/* Booking tip */}
         {hotel.booking_tip && (
           <div className="mt-3 p-3 rounded-xl text-xs"
-            style={{ background: 'rgba(233,195,73,0.08)', border: '1px solid rgba(233,195,73,0.2)' }}>
-            <p className="font-semibold mb-0.5" style={{ color: 'var(--gold)' }}>Booking Tip</p>
+            style={{ background: 'var(--surface-low)', border: '1px solid var(--outline)' }}>
+            <p className="font-semibold mb-0.5" style={{ color: 'var(--text-primary)' }}>Booking Tip</p>
             <p style={{ color: 'var(--text-secondary)' }}>{hotel.booking_tip}</p>
           </div>
         )}
@@ -152,7 +152,7 @@ function HotelCard({ hotel }: { hotel: Hotel }) {
           {hotel.maps_link && (
             <a href={hotel.maps_link} target="_blank" rel="noopener noreferrer"
               className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-sm font-semibold transition-all hover:brightness-110"
-              style={{ background: '#041627', color: '#e9c349' }}>
+              style={{ background: 'var(--color-primary)', color: '#ffffff' }}>
               <Navigation size={13} /> View on Map
             </a>
           )}
@@ -185,7 +185,7 @@ export default function HotelsTab({ hotels }: HotelsTabProps) {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-semibold" style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}>
+        <h2 className="text-2xl font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
           Where to Stay
         </h2>
         <span style={{ padding: '4px 12px', borderRadius: '9999px', fontSize: '12px', fontWeight: 600, background: 'rgba(4,22,39,0.07)', color: 'var(--primary)', border: '1px solid var(--outline)' }}>
