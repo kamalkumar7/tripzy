@@ -62,40 +62,29 @@ function LoadingScreen({ input }: { input: string }) {
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center px-4 relative overflow-hidden"
-      style={{ background: DARK_BG }}
+      style={{ background: 'var(--background)' }}
     >
-      {/* Background radial glows */}
-      <div className="pointer-events-none absolute inset-0"
-        style={{ background: 'radial-gradient(ellipse 70% 50% at 30% 40%, rgba(14,165,233,0.08) 0%, transparent 70%)' }} />
-      <div className="pointer-events-none absolute inset-0"
-        style={{ background: 'radial-gradient(ellipse 50% 40% at 70% 60%, rgba(233,195,73,0.05) 0%, transparent 70%)' }} />
-
       {/* Logo */}
       <div className="mb-8 relative">
         <div
-          className="w-20 h-20 rounded-3xl flex items-center justify-center"
+          className="w-20 h-20 rounded-3xl flex items-center justify-center card"
           style={{
-            background: 'rgba(15,23,42,0.8)',
-            border: '1px solid rgba(56,189,248,0.3)',
-            backdropFilter: 'blur(20px)',
+            background: 'var(--surface)',
+            border: '1px solid var(--outline)',
           }}
         >
-          <Plane size={32} style={{ color: CYAN }} />
+          <Plane size={32} style={{ color: 'var(--primary)' }} />
         </div>
-        <div
-          className="absolute -inset-1 rounded-3xl opacity-20 animate-ping"
-          style={{ background: `rgba(56,189,248,0.3)` }}
-        />
       </div>
 
-      <h2 className="text-3xl font-bold mb-3 text-center" style={{ fontFamily: 'Georgia, serif', color: '#f1f5f9' }}>
+      <h2 className="text-3xl font-bold mb-3 text-center" style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}>
         Planning Your Trip
       </h2>
-      <p className="text-sm mb-10 max-w-sm text-center px-4 py-2.5 rounded-xl"
+      <p className="text-sm mb-10 max-w-sm text-center px-4 py-2.5 rounded-xl shadow-sm"
         style={{
-          color: 'rgba(255,255,255,0.6)',
-          background: 'rgba(255,255,255,0.05)',
-          border: '1px solid rgba(255,255,255,0.08)',
+          color: 'var(--text-secondary)',
+          background: 'var(--surface-low)',
+          border: '1px solid var(--outline)',
         }}
       >
         &ldquo;{input.length > 80 ? input.slice(0, 80) + '…' : input}&rdquo;
@@ -103,11 +92,10 @@ function LoadingScreen({ input }: { input: string }) {
 
       {/* Steps */}
       <div
-        className="w-full max-w-sm rounded-2xl p-5 mb-8 space-y-3"
+        className="w-full max-w-sm rounded-2xl p-5 mb-8 space-y-4 card"
         style={{
-          background: 'rgba(15,23,42,0.7)',
-          border: '1px solid rgba(255,255,255,0.07)',
-          backdropFilter: 'blur(20px)',
+          background: 'var(--surface)',
+          border: '1px solid var(--outline)',
         }}
       >
         {steps.map(({ label, Icon }, i) => (
@@ -115,22 +103,22 @@ function LoadingScreen({ input }: { input: string }) {
             <div
               className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 transition-all duration-500"
               style={{
-                background: i < step ? GOLD : i === step ? CYAN : 'rgba(255,255,255,0.07)',
-                border: i === step ? `1px solid ${CYAN}` : 'none',
+                background: i < step ? 'var(--success-bg)' : i === step ? 'transparent' : 'var(--surface-low)',
+                border: i === step ? '1px solid var(--primary)' : i < step ? '1px solid var(--success-border)' : '1px solid transparent',
               }}
             >
               {i < step ? (
-                <Check size={12} color="#020617" strokeWidth={3} />
+                <Check size={12} style={{ color: 'var(--success)' }} strokeWidth={3} />
               ) : i === step ? (
-                <Loader2 size={12} color="#020617" className="animate-spin" />
+                <Loader2 size={12} style={{ color: 'var(--primary)' }} className="animate-spin" />
               ) : (
-                <Icon size={12} color="rgba(255,255,255,0.3)" />
+                <Icon size={12} style={{ color: 'var(--text-muted)' }} />
               )}
             </div>
             <span
               className="text-sm transition-all duration-500"
               style={{
-                color: i < step ? 'rgba(255,255,255,0.45)' : i === step ? '#f1f5f9' : 'rgba(255,255,255,0.3)',
+                color: i < step ? 'var(--text-muted)' : i === step ? 'var(--text-primary)' : 'var(--text-muted)',
                 fontWeight: i === step ? 600 : 400,
                 textDecoration: i < step ? 'line-through' : 'none',
               }}
@@ -143,13 +131,13 @@ function LoadingScreen({ input }: { input: string }) {
 
       {/* Progress bar */}
       <div className="w-full max-w-sm h-1 rounded-full overflow-hidden"
-        style={{ background: 'rgba(255,255,255,0.07)' }}>
+        style={{ background: 'var(--surface-high)' }}>
         <div
           className="h-full rounded-full transition-all duration-1000"
-          style={{ width: `${pct}%`, background: `linear-gradient(90deg, ${CYAN}, ${GOLD})` }}
+          style={{ width: `${pct}%`, background: 'var(--primary)' }}
         />
       </div>
-      <p className="text-xs mt-2" style={{ color: 'rgba(255,255,255,0.3)' }}>
+      <p className="text-xs mt-3" style={{ color: 'var(--text-muted)' }}>
         This may take 30–90 seconds
       </p>
     </div>
@@ -164,14 +152,6 @@ function ErrorScreen({ error, onRetry }: { error: string; onRetry: () => void })
     || error?.toLowerCase().includes('quota')
     || error?.toLowerCase().includes('resource exhausted');
 
-  const glassCard: React.CSSProperties = {
-    backdropFilter: 'blur(24px)',
-    WebkitBackdropFilter: 'blur(24px)',
-    background: 'rgba(15,23,42,0.75)',
-    border: '1px solid rgba(255,255,255,0.08)',
-    borderRadius: '1.25rem',
-  };
-
   const tips = [
     { Icon: Clock,         text: 'Wait 60–120 seconds before trying again' },
     { Icon: RefreshCw,     text: 'Click "Try Again" — the limit resets automatically' },
@@ -183,37 +163,34 @@ function ErrorScreen({ error, onRetry }: { error: string; onRetry: () => void })
     return (
       <div
         className="min-h-screen flex flex-col items-center justify-center px-4 relative overflow-hidden"
-        style={{ background: DARK_BG }}
+        style={{ background: 'var(--background)' }}
       >
-        <div className="pointer-events-none absolute inset-0"
-          style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 50%, rgba(233,195,73,0.06) 0%, transparent 70%)' }} />
-
         <div className="relative z-10 max-w-md w-full text-center">
           <div
             className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl"
-            style={{ background: 'rgba(233,195,73,0.1)', border: '1px solid rgba(233,195,73,0.25)' }}
+            style={{ background: 'var(--surface-mid)', border: '1px solid var(--outline)' }}
           >
-            <Clock size={32} style={{ color: GOLD }} />
+            <Clock size={32} style={{ color: 'var(--primary)' }} />
           </div>
 
-          <h2 className="text-3xl font-bold mb-3" style={{ fontFamily: 'Georgia, serif', color: '#f1f5f9' }}>
+          <h2 className="text-3xl font-bold mb-3" style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}>
             Rate Limit Reached
           </h2>
-          <p className="mb-6 text-base leading-7" style={{ color: 'rgba(255,255,255,0.55)' }}>
+          <p className="mb-6 text-base leading-7" style={{ color: 'var(--text-secondary)' }}>
             The AI provider temporarily throttled requests. Try again in a moment.
           </p>
 
-          <div className="mb-8 p-5 text-left space-y-3" style={glassCard}>
-            <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'rgba(255,255,255,0.3)' }}>
+          <div className="mb-8 p-5 text-left space-y-3 card" style={{ background: 'var(--surface)', border: '1px solid var(--outline)', borderRadius: '1.25rem' }}>
+            <p className="text-xs font-bold uppercase tracking-widest mb-4" style={{ color: 'var(--text-muted)' }}>
               What to do
             </p>
             {tips.map(({ Icon, text }) => (
               <div key={text} className="flex items-start gap-3">
                 <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
-                  style={{ background: 'rgba(56,189,248,0.1)' }}>
-                  <Icon size={14} color={CYAN} />
+                  style={{ background: 'var(--surface-low)', border: '1px solid var(--outline)' }}>
+                  <Icon size={14} style={{ color: 'var(--primary)' }} />
                 </div>
-                <p className="text-sm leading-5 pt-1.5" style={{ color: 'rgba(255,255,255,0.6)' }}>{text}</p>
+                <p className="text-sm leading-5 pt-1.5" style={{ color: 'var(--text-secondary)' }}>{text}</p>
               </div>
             ))}
           </div>
@@ -222,14 +199,14 @@ function ErrorScreen({ error, onRetry }: { error: string; onRetry: () => void })
             <button
               onClick={onRetry}
               className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all hover:brightness-110"
-              style={{ background: 'rgba(255,255,255,0.08)', color: '#f1f5f9', border: '1px solid rgba(255,255,255,0.1)' }}
+              style={{ background: 'var(--surface-low)', color: 'var(--text-primary)', border: '1px solid var(--outline)' }}
             >
               <ArrowLeft size={14} /> Back to Search
             </button>
             <button
               onClick={() => window.location.reload()}
               className="flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm transition-all hover:brightness-110"
-              style={{ background: CYAN, color: DARK_BG }}
+              style={{ background: 'var(--primary)', color: '#FFFFFF' }}
             >
               <RefreshCw size={14} /> Try Again
             </button>
@@ -240,28 +217,28 @@ function ErrorScreen({ error, onRetry }: { error: string; onRetry: () => void })
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center px-4" style={{ background: DARK_BG }}>
+    <div className="min-h-screen flex flex-col items-center justify-center px-4" style={{ background: 'var(--background)' }}>
       <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5"
-        style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}>
-        <AlertTriangle size={28} color="#f87171" />
+        style={{ background: 'rgba(186, 26, 26, 0.1)', border: '1px solid rgba(186, 26, 26, 0.25)' }}>
+        <AlertTriangle size={28} style={{ color: 'var(--error)' }} />
       </div>
-      <h2 className="text-2xl font-semibold mb-3 text-center" style={{ fontFamily: 'Georgia, serif', color: '#f1f5f9' }}>
+      <h2 className="text-2xl font-semibold mb-3 text-center" style={{ fontFamily: 'Playfair Display, serif', color: 'var(--text-primary)' }}>
         Something went wrong
       </h2>
       <p className="text-sm mb-6 max-w-md text-center p-4 rounded-xl"
-        style={{ color: '#f87171', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}>
+        style={{ color: 'var(--error)', background: 'var(--surface)', border: '1px solid var(--error)' }}>
         {error}
       </p>
-      <p className="text-sm mb-6 text-center" style={{ color: 'rgba(255,255,255,0.45)' }}>
+      <p className="text-sm mb-6 text-center" style={{ color: 'var(--text-muted)' }}>
         Make sure the Tripzy backend is running on{' '}
-        <code className="px-1.5 py-0.5 rounded" style={{ background: 'rgba(255,255,255,0.08)', color: CYAN }}>
+        <code className="px-1.5 py-0.5 rounded" style={{ background: 'var(--surface-low)', color: 'var(--primary)', border: '1px solid var(--outline)' }}>
           http://localhost:5000
         </code>
       </p>
       <button
         onClick={onRetry}
         className="flex items-center gap-2 px-8 py-3 rounded-xl font-semibold text-sm transition-all hover:brightness-110"
-        style={{ background: CYAN, color: DARK_BG }}
+        style={{ background: 'var(--primary)', color: '#FFFFFF' }}
       >
         <RefreshCw size={14} /> Try Again
       </button>
