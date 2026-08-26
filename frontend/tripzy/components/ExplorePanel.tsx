@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Compass, Sparkles, MapPin, Calendar, DollarSign, ArrowRight, Zap, Flame, Globe, Umbrella, Landmark, Mountain, Utensils, Gem, Backpack } from 'lucide-react';
+import { Compass, Sparkles, MapPin, Calendar, DollarSign, ArrowRight, Zap, Flame, Globe, Umbrella, Landmark, Mountain, Utensils, Gem, Backpack, Waves, Wine, MountainSnow } from 'lucide-react';
 
 interface ExplorePanelProps {
   onSelectPrompt: (prompt: string) => void;
@@ -13,6 +13,7 @@ interface DestinationCardData {
   country: string;
   category: 'Tropical' | 'Culture' | 'Adventure' | 'Luxury' | 'Foodie';
   image: string;
+  icon: any;
   vibe: string;
   bestSeason: string;
   estCostPerDay: string;
@@ -28,7 +29,8 @@ const DESTINATIONS: DestinationCardData[] = [
     country: 'Japan',
     category: 'Culture',
     image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=800&q=80',
-    vibe: '⛩️ Historic & Serene',
+    icon: Landmark,
+    vibe: 'Historic & Serene',
     bestSeason: 'Spring & Autumn',
     estCostPerDay: '$180 - $250',
     highlights: ['Arashiyama Bamboo Grove', 'Fushimi Inari Shrine', 'Gion Kaiseki Dining'],
@@ -41,7 +43,8 @@ const DESTINATIONS: DestinationCardData[] = [
     country: 'Italy',
     category: 'Luxury',
     image: 'https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=800&q=80',
-    vibe: '🌊 Cliffside Luxury',
+    icon: Waves,
+    vibe: 'Cliffside Luxury',
     bestSeason: 'May - September',
     estCostPerDay: '$350 - $500',
     highlights: ['Positano Panoramic Views', 'Capri Boat Tour', 'Limoncello Tastings'],
@@ -54,7 +57,8 @@ const DESTINATIONS: DestinationCardData[] = [
     country: 'Iceland',
     category: 'Adventure',
     image: 'https://images.unsplash.com/photo-1504893524553-b855bce32c67?auto=format&fit=crop&w=800&q=80',
-    vibe: '🌋 Volcanic Wilderness',
+    icon: Mountain,
+    vibe: 'Volcanic Wilderness',
     bestSeason: 'September - March (Aurora)',
     estCostPerDay: '$220 - $320',
     highlights: ['Blue Lagoon Hot Springs', 'Golden Circle Geysers', 'Northern Lights Hunt'],
@@ -67,7 +71,8 @@ const DESTINATIONS: DestinationCardData[] = [
     country: 'Bali, Indonesia',
     category: 'Tropical',
     image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=800&q=80',
-    vibe: '🌴 Wellness & Beach',
+    icon: Umbrella,
+    vibe: 'Wellness & Beach',
     bestSeason: 'April - October',
     estCostPerDay: '$80 - $150',
     highlights: ['Tegallalang Rice Terraces', 'Beach Club Sunsets', 'Yoga & Spa Retreats'],
@@ -80,7 +85,8 @@ const DESTINATIONS: DestinationCardData[] = [
     country: 'Malaysia',
     category: 'Foodie',
     image: 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=800&q=80',
-    vibe: '🍜 Street Food Capital',
+    icon: Utensils,
+    vibe: 'Street Food Capital',
     bestSeason: 'November - February',
     estCostPerDay: '$60 - $110',
     highlights: ['Gurney Drive Hawker Centre', 'George Town Street Art', 'Kek Lok Si Temple'],
@@ -93,7 +99,8 @@ const DESTINATIONS: DestinationCardData[] = [
     country: 'Switzerland',
     category: 'Adventure',
     image: 'https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&w=800&q=80',
-    vibe: '🏔️ Alpine Elegance',
+    icon: MountainSnow,
+    vibe: 'Alpine Elegance',
     bestSeason: 'December - April (Skiing)',
     estCostPerDay: '$380 - $600',
     highlights: ['Gornergrat Alpine Railway', 'Matterhorn Skiing', 'Fondue Dining in Chalets'],
@@ -104,22 +111,26 @@ const DESTINATIONS: DestinationCardData[] = [
 
 const PROMPT_IDEAS = [
   {
-    title: '🎒 7-Day Japan Golden Route',
+    icon: Backpack,
+    title: '7-Day Japan Golden Route',
     prompt: 'Plan a 7-day fast-paced trip covering Tokyo, Kyoto, and Osaka with bullet train connections and top sights for 2 travelers.',
     tag: 'Popular',
   },
   {
-    title: '🍷 4-Day Tuscan Wine & Chill',
+    icon: Wine,
+    title: '4-Day Tuscan Wine & Chill',
     prompt: 'Plan a 4-day relaxing getaway in Tuscany, Italy with villa stays, vineyard wine tours, and cooking classes for couples.',
     tag: 'Romantic',
   },
   {
-    title: '🏝️ 5-Day Maldives Water Villa Escape',
+    icon: Umbrella,
+    title: '5-Day Maldives Water Villa Escape',
     prompt: 'Plan a 5-day all-inclusive luxury honeymoon trip to a Maldives overwater resort with snorkeling and private beach dining.',
     tag: 'Luxury',
   },
   {
-    title: '🌶️ 6-Day Thailand Island & Street Food Trail',
+    icon: Flame,
+    title: '6-Day Thailand Island & Street Food Trail',
     prompt: 'Plan a 6-day itinerary for Bangkok and Phuket featuring street food tours, night markets, and island hopping for 2 friends on a budget.',
     tag: 'Budget Foodie',
   },
@@ -354,7 +365,8 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
                 >
                   {idea.tag}
                 </span>
-                <h3 className="font-semibold text-sm mb-2" style={{ color: 'var(--text-primary)' }}>
+                <h3 className="font-semibold text-sm mb-2 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+                  <idea.icon size={15} />
                   {idea.title}
                 </h3>
                 <p className="text-xs line-clamp-3 leading-relaxed" style={{ color: 'var(--text-muted)' }}>
@@ -431,7 +443,7 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
                 {/* Vibe badge */}
                 <div className="absolute top-3 left-3">
                   <span
-                    className="px-3 py-1 rounded-full text-xs font-bold"
+                    className="px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5"
                     style={{
                       background: 'rgba(15,15,15,0.72)',
                       color: '#ffffff',
@@ -439,6 +451,7 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
                       border: '1px solid rgba(255,255,255,0.15)',
                     }}
                   >
+                    <dest.icon size={13} />
                     {dest.vibe}
                   </span>
                 </div>
@@ -518,7 +531,7 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
                     height: '44px',
                     borderRadius: 'var(--radius-md)',
                     background: 'transparent',
-                    border: '1px solid var(--border-subtle)',
+                    border: '1px solid var(--outline)',
                     color: 'var(--text-primary)',
                   }}
                 >
