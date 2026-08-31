@@ -15,6 +15,10 @@
   --primary-light:     #38485a;
   --primary-dim:       #b7c8de;
 
+  --color-primary:       #FF385C;   /* Coral Accent */
+  --color-primary-light: rgba(255, 56, 92, 0.10);
+  --color-primary-mid:   rgba(255, 56, 92, 0.18);
+
   --gold:              #e9c349;   /* Sunrise Gold */
   --gold-bright:       #fed65b;
   --gold-dark:         #735c00;
@@ -57,6 +61,10 @@
   --primary-container: #1e3248;
   --primary-light:     #8192a7;
   --primary-dim:       #041627;
+
+  --color-primary:       #FF6B81;   /* Lighter coral for dark bg */
+  --color-primary-light: rgba(255, 107, 129, 0.12);
+  --color-primary-mid:   rgba(255, 107, 129, 0.22);
 
   --gold:              #e9c349;
   --gold-bright:       #fed65b;

@@ -173,9 +173,9 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
           <div
             className="inline-flex items-center gap-2 px-3 py-1 mb-3 label-caps"
             style={{
-              background: 'var(--surface-mid)',
-              color: 'var(--text-secondary)',
-              border: '1px solid var(--outline)',
+              background: 'var(--color-primary-light)',
+              color: 'var(--color-primary)',
+              border: '1px solid var(--color-primary-mid)',
               borderRadius: 'var(--radius-full)',
             }}
           >
@@ -200,7 +200,7 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
         <div className="flex-shrink-0 flex items-center gap-3">
           <div
             className="w-12 h-12 flex items-center justify-center rounded-full"
-            style={{ background: 'rgba(255, 56, 92, 0.1)', color: 'var(--primary)' }}
+            style={{ background: 'var(--color-primary-light)', color: 'var(--color-primary)' }}
           >
             <Sparkles size={24} />
           </div>
@@ -213,7 +213,7 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
         style={{ borderRadius: 'var(--radius-xl)' }}
       >
         <div className="flex items-center gap-2 mb-4">
-          <Zap size={18} style={{ color: 'var(--primary)' }} />
+          <Zap size={18} style={{ color: 'var(--color-primary)' }} />
           <h2
             className="text-lg font-bold"
             style={{ color: 'var(--text-primary)' }}
@@ -246,12 +246,13 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
                   onClick={(e) => { e.preventDefault(); setMood(v.label); }}
                   className="py-2.5 px-3 rounded-lg text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2"
                   style={{
-                    backgroundColor: mood === v.label ? 'var(--surface)' : 'transparent',
-                    color: mood === v.label ? 'var(--text-primary)' : 'var(--text-muted)',
-                    boxShadow: mood === v.label ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
+                    backgroundColor: mood === v.label ? 'var(--color-primary-light)' : 'transparent',
+                    color: mood === v.label ? 'var(--color-primary)' : 'var(--text-muted)',
+                    boxShadow: mood === v.label ? '0 2px 12px rgba(255,56,92,0.12)' : 'none',
+                    border: mood === v.label ? '1px solid var(--color-primary-mid)' : '1px solid transparent',
                   }}
                 >
-                  <v.icon size={16} className={mood === v.label ? 'text-[var(--primary)]' : ''} />
+                  <v.icon size={16} style={mood === v.label ? { color: 'var(--color-primary)' } : {}} />
                   <span className="truncate">{v.label}</span>
                 </button>
               ))}
@@ -277,9 +278,10 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
                     onClick={(e) => { e.preventDefault(); setDurationDays(d.val); }}
                     className="flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-200"
                     style={{
-                      backgroundColor: durationDays === d.val ? 'var(--surface)' : 'transparent',
-                      color: durationDays === d.val ? 'var(--text-primary)' : 'var(--text-muted)',
-                      boxShadow: durationDays === d.val ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
+                      backgroundColor: durationDays === d.val ? 'var(--color-primary-light)' : 'transparent',
+                      color: durationDays === d.val ? 'var(--color-primary)' : 'var(--text-muted)',
+                      boxShadow: durationDays === d.val ? '0 2px 12px rgba(255,56,92,0.12)' : 'none',
+                      border: durationDays === d.val ? '1px solid var(--color-primary-mid)' : '1px solid transparent',
                     }}
                   >
                     {d.label}
@@ -305,9 +307,10 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
                     onClick={(e) => { e.preventDefault(); setBudgetTier(b.val); }}
                     className="flex-1 py-2 rounded-lg text-sm font-semibold transition-all duration-200"
                     style={{
-                      backgroundColor: budgetTier === b.val ? 'var(--surface)' : 'transparent',
-                      color: budgetTier === b.val ? 'var(--text-primary)' : 'var(--text-muted)',
-                      boxShadow: budgetTier === b.val ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
+                      backgroundColor: budgetTier === b.val ? 'var(--color-primary-light)' : 'transparent',
+                      color: budgetTier === b.val ? 'var(--color-primary)' : 'var(--text-muted)',
+                      boxShadow: budgetTier === b.val ? '0 2px 12px rgba(255,56,92,0.12)' : 'none',
+                      border: budgetTier === b.val ? '1px solid var(--color-primary-mid)' : '1px solid transparent',
                     }}
                   >
                     {b.label}
@@ -322,7 +325,7 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
           onClick={handleConciergeGenerate}
           className="w-full font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-200 hover:brightness-110 active:scale-95"
           style={{
-            background: 'var(--primary)',
+            background: 'var(--color-primary)',
             color: '#FFFFFF',
             borderRadius: 'var(--radius-md)',
             height: '48px'
@@ -336,7 +339,7 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
       {/* ── Trending Prompt Ideas ─────────────────────── */}
       <div className="max-w-6xl mx-auto mb-12">
         <div className="flex items-center gap-2 mb-4">
-          <Flame size={18} style={{ color: 'var(--primary)' }} />
+          <Flame size={18} style={{ color: 'var(--color-primary)' }} />
           <h2
             className="text-xl font-bold"
             style={{ color: 'var(--text-primary)' }}
@@ -357,9 +360,9 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
                 <span
                   className="inline-block px-2.5 py-0.5 rounded-full label-caps mb-3"
                   style={{
-                    background: 'rgba(4,22,39,0.07)',
-                    color: 'var(--primary)',
-                    border: '1px solid var(--outline)',
+                    background: 'var(--color-primary-light)',
+                    color: 'var(--color-primary)',
+                    border: '1px solid var(--color-primary-mid)',
                     fontSize: '10px',
                   }}
                 >
@@ -376,7 +379,7 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
 
               <div
                 className="mt-4 pt-3 flex items-center justify-between text-xs font-bold"
-                style={{ borderTop: '1px solid var(--outline)', color: 'var(--primary)' }}
+                style={{ borderTop: '1px solid var(--outline)', color: 'var(--color-primary)' }}
               >
                 <span>Build with AI</span>
                 <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
@@ -390,7 +393,7 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
       <div className="max-w-6xl mx-auto mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-2">
-            <Globe size={18} style={{ color: 'var(--primary)' }} />
+            <Globe size={18} style={{ color: 'var(--color-primary)' }} />
             <h2
               className="text-xl font-bold"
               style={{ color: 'var(--text-primary)' }}
@@ -407,9 +410,9 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
                 onClick={() => setSelectedVibe(vibe)}
                 className="px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200"
                 style={{
-                  background: selectedVibe === vibe ? 'var(--primary)' : 'transparent',
+                  background: selectedVibe === vibe ? 'var(--color-primary)' : 'transparent',
                   color: selectedVibe === vibe ? '#FFFFFF' : 'var(--text-muted)',
-                  border: `1px solid ${selectedVibe === vibe ? 'var(--primary)' : 'var(--outline)'}`,
+                  border: `1px solid ${selectedVibe === vibe ? 'var(--color-primary)' : 'var(--outline)'}`,
                 }}
               >
                 {vibe}
@@ -517,7 +520,7 @@ export default function ExplorePanel({ onSelectPrompt }: ExplorePanelProps) {
                         className="text-xs flex items-center gap-1.5"
                         style={{ color: 'var(--text-primary)' }}
                       >
-                        <MapPin size={11} style={{ color: 'var(--primary)' }} /> {h}
+                        <MapPin size={11} style={{ color: 'var(--color-primary)' }} /> {h}
                       </p>
                     ))}
                   </div>

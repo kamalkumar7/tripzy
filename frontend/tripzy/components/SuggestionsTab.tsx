@@ -275,9 +275,9 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
         <div className="flex items-center gap-2">
           <div
             className="w-8 h-8 rounded-xl flex items-center justify-center"
-            style={{ background: 'var(--surface-mid)', border: '1px solid var(--outline)' }}
+            style={{ background: 'var(--color-primary-light)', border: '1px solid var(--color-primary-mid)' }}
           >
-            <Sparkles size={16} className="text-[var(--text-primary)]" />
+            <Sparkles size={16} style={{ color: 'var(--color-primary)' }} />
           </div>
           <div>
             <h2 className="text-xl font-bold leading-tight" style={{ color: 'var(--text-primary)' }}>
@@ -305,9 +305,9 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
                 onClick={() => setActiveFilter(id as typeof activeFilter)}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all duration-200"
                 style={{
-                  background: active ? 'var(--text-primary)' : 'transparent',
-                  color: active ? 'var(--surface)' : 'var(--text-muted)',
-                  boxShadow: active ? '0 2px 8px rgba(0, 0, 0, 0.15)' : 'none',
+                  background: active ? 'var(--color-primary)' : 'transparent',
+                  color: active ? '#FFFFFF' : 'var(--text-muted)',
+                  boxShadow: active ? '0 2px 12px rgba(255, 56, 92, 0.25)' : 'none',
                 }}
               >
                 <Icon size={12} />
@@ -326,8 +326,8 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
             className="w-full flex items-center justify-between p-4 transition-colors hover:bg-[var(--surface-high)]"
           >
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--surface-mid)] border border-[var(--outline)]">
-                <Shirt size={16} className="text-[var(--text-primary)]" />
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'var(--color-primary-light)', border: '1px solid var(--color-primary-mid)' }}>
+                <Shirt size={16} style={{ color: 'var(--color-primary)' }} />
               </div>
               <h3 className="text-base sm:text-lg font-bold text-left" style={{ color: 'var(--text-primary)' }}>
                 Seasonal Clothing & Packing Guide
@@ -374,15 +374,15 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
                     onClick={() => setSelectedSeasonIdx(idx)}
                     className="p-3 rounded-2xl text-left transition-all duration-200 flex flex-col justify-between"
                     style={{
-                      background: isSelected ? 'var(--surface-high)' : 'var(--surface)',
-                      border: isSelected ? '1.5px solid var(--text-primary)' : '1px solid var(--outline)',
-                      boxShadow: isSelected ? '0 4px 16px rgba(0,0,0,0.1)' : 'none',
+                      background: isSelected ? 'var(--color-primary-light)' : 'var(--surface)',
+                      border: isSelected ? '1.5px solid var(--color-primary)' : '1px solid var(--outline)',
+                      boxShadow: isSelected ? '0 4px 16px rgba(255,56,92,0.12)' : 'none',
                     }}
                   >
                     <div className="flex items-center justify-between mb-2">
                       <IconComponent
                         size={16}
-                        style={{ color: isSelected ? 'var(--text-primary)' : 'var(--text-muted)' }}
+                        style={{ color: isSelected ? 'var(--color-primary)' : 'var(--text-muted)' }}
                       />
                       {isSelected && (
                         <span className="w-2 h-2 rounded-full bg-[var(--color-primary)] animate-pulse" />
@@ -390,7 +390,7 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
                     </div>
                     <p
                       className="text-xs font-bold truncate"
-                      style={{ color: isSelected ? 'var(--text-primary)' : 'var(--text-muted)' }}
+                      style={{ color: isSelected ? 'var(--color-primary)' : 'var(--text-muted)' }}
                     >
                       {s.season_name.split('(')[0].trim()}
                     </p>
@@ -448,8 +448,8 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
                         className="flex items-start gap-2.5 p-2.5 rounded-xl transition-all"
                         style={{ background: 'var(--surface-mid)', border: '1px solid var(--outline)' }}
                       >
-                        <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: 'var(--surface-low)' }}>
-                          <CheckCircle2 size={12} className="text-[var(--text-primary)]" />
+                        <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5" style={{ background: 'var(--color-primary-light)' }}>
+                          <CheckCircle2 size={12} style={{ color: 'var(--color-primary)' }} />
                         </div>
                         <span className="text-xs leading-relaxed" style={{ color: 'var(--text-primary)' }}>
                           {item}
@@ -541,7 +541,7 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
                     className="p-2.5 rounded-xl text-xs flex items-start gap-2 bg-[var(--surface-mid)] border border-[var(--outline)]"
                     style={{ color: 'var(--text-secondary)' }}
                   >
-                    <span className="text-[var(--text-primary)] font-bold">•</span>
+                    <span style={{ color: 'var(--color-primary)' }} className="font-bold">•</span>
                     <span>{tip}</span>
                   </div>
                 ))}
@@ -561,8 +561,8 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
             className="w-full flex items-center justify-between p-4 transition-colors hover:bg-[var(--surface-high)]"
           >
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--surface-mid)] border border-[var(--outline)]">
-                <ShieldAlert size={16} className="text-[var(--text-primary)]" />
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'var(--color-primary-light)', border: '1px solid var(--color-primary-mid)' }}>
+                <ShieldAlert size={16} style={{ color: 'var(--color-primary)' }} />
               </div>
               <h3 className="text-base sm:text-lg font-bold text-left" style={{ color: 'var(--text-primary)' }}>
                 Beware of Scams & Safety Watch
@@ -580,41 +580,32 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
           </button>
 
           {openSections['scams'] && (
-            <div className="p-4 pt-0 space-y-4 border-t border-[var(--outline)] mt-2">
-              {/* Emergency Helpline Banner */}
+            <div className="p-4 space-y-4 border-t border-[var(--outline)] mt-2">
+              {/* Emergency Helpline Strip */}
           {data.emergency_contacts && (
             <div
-              className="p-4 rounded-2xl grid grid-cols-1 sm:grid-cols-3 gap-3 items-center"
+              className="flex flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3 rounded-xl"
               style={{
-                background: 'var(--color-primary)',
+                background: 'var(--color-primary-light)',
+                border: '1px solid var(--color-primary-mid)',
               }}
             >
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-[rgba(255,255,255,0.1)] text-[#ffffff]">
-                  <PhoneCall size={16} />
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase font-bold text-[rgba(255,255,255,0.7)]">Police & Emergency</p>
-                  <p className="text-sm font-bold text-[#ffffff]">{data.emergency_contacts.police || '112 / 999'}</p>
-                </div>
+              <div className="flex items-center gap-2">
+                <PhoneCall size={13} style={{ color: 'var(--color-primary)' }} />
+                <span className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>Police</span>
+                <span className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{data.emergency_contacts.police || '112'}</span>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-[rgba(255,255,255,0.1)] text-[#ffffff]">
-                  <ShieldCheck size={16} />
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase font-bold text-[rgba(255,255,255,0.7)]">Ambulance / Medical</p>
-                  <p className="text-sm font-bold text-[#ffffff]">{data.emergency_contacts.ambulance || '112 / 999'}</p>
-                </div>
+              <div className="w-px h-4" style={{ background: 'var(--color-primary-mid)' }} />
+              <div className="flex items-center gap-2">
+                <ShieldCheck size={13} style={{ color: 'var(--color-primary)' }} />
+                <span className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>Ambulance</span>
+                <span className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{data.emergency_contacts.ambulance || '112'}</span>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-[rgba(255,255,255,0.1)] text-[#ffffff]">
-                  <Lock size={16} />
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase font-bold text-[rgba(255,255,255,0.7)]">Tourist Assistance</p>
-                  <p className="text-xs font-semibold text-[rgba(255,255,255,0.9)] truncate">{data.emergency_contacts.tourist_helpline || 'Major Visitor Centers'}</p>
-                </div>
+              <div className="w-px h-4 hidden sm:block" style={{ background: 'var(--color-primary-mid)' }} />
+              <div className="flex items-center gap-2">
+                <Lock size={13} style={{ color: 'var(--color-primary)' }} />
+                <span className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>Tourist Help</span>
+                <span className="text-xs font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{data.emergency_contacts.tourist_helpline || 'Visitor Centers'}</span>
               </div>
             </div>
           )}
@@ -661,9 +652,9 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
                       className="p-2.5 rounded-xl flex items-start gap-2"
                       style={{ background: 'var(--surface-low)', border: '1px solid var(--outline)' }}
                     >
-                      <ShieldCheck size={14} className="text-[var(--text-primary)] mt-0.5 flex-shrink-0" />
+                      <ShieldCheck size={14} style={{ color: 'var(--color-primary)' }} className="mt-0.5 flex-shrink-0" />
                       <div>
-                        <p className="text-[10px] font-bold text-[var(--text-primary)] uppercase tracking-wide">How to Prevent</p>
+                        <p className="text-[10px] font-bold uppercase tracking-wide" style={{ color: 'var(--color-primary)' }}>How to Prevent</p>
                         <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                           {scam.prevention}
                         </p>
@@ -676,9 +667,9 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
                         className="p-2 rounded-xl flex items-start gap-2"
                         style={{ background: 'var(--surface-low)', border: '1px solid var(--outline)' }}
                       >
-                        <AlertTriangle size={12} className="text-[var(--text-primary)] mt-0.5 flex-shrink-0" />
+                        <AlertTriangle size={12} style={{ color: 'var(--color-primary)' }} className="mt-0.5 flex-shrink-0" />
                         <p className="text-[11px]" style={{ color: 'var(--text-muted)' }}>
-                          <strong className="text-[var(--text-primary)]">Red Flag:</strong> {scam.warning_signs}
+                          <strong style={{ color: 'var(--color-primary)' }}>Red Flag:</strong> {scam.warning_signs}
                         </p>
                       </div>
                     )}
@@ -700,8 +691,8 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
             className="w-full flex items-center justify-between p-4 transition-colors hover:bg-[var(--surface-high)]"
           >
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--surface-mid)] border border-[var(--outline)]">
-                <Sparkles size={16} className="text-[var(--text-primary)]" />
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'var(--color-primary-light)', border: '1px solid var(--color-primary-mid)' }}>
+                <Sparkles size={16} style={{ color: 'var(--color-primary)' }} />
               </div>
               <h3 className="text-base sm:text-lg font-bold text-left" style={{ color: 'var(--text-primary)' }}>
                 Must-Do Activities & Hidden Gems
@@ -736,9 +727,9 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
                     <span
                       className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full"
                       style={{
-                        background: 'var(--surface-low)',
-                        color: 'var(--text-primary)',
-                        border: '1px solid var(--outline)',
+                        background: 'var(--color-primary-light)',
+                        color: 'var(--color-primary)',
+                        border: '1px solid var(--color-primary-mid)',
                       }}
                     >
                       {activity.category || 'Experience'}
@@ -773,9 +764,9 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
                       className="p-2.5 rounded-xl flex items-start gap-2"
                       style={{ background: 'var(--surface-low)', border: '1px solid var(--outline)' }}
                     >
-                      <Sparkle size={13} className="text-[var(--text-primary)] mt-0.5 flex-shrink-0" />
+                      <Sparkle size={13} style={{ color: 'var(--color-primary)' }} className="mt-0.5 flex-shrink-0" />
                       <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                        <strong className="text-[var(--text-primary)] font-semibold">Insider Tip: </strong>
+                        <strong style={{ color: 'var(--color-primary)', fontWeight: 600 }}>Insider Tip: </strong>
                         {activity.insider_tip}
                       </p>
                     </div>
@@ -797,8 +788,8 @@ export default function SuggestionsTab({ suggestions, travelDetails }: Suggestio
             className="w-full flex items-center justify-between p-4 transition-colors hover:bg-[var(--surface-high)]"
           >
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-[var(--surface-mid)] border border-[var(--outline)]">
-                <Lightbulb size={16} className="text-[var(--text-primary)]" />
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'var(--color-primary-light)', border: '1px solid var(--color-primary-mid)' }}>
+                <Lightbulb size={16} style={{ color: 'var(--color-primary)' }} />
               </div>
               <h3 className="text-base sm:text-lg font-bold text-left" style={{ color: 'var(--text-primary)' }}>
                 Local Hacks & Cultural Etiquette
